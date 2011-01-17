@@ -10,7 +10,9 @@ class ParserTestCase < Test::Unit::TestCase
 
   def test_parser
     Dir[EXAMPLES_PATH].each do |file|
-      assert @parser.parse(File.read(file))
+      assert_nothing_raised("in file #{file}") do
+        @parser.parse(File.read(file))
+      end
     end
   end
 
