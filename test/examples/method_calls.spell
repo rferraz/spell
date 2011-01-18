@@ -1,0 +1,15 @@
+main () = other
+
+main () = other param1 param2
+
+main () = other#other param1#param1 param2#param2
+
+main () = other 1 + 2
+
+main () = (1 + other) * (other - 2)
+
+main () = (1 + other param1) * (other param2 - 2)
+
+main () = (1 + other param1 (3 - param2)) * (other param2 - 2)
+
+

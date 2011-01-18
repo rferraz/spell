@@ -20,9 +20,11 @@ class Parser < Parslet::Parser
 
   rule(:expression) { binary | primary | pass }
 
+  rule(:call) { identifier >> (spaces >> binary).repeat }
+
   rule(:binary) { (primary >> spaces? >> selector >> spaces? >> binary) | primary }
 
-  rule(:primary) { (str("(") >> expression >> str(")")) | variable | literal }
+  rule(:primary) { (str("(") >> expression >> str(")")) | call | variable | literal }
 
   rule(:variable) { identifier }
 
