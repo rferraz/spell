@@ -22,7 +22,7 @@ class Parser < Parslet::Parser
 
   rule(:binary) { (primary >> spaces? >> selector >> spaces? >> binary) | primary }
 
-  rule(:primary) { variable | literal }
+  rule(:primary) { (str("(") >> expression >> str(")")) | variable | literal }
 
   rule(:variable) { identifier }
 
