@@ -18,7 +18,9 @@ class Parser < Parslet::Parser
 
   rule(:body) { expression }
 
-  rule(:expression) { primary | pass }
+  rule(:expression) { binary | primary | pass }
+
+  rule(:binary) { (primary >> spaces? >> selector >> spaces? >> binary) | primary }
 
   rule(:primary) { variable | literal }
 
@@ -39,6 +41,8 @@ class Parser < Parslet::Parser
   rule(:identifier_separator) { str("#") }
 
   rule(:identifier_part) { letter >> alpha.repeat }
+
+  rule(:selector) { match["+*-/\\\\~:<>=@%&?!,^"].repeat(1) }
 
   rule(:alpha) { letter | digit }
 
