@@ -22,7 +22,11 @@ class Parser < Parslet::Parser
 
   rule(:do_expression) {
     line_breaks >> str("do") >> line_breaks >>
-    (expression >> line_breaks).repeat(1)
+    (expression >> line_breaks).repeat(1) >>
+    (
+     str("with") >> line_breaks >>
+     (expression >> line_breaks).repeat(1)
+    ).maybe
   }
 
   rule(:expression) { binary | primary | pass }
@@ -45,7 +49,7 @@ class Parser < Parslet::Parser
 
   rule(:string) { (quote >> (quote.absnt? >> any).repeat >> quote).repeat(1) }
 
-  rule(:identifier) { identifier_part >> (identifier_separator >> identifier_part).repeat }
+  rule(:identifier) { (str("with") | str("do")).absnt? >> identifier_part >> (identifier_separator >> identifier_part).repeat }
 
   rule(:identifier_separator) { str("#") }
 
