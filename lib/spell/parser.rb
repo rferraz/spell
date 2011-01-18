@@ -4,11 +4,13 @@ class Parser < Parslet::Parser
 
   rule(:statements) {
     extra_spaces >>
-    (statement >> ((spaces? >> breaks >> spaces?).repeat(1) >> statement).repeat) >>
+    (statement >> (line_breaks.maybe >> statement).repeat) >>
     extra_spaces
   }
 
-  rule(:statement) { name >> arguments >> define >> body }
+  rule(:statement) { definition >> body }
+
+  rule(:definition) { name >> arguments >> define }
 
   rule(:name) { identifier }
 
@@ -16,7 +18,12 @@ class Parser < Parslet::Parser
 
   rule(:define) { spaces? >> str("=") >> spaces? }
 
-  rule(:body) { expression }
+  rule(:body) { do_expression | expression }
+
+  rule(:do_expression) {
+    line_breaks >> str("do") >> line_breaks >>
+    (expression >> line_breaks).repeat(1)
+  }
 
   rule(:expression) { binary | primary | pass }
 
@@ -67,6 +74,8 @@ class Parser < Parslet::Parser
   rule(:spaces) { match[" \t"].repeat(1) }
 
   rule(:extra_spaces) { match["\\r\\n\\s"].repeat }
+
+  rule(:line_breaks) { (spaces? >> breaks >> spaces?).repeat(1) }
 
   rule(:pass) { str("pass") }
 
