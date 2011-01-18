@@ -16,7 +16,23 @@ class Parser < Parslet::Parser
 
   rule(:define) { spaces? >> str("=") >> spaces? }
 
-  rule(:body) { str("pass") }
+  rule(:body) { expression }
+
+  rule(:expression) { primary | pass }
+
+  rule(:primary) { variable | literal }
+
+  rule(:variable) { identifier }
+
+  rule(:literal) { number | string }
+
+  rule(:number) { decimal | integer }
+
+  rule(:decimal) { sign.maybe >> digits >> period >> digits }
+
+  rule(:integer) { sign.maybe >> digits }
+
+  rule(:string) { (quote >> (quote.absnt? >> any).repeat >> quote).repeat(1) }
 
   rule(:identifier) { identifier_part >> (identifier_separator >> identifier_part).repeat }
 
@@ -28,6 +44,14 @@ class Parser < Parslet::Parser
 
   rule(:letter) { match["a-zA-Z"] }
 
+  rule(:sign) { str("-") }
+
+  rule(:period) { str(".") }
+
+  rule(:quote) { str("\"") }
+
+  rule(:digits) { digit.repeat(1) }
+
   rule(:digit) { match["0-9"] }
 
   rule(:breaks?) { breaks.maybe }
@@ -37,5 +61,7 @@ class Parser < Parslet::Parser
   rule(:spaces) { match[" \t"].repeat(1) }
 
   rule(:extra_spaces) { match["\\r\\n\\s"].repeat }
+
+  rule(:pass) { str("pass") }
 
 end
