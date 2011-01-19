@@ -19,9 +19,23 @@ class Parser < Parslet::Parser
   rule(:define) { spaces? >> str("=") >> spaces? }
 
   rule(:body) {
+    (guard_expression >> (line_breaks >> with).maybe) |
     (do_expression >> with.maybe) |
     (expression >> (line_breaks >> with).maybe)
   }
+
+  rule(:guard_expression) {
+    (line_breaks >> guard).repeat(1)
+  }
+
+  rule(:guard) {
+    str("?") >> spaces >>
+    (default | expression) >> spaces >>
+    str("=>") >> spaces >>
+    expression
+  }
+
+  rule(:default) { str("_") }
 
   rule(:do_expression) {
     line_breaks >> str("do") >> line_breaks >>
@@ -59,7 +73,10 @@ class Parser < Parslet::Parser
 
   rule(:identifier_part) { letter >> alpha.repeat }
 
-  rule(:selector) { match["+*-/\\\\~:<>=@%&?!,^"].repeat(1) }
+  rule(:selector) {
+    str("=>").absnt? >>
+    match["+*-/\\\\~:<>=@%&?!,^"].repeat(1)
+  }
 
   rule(:alpha) { letter | digit }
 
