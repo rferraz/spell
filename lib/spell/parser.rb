@@ -4,7 +4,7 @@ class Parser < Parslet::Parser
 
   rule(:statements) {
     extra_spaces >>
-    (statement >> (line_breaks >> line_breaks >> statement).repeat) >>
+    (statement >> (line_breaks.repeat(2) >> statement).repeat) >>
     extra_spaces
   }
 
