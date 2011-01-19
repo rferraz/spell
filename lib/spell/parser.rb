@@ -18,18 +18,22 @@ class Parser < Parslet::Parser
 
   rule(:define) { spaces? >> str("=") >> spaces? }
 
-  rule(:body) { do_expression | expression }
+  rule(:body) {
+    (do_expression >> with.maybe) |
+    (expression >> (line_breaks >> with).maybe)
+  }
 
   rule(:do_expression) {
     line_breaks >> str("do") >> line_breaks >>
-    (expression >> line_breaks).repeat(1) >>
-    (
-     str("with") >> line_breaks >>
-     (expression >> line_breaks).repeat(1)
-    ).maybe
+    (expression >> line_breaks).repeat(1)
   }
 
   rule(:expression) { binary | primary | pass }
+
+  rule(:with) {
+    str("with") >> line_breaks >>
+    (expression >> line_breaks).repeat(1)
+  }
 
   rule(:call) { identifier >> (spaces >> binary).repeat }
 

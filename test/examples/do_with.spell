@@ -10,8 +10,7 @@ main () =
   with
     a
 
-main () = 
-  do
-   x
+main () = x y
   with
    a
+   b
