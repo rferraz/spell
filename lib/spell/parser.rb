@@ -44,14 +44,39 @@ class Parser < Parslet::Parser
 
   rule(:do_expression) {
     line_breaks >> str("do") >>
-    (line_breaks >> expression).repeat(1)
+    (block_do | simple_do)
+  }
+
+  rule(:simple_do) { (line_breaks >> expression).repeat(1) }
+
+  rule(:block_do) {
+    extra_spaces? >>
+    str("{") >>
+    extra_spaces? >>
+    expression >> (line_breaks >> expression).repeat >>
+    extra_spaces? >>
+    str("}") >>
+    spaces?
   }
 
   rule(:expression) { binary | primary | pass }
 
   rule(:with) {
     str("with") >>
-    (line_breaks >> (statement | expression)).repeat(1)
+    (block_with | simple_with)
+  }
+
+  rule(:simple_with) { (line_breaks >> (statement | expression)).repeat(1) }
+
+  rule(:block_with) {
+    extra_spaces? >>
+    str("{") >>
+    extra_spaces? >>
+    (statement | expression) >>
+    (line_breaks >> (statement | expression)).repeat >>
+    extra_spaces? >>
+    str("}") >>
+    spaces?
   }
 
   rule(:call) { identifier >> (spaces >> binary).repeat }
@@ -110,6 +135,7 @@ class Parser < Parslet::Parser
     (str("#") >> (breaks.absnt? >> any).repeat >> breaks.prsnt?).maybe
   }
 
+  rule(:extra_spaces?) { extra_spaces.maybe }
   rule(:extra_spaces) { match["\\r\\n\\s"].repeat }
 
   rule(:line_breaks) { spaces? >> breaks >> spaces? }

@@ -22,12 +22,33 @@ main () = y
     v = c
     v () = c
     x () =
-      do
-       x
-      with
-       y
-       z () =
-        do
-          a
-        with
-          b
+      do { x }
+      with { y }
+    z () =
+      do { a }
+      with { b }
+
+main () = 
+  do { x 
+       y }
+
+main () = 
+  do { x 
+       y } 
+  with { x
+         y }
+
+main () = 
+  do 
+   x
+   y
+  with { x
+         y }
+
+main () = 
+  do { x
+       y }
+  with
+   x
+   y
+
