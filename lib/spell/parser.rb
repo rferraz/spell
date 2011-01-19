@@ -100,10 +100,15 @@ class Parser < Parslet::Parser
   rule(:digit) { match["0-9"] }
 
   rule(:breaks?) { breaks.maybe }
+
   rule(:breaks) { match["\\r\\n"] }
 
   rule(:spaces?) { spaces.maybe }
-  rule(:spaces) { match[" \t"].repeat(1) }
+
+  rule(:spaces) {
+    match[" \t"].repeat >>
+    (str("#") >> (breaks.absnt? >> any).repeat >> breaks.prsnt?).maybe
+  }
 
   rule(:extra_spaces) { match["\\r\\n\\s"].repeat }
 
