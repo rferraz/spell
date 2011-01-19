@@ -4,7 +4,7 @@ class Parser < Parslet::Parser
 
   rule(:statements) {
     extra_spaces >>
-    (statement >> (line_breaks.maybe >> statement).repeat) >>
+    (statement >> (line_breaks >> line_breaks >> statement).repeat) >>
     extra_spaces
   }
 
@@ -25,12 +25,11 @@ class Parser < Parslet::Parser
   rule(:define) { spaces? >> str("=") >> spaces? }
 
   rule(:body) {
-    (guard_expression >> (line_breaks >> with).maybe) |
-    (do_expression >> with.maybe) |
-    (expression >> (line_breaks >> with).maybe)
+    (guard_expressions | do_expression | expression) >>
+    (line_breaks >> with).maybe
   }
 
-  rule(:guard_expression) {
+  rule(:guard_expressions) {
     (line_breaks >> guard).repeat(1)
   }
 
@@ -44,15 +43,15 @@ class Parser < Parslet::Parser
   rule(:default) { str("_") }
 
   rule(:do_expression) {
-    line_breaks >> str("do") >> line_breaks >>
-    (expression >> line_breaks).repeat(1)
+    line_breaks >> str("do") >>
+    (line_breaks >> expression).repeat(1)
   }
 
   rule(:expression) { binary | primary | pass }
 
   rule(:with) {
-    str("with") >> line_breaks >>
-    (expression >> line_breaks).repeat(1)
+    str("with") >>
+    (line_breaks >> (statement | expression)).repeat(1)
   }
 
   rule(:call) { identifier >> (spaces >> binary).repeat }
@@ -101,14 +100,14 @@ class Parser < Parslet::Parser
   rule(:digit) { match["0-9"] }
 
   rule(:breaks?) { breaks.maybe }
-  rule(:breaks) { match["\\r\\n"].repeat(1) }
+  rule(:breaks) { match["\\r\\n"] }
 
   rule(:spaces?) { spaces.maybe }
   rule(:spaces) { match[" \t"].repeat(1) }
 
   rule(:extra_spaces) { match["\\r\\n\\s"].repeat }
 
-  rule(:line_breaks) { (spaces? >> breaks >> spaces?).repeat(1) }
+  rule(:line_breaks) { spaces? >> breaks >> spaces? }
 
   rule(:pass) { str("pass") }
 

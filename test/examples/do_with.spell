@@ -14,3 +14,14 @@ main () = x y
   with
    a
    b
+
+main () = y
+  with
+    a
+    b
+    x () = c
+    y () = 
+      do
+        a
+      with
+        b
