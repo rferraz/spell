@@ -19,9 +19,15 @@ main () = y
   with
     a
     b
-    x () = c
-    y () = 
+    v = c
+    v () = c
+    x () =
       do
-        a
+       x
       with
-        b
+       y
+       z () =
+        do
+          a
+        with
+          b
