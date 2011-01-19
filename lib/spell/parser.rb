@@ -14,7 +14,13 @@ class Parser < Parslet::Parser
 
   rule(:name) { identifier }
 
-  rule(:arguments) { spaces? >> str("(") >> str(")") >> spaces? }
+  rule(:arguments) { spaces? >> str("(") >> argument_list.maybe >> str(")") >> spaces? }
+
+  rule(:argument_list) {
+    argument >> (spaces? >> comma >> spaces? >> argument).repeat
+  }
+
+  rule(:argument) { identifier }
 
   rule(:define) { spaces? >> str("=") >> spaces? }
 
@@ -85,6 +91,8 @@ class Parser < Parslet::Parser
   rule(:sign) { str("-") }
 
   rule(:period) { str(".") }
+
+  rule(:comma) { str(",") }
 
   rule(:quote) { str("\"") }
 
