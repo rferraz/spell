@@ -128,7 +128,11 @@ class Parser < Parslet::Parser
 
   rule(:string) { (quote >> (quote.absnt? >> any).repeat >> quote).repeat(1) }
 
-  rule(:identifier) { (str("with") | str("do")).absnt? >> identifier_part >> (identifier_separator >> identifier_part).repeat }
+  rule(:identifier) {
+    (str("with") | str("do")).absnt? >>
+    identifier_part >> (identifier_separator >> identifier_part).repeat >>
+    (single_quote).repeat
+  }
 
   rule(:identifier_separator) { str("#") }
 
@@ -154,6 +158,8 @@ class Parser < Parslet::Parser
   rule(:semicolon) { str(";") }
 
   rule(:quote) { str("\"") }
+
+  rule(:single_quote) { str("'") }
 
   rule(:digits) { digit.repeat(1) }
 
