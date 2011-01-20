@@ -1,0 +1,10 @@
+main () = a.b
+
+main () = a.b.c
+
+main () = 
+  do
+   a.b.c == 1
+   b.d == e.f.g.h
+   some a.b.c b.d
+

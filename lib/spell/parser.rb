@@ -79,15 +79,34 @@ class Parser < Parslet::Parser
     spaces?
   }
 
-  rule(:call) { identifier >> (spaces >> binary).repeat }
-
   rule(:binary) { (primary >> spaces? >> selector >> spaces? >> binary) | primary }
 
-  rule(:primary) { (str("(") >> expression >> str(")")) | call | variable | literal }
+  rule(:primary) { (str("(") >> expression >> str(")")) | dictionary_access | call | variable | literal }
+
+  rule(:dictionary_access) { identifier >> (period >> identifier).repeat(1) }
 
   rule(:variable) { identifier }
 
-  rule(:literal) { number | string }
+  rule(:call) { identifier >> (spaces >> binary).repeat }
+
+  rule(:literal) { dictionary | number | string }
+
+  rule(:dictionary) {
+    str("{") >>
+    extra_spaces? >>
+    (dictionary_item >> (extra_spaces? >> semicolon >> extra_spaces? >> dictionary_item >> extra_spaces?).repeat).maybe >>
+    extra_spaces? >>
+    str("}")
+  }
+
+  rule(:dictionary_item) {
+    extra_spaces?
+    identifier >>
+    colon >>
+    extra_spaces?
+    expression >>
+    extra_spaces?
+  }
 
   rule(:number) { decimal | integer }
 
@@ -104,7 +123,7 @@ class Parser < Parslet::Parser
   rule(:identifier_part) { letter >> alpha.repeat }
 
   rule(:selector) {
-    str("=>").absnt? >>
+    str("=>").absnt? >> str(".").absnt? >>
     match["+*-/\\\\~:<>=@%&?!,^"].repeat(1)
   }
 
@@ -117,6 +136,10 @@ class Parser < Parslet::Parser
   rule(:period) { str(".") }
 
   rule(:comma) { str(",") }
+
+  rule(:colon) { str(":") }
+
+  rule(:semicolon) { str(";") }
 
   rule(:quote) { str("\"") }
 

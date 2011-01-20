@@ -1,0 +1,29 @@
+main () = { }
+
+main () = { x: y }
+
+main () = { x: y; a: b }
+
+main () = { x: 1 + a; y: 2 + b }
+
+main () = { x: { a: b }; y: { c: { d: e } }; f: g }
+
+main () = {
+   a: b;
+   c: d;
+   e: f
+ }
+
+main () =
+  do
+    f { x: y }
+    g { a: b }
+
+main () = 
+  do
+   { a: b }
+  with
+   { { c: d } }
+
+   
+   
