@@ -81,15 +81,27 @@ class Parser < Parslet::Parser
 
   rule(:binary) { (primary >> spaces? >> selector >> spaces? >> binary) | primary }
 
-  rule(:primary) { (str("(") >> expression >> str(")")) | dictionary_access | call | variable | literal }
+  rule(:primary) { (str("(") >> expression >> str(")")) | dictionary_access | array_access | call | variable | literal }
 
   rule(:dictionary_access) { identifier >> (period >> identifier).repeat(1) }
+
+  rule(:array_access) { identifier >> array_index.repeat(1) }
+
+  rule(:array_index) { str("[") >> integer >> str("]") }
 
   rule(:variable) { identifier }
 
   rule(:call) { identifier >> (spaces >> binary).repeat }
 
-  rule(:literal) { dictionary | number | string }
+  rule(:literal) { array | dictionary | number | string }
+
+  rule(:array) {
+    str("[") >>
+    extra_spaces? >>
+    (expression >> (extra_spaces >> expression).repeat).maybe >>
+    extra_spaces? >>
+    str("]")
+  }
 
   rule(:dictionary) {
     str("{") >>
