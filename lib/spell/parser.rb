@@ -91,7 +91,17 @@ class Parser < Parslet::Parser
 
   rule(:variable) { identifier }
 
-  rule(:call) { identifier >> (spaces >> binary).repeat }
+  rule(:call) { identifier >> (spaces >> (block | binary)).repeat }
+
+  rule(:block) {
+    str("{") >>
+    argument_list >>
+    str("|") >>
+    extra_spaces? >>
+    (expression >> (line_breaks >> expression).repeat) >>
+    extra_spaces? >>
+    str("}")
+  }
 
   rule(:literal) { array | dictionary | number | string }
 

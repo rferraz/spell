@@ -1,0 +1,19 @@
+main () = call { a | a }
+
+main () = call { a | a + 1 }
+
+main () = call { a | a } { b | b }
+
+main () = call { a b c | a + b + c }
+
+main () = call { a b c | 
+    a + b + c 
+  }
+
+main () = call { a b c d e f g h i | 
+    a + d + g
+    b + e + h
+    c + f + i
+  }
+
+
