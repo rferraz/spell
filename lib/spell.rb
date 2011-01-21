@@ -1,3 +1,3 @@
-require "parslet"
+require "treetop"
 
-require "spell/parser"
+Treetop.load File.join(File.dirname(__FILE__), "spell", "spell.treetop")

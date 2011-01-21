@@ -5,14 +5,12 @@ class ParserTestCase < Test::Unit::TestCase
   EXAMPLES_PATH = File.join(File.dirname(__FILE__), "..", "examples", "*.spell")
 
   def setup
-    @parser = Parser.new
+    @parser = SpellParser.new
   end
 
   def test_parser
     Dir[EXAMPLES_PATH].each do |file|
-      assert_nothing_raised("in file #{file}") do
-        @parser.parse(File.read(file))
-      end
+      assert_not_nil @parser.parse(File.read(file)), "#{@parser.failure_reason} in file #{file}"
     end
   end
 
