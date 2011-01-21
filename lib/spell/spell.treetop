@@ -5,7 +5,7 @@ grammar Spell
   end
 
   rule statement
-    identifier arguments spaces? "=" spaces? body
+    identifier arguments spaces? equal spaces? body
   end
 
   rule arguments
@@ -13,15 +13,12 @@ grammar Spell
   end
 
   rule argument_list
-    spaces? argument (spaces argument)* spaces?
-  end
-
-  rule argument
-    identifier
+    spaces? identifier (spaces identifier)* spaces?
   end
 
   rule body
-    (guard_expressions / do_expression / expression) (line_breaks with)?
+    (guard_expressions / do_expression / expression) 
+    (line_breaks with_expression)?
   end
 
   rule guard_expressions
@@ -29,7 +26,7 @@ grammar Spell
   end
 
   rule guard
-    "?" spaces (default / expression) spaces "=>" spaces expression
+    "?" spaces (default / expression) spaces rocket spaces expression
   end
 
   rule default
@@ -37,7 +34,7 @@ grammar Spell
   end
 
   rule do_expression
-    line_breaks "do" (block_do / simple_do)
+    line_breaks do (block_do / simple_do)
   end
 
   rule simple_do
@@ -58,8 +55,8 @@ grammar Spell
     binary / primary / pass
   end
 
-  rule with
-    "with" (block_with / simple_with)
+  rule with_expression
+    with (block_with / simple_with)
   end
 
   rule simple_with
@@ -137,14 +134,14 @@ grammar Spell
   rule dictionary
     "{"
       extra_spaces?
-      (dictionary_item (extra_spaces? semicolon extra_spaces? dictionary_item extra_spaces?)*)?
+      (dictionary_item (extra_spaces? ";" extra_spaces? dictionary_item extra_spaces?)*)?
       extra_spaces?
     "}"
   end
 
   rule dictionary_item
     extra_spaces? 
-    identifier colon
+    identifier ":"
     extra_spaces? 
     expression 
     extra_spaces?
@@ -167,22 +164,21 @@ grammar Spell
   end
 
   rule identifier
-    !("with" / "do")
-    identifier_part (identifier_separator identifier_part)*
+    !(with / do)
+    identifier_part (identifier_part)*
     (single_quote)*
   end
 
-  rule identifier_separator
-    "#"
-  end
-
   rule identifier_part
-    letter alpha*
+    "#"? letter alpha*
   end
 
   rule selector
-    !"=>"
-    ("+" / "-" / "*" / "/" / "\\" / "~" / "<" / ">" / "=" / "@" / "%" / "&" / "?" / "!" / "," / "^" / ":")+
+    !rocket
+    (
+      "+" / "-" / "*" / "/" / "\\" / "~" / "<" / ">" / "=" / 
+       "@" / "%" / "&" / "?" / "!" / "," / "^" / ":"
+    )+
   end
 
   rule alpha
@@ -193,24 +189,28 @@ grammar Spell
     [a-zA-Z]
   end
 
+  rule rocket
+    "=>"
+  end
+
+  rule do
+    "do"
+  end
+
+  rule with
+    "with"
+  end
+
+  rule equal
+    "="
+  end
+
   rule sign
     "-"
   end
 
   rule period
     "."
-  end
-
-  rule comma
-    ","
-  end
-
-  rule colon
-    ":"
-  end
-
-  rule semicolon
-    ";"
   end
 
   rule quote
@@ -234,7 +234,11 @@ grammar Spell
   end
 
   rule spaces
-    [ \t]*
+    [ \t]* 
+    comment
+  end
+
+  rule comment
     ("#" (!breaks .)* &breaks)?
   end
 
