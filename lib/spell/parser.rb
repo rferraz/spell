@@ -17,7 +17,7 @@ class Parser < Parslet::Parser
   rule(:arguments) { spaces? >> str("(") >> argument_list.maybe >> str(")") >> spaces? }
 
   rule(:argument_list) {
-    argument >> (spaces? >> comma >> spaces? >> argument).repeat
+    spaces? >> argument >> (spaces >> argument).repeat >> spaces?
   }
 
   rule(:argument) { identifier }
