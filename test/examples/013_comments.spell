@@ -1,0 +1,35 @@
+# A comment
+# A comment
+
+main () = pass # A comment
+
+main () = # A comment
+  do # A comment
+    x # A comment
+    y # A comment
+  with # A comment
+    x # A comment
+    y # A comment
+
+main () = # A comment
+  do # A comment
+    { # A comment
+    x # A comment
+    y # A comment
+    } # A comment
+  with { # A comment
+    x # A comment
+    y } # A comment
+
+main () = 
+  do
+    [1 2 # Acomment
+       3] # A comment
+    { a: # Acomment
+      b } # A comment
+    call { e | # A comment
+        e # A comment
+      } # A comment
+
+  # A comment
+# A comment

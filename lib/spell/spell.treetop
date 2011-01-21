@@ -1,7 +1,9 @@
 grammar Spell
 
   rule statements
-    extra_spaces (statement (line_breaks 2.. statement)*) extra_spaces
+    extra_spaces?
+    (statement (line_breaks 2.. statement)*) 
+    extra_spaces?
   end
 
   rule statement
@@ -52,7 +54,7 @@ grammar Spell
   end
 
   rule expression
-    binary / primary / pass
+    (binary / primary / pass)
   end
 
   rule with_expression
@@ -230,24 +232,23 @@ grammar Spell
   end
 
   rule breaks
-    [\r\n]
+    comment? [\r\n] 
   end
 
   rule spaces
     [ \t]* 
-    comment
-  end
-
-  rule comment
-    ("#" (!breaks .)* &breaks)?
   end
 
   rule extra_spaces
-    [\r\n\s]*
+    ([\s]+ / (comment? [\r\n]))*
   end
 
   rule line_breaks
     spaces? breaks spaces?
+  end
+
+  rule comment
+    ("#" (!breaks .)* &breaks)?
   end
 
   rule pass
