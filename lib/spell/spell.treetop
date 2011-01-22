@@ -91,7 +91,6 @@ grammar Spell
     dictionary_access / 
     array_access / 
     call / 
-    variable / 
     literal
   end
 
@@ -105,10 +104,6 @@ grammar Spell
 
   rule array_index
     "[" integer "]"
-  end
-
-  rule variable
-    identifier
   end
 
   rule call

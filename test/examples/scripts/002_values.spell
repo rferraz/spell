@@ -8,4 +8,3 @@ main () = -3.1415
 
 main () = "pi"
 
-main () = other
