@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), "..", "test_helper")
 
 class ParserTestCase < Test::Unit::TestCase
 
-  EXAMPLES_PATH = File.join(File.dirname(__FILE__), "..", "examples", "*.spell")
+  EXAMPLES_PATH = File.join(File.dirname(__FILE__), "..", "examples", "scripts", "*.spell")
 
   def setup
     @parser = SpellParser.new
