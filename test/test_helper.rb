@@ -9,3 +9,16 @@ end
 require "test/unit"
 
 require "spell"
+
+def sexp_to_string(sexp)
+  case sexp
+  when Array
+    "[" + sexp.inject([]) { |memo, element| memo << sexp_to_string(element) ; memo }.join(", ") + "]"
+  when String
+    sexp
+  when Symbol
+    ":" + sexp.to_s
+  else
+    ""
+  end
+end

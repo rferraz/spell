@@ -1,26 +1,24 @@
 grammar Spell
 
-  rule statements
-    extra_spaces?
-    (statement (line_breaks 2.. statement)*) 
-    extra_spaces?
+  rule root
+    extra_spaces? root:(head:statement rest:(line_breaks 2.. statement)*) extra_spaces? <Program>
   end
 
   rule statement
-    identifier arguments spaces? equal spaces? body
+    identifier arguments spaces? equal spaces? body <Statement>
   end
 
   rule arguments
-    spaces? "(" argument_list? ")" spaces?
+    spaces? "(" list:argument_list? ")" spaces?
   end
 
   rule argument_list
-    spaces? identifier (spaces identifier)* spaces?
+    spaces? head:identifier rest:(spaces identifier)* spaces?
   end
 
   rule body
-    (guard_expressions / do_expression / expression) 
-    (line_breaks with_expression)?
+    expressions:(guard_expressions / do_expression / expression)
+    with:(line_breaks with_expression)?
   end
 
   rule guard_expressions
@@ -77,7 +75,7 @@ grammar Spell
   end
 
   rule expression
-    (primitive / binary / primary / pass)
+    pass / primitive / binary / primary
   end
 
   rule primitive
@@ -264,7 +262,7 @@ grammar Spell
   end
 
   rule pass
-    "pass"
+    "pass" <Pass>
   end
 
 end
