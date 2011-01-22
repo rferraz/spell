@@ -8,25 +8,25 @@ main () =
     x
     y
   with
-    a
+    a <- 1
 
 main () = x y
   with
-   a
-   b
+   a <- 1
+   b <- 2
 
 main () = y
   with
-    a
-    b
-    v = c
+    a <- 1
+    b <- 2
+    v <- c
     v () = c
     x () =
       do { x }
-      with { y }
+      with { y <- 1 }
     z () =
       do { a }
-      with { b }
+      with { b <- 1 }
 
 main () = 
   do { x 
@@ -35,20 +35,20 @@ main () =
 main () = 
   do { x 
        y } 
-  with { x
-         y }
+  with { x <- 1
+         y <- 1 }
 
 main () = 
   do 
    x
    y
-  with { x
-         y }
+  with { x <- 1
+         y <- 1 }
 
 main () = 
   do { x
        y }
   with
-   x
-   y
+   x <- 1
+   y <- 1
 

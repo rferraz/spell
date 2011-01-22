@@ -28,7 +28,7 @@ grammar Spell
   end
 
   rule guard
-    "?" spaces (default / expression) spaces rocket spaces expression
+    "?" spaces (default / expression) spaces implies spaces expression
   end
 
   rule default
@@ -62,18 +62,22 @@ grammar Spell
   end
 
   rule simple_with
-    (line_breaks (statement / expression))+
+    (line_breaks (statement / assignment))+
   end
 
   rule block_with
     extra_spaces?
     "{"
       extra_spaces?
-      (statement / expression)
-      (line_breaks (statement / expression))*
+      (statement / assignment)
+      (line_breaks (statement / assignment))*
       extra_spaces?
     "}"
     spaces?
+  end
+
+  rule assignment
+    identifier spaces? binds spaces? expression
   end
 
   rule binary
@@ -176,7 +180,7 @@ grammar Spell
   end
 
   rule selector
-    !rocket
+    !(implies / binds)
     (
       "+" / "-" / "*" / "/" / "\\" / "~" / "<" / ">" / "=" / 
        "@" / "%" / "&" / "?" / "!" / "," / "^" / ":"
@@ -191,8 +195,12 @@ grammar Spell
     [a-zA-Z]
   end
 
-  rule rocket
-    "=>"
+  rule implies
+    "->"
+  end
+
+  rule binds
+    "<-"
   end
 
   rule do

@@ -23,7 +23,7 @@ main () =
   do
    { a: b }
   with
-   { { c: d } }
+   { x <- { c: d } }
 
    
    

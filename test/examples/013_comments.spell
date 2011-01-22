@@ -8,8 +8,8 @@ main () = # A comment
     x # A comment
     y # A comment
   with # A comment
-    x # A comment
-    y # A comment
+    x () = 1 # A comment
+    y () = 2 # A comment
 
 main () = # A comment
   do # A comment
@@ -18,8 +18,8 @@ main () = # A comment
     y # A comment
     } # A comment
   with { # A comment
-    x # A comment
-    y } # A comment
+    x <- 1 # A comment
+    y <- 1 } # A comment
 
 main () = 
   do
