@@ -53,10 +53,6 @@ grammar Spell
     spaces?
   end
 
-  rule expression
-    (binary / primary / pass)
-  end
-
   rule with_expression
     with (block_with / simple_with)
   end
@@ -78,6 +74,14 @@ grammar Spell
 
   rule assignment
     identifier spaces? binds spaces? expression
+  end
+
+  rule expression
+    (primitive / binary / primary / pass)
+  end
+
+  rule primitive
+    "<" "primitive" ":" spaces identifier ">"
   end
 
   rule binary
