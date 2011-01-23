@@ -75,7 +75,9 @@ grammar Spell
   end
 
   rule expression
-    pass / primitive / binary / primary
+    pass / 
+    primitive / 
+    binary
   end
 
   rule primitive
@@ -83,11 +85,12 @@ grammar Spell
   end
 
   rule binary
-    (primary spaces? selector spaces? binary) / primary
+    operand1:primary spaces? selector spaces? operand2:binary <Binary> / 
+    primary
   end
 
   rule primary
-    ("(" expression ")") / 
+    "(" expression ")" <ParenthesizedExpression> / 
     dictionary_access / 
     array_access / 
     call / 
@@ -107,7 +110,7 @@ grammar Spell
   end
 
   rule call
-    identifier (spaces (block / binary))*
+    identifier arguments:(spaces (block / binary))* <Call>
   end
 
   rule block

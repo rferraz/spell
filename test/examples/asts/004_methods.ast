@@ -1,0 +1,4 @@
+((define method#test1 (pass))
+ (define method#test2 (pass))
+ (define method' (pass))
+ (define method'' (pass)))
