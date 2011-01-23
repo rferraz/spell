@@ -8,7 +8,7 @@ module Ast
     end
 
     def to_sexp
-      [@name, @body.to_sexp]
+      [:define, @name, @body.to_sexp]
     end
 
   end

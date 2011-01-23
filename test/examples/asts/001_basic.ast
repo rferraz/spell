@@ -1,1 +1,1 @@
-[[:main, [:pass]]]
+((define main (pass)))

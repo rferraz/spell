@@ -13,12 +13,10 @@ require "spell"
 def sexp_to_string(sexp)
   case sexp
   when Array
-    "[" + sexp.inject([]) { |memo, element| memo << sexp_to_string(element) ; memo }.join(", ") + "]"
-  when String
-    sexp
+    "(" + sexp.inject([]) { |memo, element| memo << sexp_to_string(element) ; memo }.join(" ") + ")"
   when Symbol
-    ":" + sexp.to_s
+    sexp.to_s
   else
-    ""
+    sexp
   end
 end
