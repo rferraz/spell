@@ -2,12 +2,12 @@ module Ast
 
   class Invoke
 
-    def initialize(message, arguments)
-      @message, @arguments = message, arguments
+    def initialize(message, parameters)
+      @message, @parameters = message, parameters
     end
 
     def to_sexp
-      [:invoke, @message] + @arguments.collect(&:to_sexp)
+      [:invoke, @message] + @parameters.collect(&:to_sexp)
     end
 
   end

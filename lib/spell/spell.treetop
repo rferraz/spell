@@ -110,7 +110,7 @@ grammar Spell
   end
 
   rule call
-    identifier arguments:(spaces (block / binary))* <Call>
+    identifier parameters:(spaces parameter:((identifier !("." / "[")) / block / binary))* <Call>
   end
 
   rule block

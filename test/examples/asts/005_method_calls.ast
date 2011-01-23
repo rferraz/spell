@@ -1,0 +1,14 @@
+((define main (invoke other))
+ (define main (invoke other (invoke param1) (invoke param2)))
+ (define main (invoke other#other (invoke param1#param1) (invoke param2#param2)))
+ (define main (invoke other (invoke + (literal 1) (literal 2))))
+ (define main (invoke * (invoke + (literal 1) (invoke other)) (invoke - (invoke other) (literal 2))))
+ (define main (invoke * (invoke + (literal 1) (invoke other (invoke param1))) (invoke - (invoke other (invoke param2)) (literal 2))))
+ (define main (invoke * (invoke + (literal 1) (invoke other (invoke param1) (invoke - (literal 3) (invoke param2)))) (invoke other (invoke - (invoke param2) (literal 2)))))
+ (define main (arguments a) (pass))
+ (define main (arguments a b) (pass))
+ (define main (arguments a b c) (invoke other (invoke method))))
+
+
+
+
