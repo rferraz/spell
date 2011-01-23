@@ -1,0 +1,30 @@
+((define main (invoke x) (invoke y))
+ (define main (bindings (a (literal 1))) (invoke x) (invoke y))
+ (define main 
+   (bindings (a (literal 1)) 
+             (b (literal 2)))
+   (invoke x (invoke y)))
+ (define main
+   (bindings (a (literal 1))
+             (b (literal 2))
+             (v (invoke c))
+             (define v (invoke c))
+             (define x (bindings (y (literal 1))) (invoke x))
+             (define z (bindings (b (literal 1))) (invoke a)))
+   (invoke y))
+ (define main (invoke x) (invoke y))
+ (define main 
+    (bindings (x (literal 1))
+              (y (literal 1)))
+    (invoke x)
+    (invoke y))
+ (define main 
+    (bindings (x (literal 1))
+              (y (literal 1)))
+    (invoke x)
+    (invoke y))
+ (define main 
+    (bindings (x (literal 1))
+              (y (literal 1)))
+    (invoke x)
+    (invoke y)))

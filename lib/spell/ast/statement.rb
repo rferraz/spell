@@ -2,14 +2,15 @@ module Ast
 
   class Statement
 
-    def initialize(name, arguments, body)
-      @name, @arguments, @body = name, arguments, body
+    def initialize(name, arguments, bindings, body)
+      @name, @arguments, @bindings, @body = name, arguments, bindings, body
     end
 
     def to_sexp
       [:define, @name] +
         (@arguments.empty? ? [] : [[:arguments] + @arguments]) +
-        [@body.to_sexp]
+        (@bindings.empty? ? [] : [[:bindings] + @bindings.collect(&:to_sexp)]) +
+        @body.collect(&:to_sexp)
     end
 
   end

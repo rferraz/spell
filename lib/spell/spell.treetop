@@ -34,44 +34,43 @@ grammar Spell
   end
 
   rule do_expression
-    line_breaks do (block_do / simple_do)
+    line_breaks do (do_block / do_lines)
   end
 
-  rule simple_do
-    (line_breaks expression)+
+  rule do_lines
+    (line_breaks expression)+ <DoLines>
   end
 
-  rule block_do
+  rule do_block
     extra_spaces?
     "{"
       extra_spaces?
-      expression (line_breaks expression)*
+      body:(head:expression rest:(line_breaks expression)* <DoBlock>)
       extra_spaces?
     "}"
     spaces?
   end
 
   rule with_expression
-    with (block_with / simple_with)
+    with (with_block / with_lines)
   end
 
-  rule simple_with
-    (line_breaks (statement / assignment))+
+  rule with_lines
+    (line_breaks binding:(statement / assignment))+ <WithLines>
   end
 
-  rule block_with
+  rule with_block
     extra_spaces?
     "{"
       extra_spaces?
-      (statement / assignment)
-      (line_breaks (statement / assignment))*
+      body:(head:(statement / assignment) rest:(line_breaks expression:(statement / assignment))* <WithBlock>)
       extra_spaces?
     "}"
     spaces?
   end
 
   rule assignment
-    identifier spaces? binds spaces? expression
+    identifier spaces? binds spaces? expression <Assignment>
   end
 
   rule expression

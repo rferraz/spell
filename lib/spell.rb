@@ -10,11 +10,16 @@ require "spell/extensions/string_literal"
 require "spell/extensions/binary"
 require "spell/extensions/call"
 require "spell/extensions/parenthesized_expression"
+require "spell/extensions/do_expression"
+require "spell/extensions/with_expression"
+require "spell/extensions/assignment"
 
 require "spell/ast/program"
 require "spell/ast/statement"
 require "spell/ast/pass"
 require "spell/ast/literal"
 require "spell/ast/invoke"
+require "spell/ast/expression"
+require "spell/ast/assignment"
 
 
