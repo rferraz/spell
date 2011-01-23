@@ -12,11 +12,10 @@ class AstTestCase < Test::Unit::TestCase
   def test_parser
     Dir[SCRIPTS_PATH].each do |file|
       ast_file = file.sub("scripts", "asts").sub(".spell", ".ast")
-      if File.exists?(ast_file)
-        assert_equal(File.read(ast_file),
+        assert File.exists?(ast_file), "in finding #{ast_file}"
+        assert_equal(File.read(ast_file).gsub(/\r|\n/, "").gsub(/\s+/, " ").gsub("\\\"", ""),
                      sexp_to_string(@parser.parse(File.read(file)).build.to_sexp),
                      "for file #{file}")
-      end
     end
   end
 
