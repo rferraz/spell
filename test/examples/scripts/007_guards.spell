@@ -26,4 +26,13 @@ main () =
       do
         a
         b
-      
+
+main () =
+  do
+   x
+   y
+  with
+    x () = c
+    y () =
+     ? x < 1 -> 0
+     ?     _ -> 1

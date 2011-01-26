@@ -22,15 +22,15 @@ grammar Spell
   end
 
   rule guard_expressions
-    (line_breaks guard)+
+    (line_breaks guard)+ <Guard>
   end
 
   rule guard
-    "?" spaces (default / expression) spaces implies spaces expression
+    "?" spaces condition:(default / expression) spaces implies spaces result:expression
   end
 
   rule default
-    "_"
+    "_" <DefaultGuard>
   end
 
   rule do_expression

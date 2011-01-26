@@ -1,0 +1,27 @@
+((define main (case ((invoke < (invoke x) (literal 1)) (invoke a))))
+ (define main (case 
+                ((invoke < (invoke x) (literal 1)) (invoke a))
+                ((invoke > (invoke x) (literal 1)) (invoke b))))
+ (define main (case 
+                ((invoke < (invoke x) (literal 1)) (invoke a))
+                ((invoke > (invoke x) (literal 1)) (invoke b))
+                (() (invoke c))))
+ (define main 
+   (bindings (a (invoke b))
+             (c (invoke d)))
+   (case 
+                ((invoke < (invoke x) (literal 1)) (invoke a))
+                ((invoke > (invoke x) (literal 1)) (invoke b))))
+ (define main 
+   (bindings (define x (invoke c))
+             (define y (invoke a) (invoke b)))
+   (case 
+                ((invoke < (invoke x) (literal 1)) (invoke a))
+                ((invoke > (invoke x) (literal 1)) (invoke b))))
+ (define main
+   (bindings (define x (invoke c))
+             (define y (case ((invoke < (invoke x) (literal 1)) (literal 0))
+                             (() (literal 1)))))
+   (invoke x)
+   (invoke y)))
+
