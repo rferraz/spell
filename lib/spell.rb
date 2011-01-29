@@ -14,6 +14,7 @@ require "spell/extensions/do_expression"
 require "spell/extensions/with_expression"
 require "spell/extensions/assignment"
 require "spell/extensions/guard"
+require "spell/extensions/dictionary"
 
 require "spell/ast/program"
 require "spell/ast/statement"
@@ -23,5 +24,6 @@ require "spell/ast/invoke"
 require "spell/ast/expression"
 require "spell/ast/assignment"
 require "spell/ast/case"
+require "spell/ast/dictionary"
 
 

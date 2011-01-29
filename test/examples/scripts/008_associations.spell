@@ -21,9 +21,6 @@ main () =
 
 main () = 
   do
-   { a: b }
+   { { a: b } }
   with
    { x <- { c: d } }
-
-   
-   

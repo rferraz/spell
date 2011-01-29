@@ -123,7 +123,7 @@ grammar Spell
 
   rule literal
     array / 
-    dictionary / 
+    dictionary <Dictionary> / 
     number / 
     string
   end
@@ -139,7 +139,7 @@ grammar Spell
   rule dictionary
     "{"
       extra_spaces?
-      (dictionary_item (extra_spaces? ";" extra_spaces? dictionary_item extra_spaces?)*)?
+      list:(head:dictionary_item rest:(extra_spaces? ";" extra_spaces? item:dictionary_item extra_spaces?)*)? 
       extra_spaces?
     "}"
   end
