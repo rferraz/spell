@@ -9,7 +9,7 @@ class AstTestCase < Test::Unit::TestCase
     @parser = SpellParser.new
   end
 
-  def test_parser
+  def test_ast
     Dir[SCRIPTS_PATH].each do |file|
       ast_file = file.sub("scripts", "asts").sub(".spell", ".ast")
       assert File.exists?(ast_file), "in finding #{ast_file}"
