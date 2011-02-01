@@ -21,10 +21,10 @@ class AstTestCase < Test::Unit::TestCase
 
   def cleanup_sexp(sexp)
     sexp.
+      strip.
       gsub(/\r|\n/, "").
       gsub(/\s+/, " ").
-      gsub("\\\"", "").
-      gsub("^\s+|\s+$", "")
+      gsub("\\\"", "")
   end
 
 end

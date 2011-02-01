@@ -89,15 +89,14 @@ grammar Spell
   end
 
   rule primary
+    value dictionary:(period identifier)* <Primary>
+  end
+
+  rule value
     "(" expression ")" <ParenthesizedExpression> / 
-    dictionary_access / 
     array_access / 
     call / 
     literal
-  end
-
-  rule dictionary_access
-    identifier (period identifier)+
   end
 
   rule array_access

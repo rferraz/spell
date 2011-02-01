@@ -24,4 +24,16 @@ module Ast
 
   end
 
+  class DictionaryAccess
+
+    def initialize(target, accessor)
+      @target, @accessor = target, accessor
+    end
+
+    def to_sexp
+      [:dictionary, :access, @target.to_sexp, @accessor]
+    end
+
+  end
+
 end

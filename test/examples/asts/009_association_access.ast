@@ -1,0 +1,9 @@
+((define main (dictionary access (invoke a) b))
+ (define main (dictionary access (dictionary access (invoke a) b) c))
+ (define main (invoke == (dictionary access (dictionary access (invoke a) b) c) (literal 1))
+              (invoke == (dictionary access (dictionary access (invoke a) b) c)
+                         (dictionary access (dictionary access (invoke d) e) f))
+              (invoke some (dictionary access (dictionary access (invoke a) b) c)
+                           (dictionary access (invoke d) e))
+              (dictionary access (invoke a (invoke b)) c)))
+ 

@@ -6,8 +6,6 @@ module Dictionary
 
   private
 
-  private
-
   def dictionary_items
     if list && list.respond_to?(:head)
       [Ast::DictionaryItem.new(list.head.identifier.text_value,
