@@ -20,3 +20,11 @@ def sexp_to_string(sexp)
     sexp
   end
 end
+
+def cleanup_sexp(sexp)
+  sexp.
+    strip.
+    gsub(/\r|\n/, "").
+    gsub(/\s+/, " ").
+    gsub("\\\"", "")
+end

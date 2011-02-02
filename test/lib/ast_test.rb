@@ -19,13 +19,5 @@ class AstTestCase < Test::Unit::TestCase
     end
   end
 
-  def cleanup_sexp(sexp)
-    sexp.
-      strip.
-      gsub(/\r|\n/, "").
-      gsub(/\s+/, " ").
-      gsub("\\\"", "")
-  end
-
 end
 
