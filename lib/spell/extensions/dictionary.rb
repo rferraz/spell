@@ -1,4 +1,4 @@
-module Dictionary
+module DictionaryLiteral
 
   def build
     Ast::Dictionary.new(dictionary_items)

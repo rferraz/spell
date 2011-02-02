@@ -122,7 +122,7 @@ grammar Spell
 
   rule literal
     array / 
-    dictionary <Dictionary> / 
+    dictionary <DictionaryLiteral> /
     number / 
     string
   end
