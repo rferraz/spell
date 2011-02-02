@@ -10,7 +10,7 @@ main () =
   do
     account#deposit account 10
     account#deposit account 200
-    acount#withdraw account 30
+    account#withdraw account 30
   with  
     account <- account 10
 
@@ -24,17 +24,17 @@ fib#iterative (value) = round (phi ** value / sq5)
     phi <- (1 + sq5) / 2
 
 filter (predicate list) = 
-  ? null list             -> list
-  ? predicate (head list) -> (head list) : filter predicate (tail list)
-  ?                     _ -> filter predicate (tail list)
+  ? null list                   -> list
+  ? apply predicate (head list) -> (head list) : filter predicate (tail list)
+  ?                           _ -> filter predicate (tail list)
   
 array#partition (array predicate) = (filter predicate array) , (filter (invert predicate) array)
   
 quicksort (array) =
-  ? array#len array <= 1 -> array
+  ? array#length array <= 1 -> array
   ?                    _ -> quicksort' array
   with
-    quicksort' (array) = quicksort (first partition) ++ quicksort (last partition)
+    quicksort' (array) = (quicksort (first partition)) ++ (quicksort (last partition))
       with
         pivot <- array#midpoint array
         partition <- array#partition array { element | element < pivot }
