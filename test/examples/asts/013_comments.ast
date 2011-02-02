@@ -1,0 +1,4 @@
+((define main (pass))
+ (define main (bindings (define x (literal 1)) (define y (literal 2))) (invoke x) (invoke y))
+ (define main (bindings (x (literal 1)) (y (literal 2))) (invoke x) (invoke y))
+ (define main (array new ((literal 1) (literal 2) (literal 3))) (dictionary new ((a (invoke b)))) (invoke call (block (arguments e) (invoke e)))))

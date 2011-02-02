@@ -6,12 +6,7 @@ module Call
                       if element.parameter.respond_to?(:identifier)
                         Ast::Invoke.new(element.parameter.text_value, [])
                       else
-                        begin
-                          element.parameter.build
-                        rescue
-                          puts element.parameter.inspect
-                          raise
-                        end
+                        element.parameter.build
                       end
                     })
   end
