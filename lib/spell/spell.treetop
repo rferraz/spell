@@ -121,7 +121,7 @@ grammar Spell
   end
 
   rule literal
-    array / 
+    array <ArrayLiteral> /
     dictionary <DictionaryLiteral> /
     number / 
     string
@@ -130,7 +130,7 @@ grammar Spell
   rule array
     "["
       extra_spaces?
-      (expression (extra_spaces expression)*)?
+      list:(head:expression rest:(extra_spaces expression)*)?
       extra_spaces?
     "]"
   end
