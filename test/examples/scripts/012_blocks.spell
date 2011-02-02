@@ -6,7 +6,7 @@ main () = call { a | a } { b | b }
 
 main () = call { a b c | a + b + c }
 
-main () = call { a b c | 
+main () = call { a | 
     a + b + c 
   }
 

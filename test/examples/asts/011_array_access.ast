@@ -1,0 +1,7 @@
+((define main (array access (invoke a) 0))
+ (define main (array access (array access (invoke a) 0) 1))
+ (define main (invoke == (array access (invoke a) 0) (literal 1))
+              (invoke == (array access (array access (invoke a) 0) 1)
+                         (array access (array access (array access (invoke b) 2) 1) 0))
+              (invoke some (array access (array access (invoke a) 0) 1)
+                           (array access (array access (invoke b) 1) 0))))

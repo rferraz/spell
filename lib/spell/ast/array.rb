@@ -26,12 +26,12 @@ module Ast
 
   class ArrayAccess
 
-    def initialize(target, accessor)
-      @target, @accessor = target, accessor
+    def initialize(target, index)
+      @target, @index = target, index
     end
 
     def to_sexp
-      [:dictionary, :access, @target.to_sexp, @accessor]
+      [:array, :access, @target.to_sexp, @index]
     end
 
   end

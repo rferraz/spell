@@ -89,32 +89,31 @@ grammar Spell
   end
 
   rule primary
-    value dictionary:(period identifier)* <Primary>
+    value access:(array_access / dictionary_access)? <Primary>
   end
 
   rule value
     "(" expression ")" <ParenthesizedExpression> / 
-    array_access / 
     call / 
     literal
   end
 
-  rule array_access
-    identifier array_index+
+  rule dictionary_access
+    (period identifier)+
   end
 
-  rule array_index
-    "[" integer "]"
+  rule array_access
+    ("[" index:integer "]")+
   end
 
   rule call
-    identifier parameters:(spaces parameter:((identifier !("." / "[")) / block / binary))* <Call>
+    identifier parameters:([ \t]+ parameter:((identifier !("[" / ".")) / block / binary))* <Call>
   end
 
   rule block
     "{"
       argument_list "|"
-       extra_spaces?
+      extra_spaces?
       (expression (line_breaks expression)*)
       extra_spaces?
     "}"
