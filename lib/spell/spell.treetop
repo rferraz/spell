@@ -80,7 +80,7 @@ grammar Spell
   end
 
   rule primitive
-    "<" "primitive" ":" spaces identifier ">"
+    "<" "primitive" ":" spaces identifier ">" <Primitive>
   end
 
   rule binary
