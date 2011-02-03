@@ -2,6 +2,8 @@ module Ast
 
   class Statement
 
+    attr_reader :body
+
     def initialize(name, arguments, bindings, body)
       @name, @arguments, @bindings, @body = name, arguments, bindings, body
     end

@@ -2,6 +2,9 @@ module Ast
 
   class Invoke
 
+    attr_reader :message
+    attr_reader :parameters
+
     def initialize(message, parameters)
       @message, @parameters = message, parameters
     end
