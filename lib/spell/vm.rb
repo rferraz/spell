@@ -44,7 +44,6 @@ class VM
     operator, *arguments = instruction
     case operator
     when :invoke
-      puts arguments
     end
   end
 

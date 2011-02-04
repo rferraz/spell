@@ -7,6 +7,7 @@ Dir[SCRIPTS_PATH].each do |file|
   Class.new(Test::Unit::TestCase) do
 
     define_method("test_" + File.basename(file, ".spell")) do
+      flunk
       Interpreter.run(File.read(file))
     end
 
