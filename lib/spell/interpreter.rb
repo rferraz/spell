@@ -1,13 +1,9 @@
 class Interpreter
 
-  def initialize
-    @parser = SpellParser.new
-  end
-
   def run(code)
-    ast = @parser.parse(code)
+    ast = Parser.parse(code)
     if ast
-      instructions = CodeGenerator.new(ast.build).generate
+      instructions = CodeGenerator.new(ast).generate
       vm = VM.new(instructions)
       vm.run
     else

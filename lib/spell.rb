@@ -3,6 +3,8 @@ require "treetop"
 Treetop.load File.join(File.dirname(__FILE__), "spell", "spell.treetop")
 
 require "spell/extensions"
+require "spell/errors"
+require "spell/parser"
 
 require "spell/extensions/program"
 require "spell/extensions/statement"
