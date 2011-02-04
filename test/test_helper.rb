@@ -10,6 +10,9 @@ require "test/unit"
 
 require "spell"
 
+SPELL_EXTENSION = ".spell"
+AST_EXTENSION = ".ast"
+
 def sexp_to_string(sexp)
   case sexp
   when Array
