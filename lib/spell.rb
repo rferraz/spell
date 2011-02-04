@@ -37,6 +37,9 @@ require "spell/ast/array"
 require "spell/ast/block"
 require "spell/ast/primitive"
 
+require "spell/analyser/analyser"
+require "spell/analyser/scope"
+
 require "spell/interpreter"
 require "spell/code_generator"
 require "spell/vm"
