@@ -1,19 +1,13 @@
 class Analyzer
 
-  def initialize(ast)
-    @ast = ast
-  end
-
-  def analyse
-    reset_scopes
-    reset_method_table
-    reset_symbol_table
-    analyze_all
-    Ast::Program.new(@methods)
+  def analyze(ast)
+    reset_environment
+    analyze_all(ast)
+    create_program
   end
 
   def self.analyze(ast)
-    new(ast).analyse
+    new.analyze(ast)
   end
 
   def method_missing(method, *args, &block)
@@ -26,8 +20,17 @@ class Analyzer
 
   protected
 
-  def analyze_all
-    analyze_any(@ast)
+  def reset_environment
+    reset_scopes
+    reset_method_table
+  end
+
+  def analyze_all(ast)
+    analyze_any(ast)
+  end
+
+  def create_program
+    Ast::Program.new(top_methods)
   end
 
   def analyze_any(ast)
@@ -41,9 +44,11 @@ class Analyzer
   def analyze_statement(statement)
     enter_scope
     begin
-      @methods << Ast::Method.new(statement.name,
-                                 current_scope.literal_frame,
-                                 statement.body.collect { |expression| analyze_any(expression) })
+      method = Ast::Method.new(statement.name,
+                               current_scope.literal_frame,
+                               statement.body.collect { |expression| analyze_any(expression) })
+      current_scope.symbol_table.add(statement.name, method, current_scope.top_scope?)
+      top_methods << method
     ensure
       leave_scope
     end
@@ -66,19 +71,23 @@ class Analyzer
   end
 
   def reset_method_table
-    @methods = []
+    @top_methods = []
   end
 
-  def reset_symbol_table
-    @symbol_table = []
+  def top_methods
+    @top_methods
   end
 
   def current_scope
     @scopes.last
   end
 
+  def root_scope
+    @scopes.first
+  end
+
   def enter_scope
-    @scopes.push(Scope.new)
+    @scopes.push(Scope.new(current_scope))
   end
 
   def leave_scope

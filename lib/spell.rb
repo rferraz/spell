@@ -42,6 +42,7 @@ require "spell/ast/load"
 
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"
+require "spell/analyzer/symbol_table"
 
 require "spell/interpreter"
 require "spell/code_generator"
