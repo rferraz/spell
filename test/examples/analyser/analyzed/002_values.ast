@@ -1,0 +1,11 @@
+((method return#one
+         (activation (const 1))
+         (load const 0))
+ (method return#float#one
+         (activation (const 1.0))
+         (load const 0))
+ (method return#second
+         (activation (const 1.0)
+                     (const 2.0))
+         (load const 0)
+         (load const 1)))

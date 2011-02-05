@@ -1,0 +1,8 @@
+return#one () = 1
+
+return#float#one () = 1.0
+
+return#second () = 
+  do
+    1.0
+    2.0
