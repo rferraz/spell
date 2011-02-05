@@ -169,12 +169,16 @@ grammar Spell
 
   rule identifier
     !(with / do)
-    identifier_part (identifier_part)*
+    identifier_start (identifier_part)*
     (single_quote)*
+  end
+  
+  rule identifier_start
+    letter alpha*
   end
 
   rule identifier_part
-    "#"? letter alpha*
+    "#"? alpha+
   end
 
   rule selector
