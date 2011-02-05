@@ -4,6 +4,8 @@ module Ast
 
     attr_reader :name
     attr_reader :body
+    attr_reader :bindings
+    attr_reader :arguments
 
     def initialize(name, arguments, bindings, body)
       @name, @arguments, @bindings, @body = name, arguments, bindings, body

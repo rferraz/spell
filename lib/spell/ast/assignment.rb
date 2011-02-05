@@ -2,12 +2,15 @@ module Ast
 
   class Assignment
 
-    def initialize(binding, expression)
-      @binding, @expression = binding, expression
+    attr_reader :name
+    attr_reader :expression
+
+    def initialize(name, expression)
+      @name, @expression = name, expression
     end
 
     def to_sexp
-      [@binding, @expression.to_sexp]
+      [@name, @expression.to_sexp]
     end
 
   end

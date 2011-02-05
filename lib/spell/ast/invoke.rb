@@ -15,4 +15,6 @@ module Ast
 
   end
 
+  class UnresolvedInvoke < Invoke; end
+
 end

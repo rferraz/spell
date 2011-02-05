@@ -44,10 +44,14 @@ class Analyzer
   def analyze_statement(statement)
     enter_scope
     begin
+      current_scope.add_arguments(statement.arguments)
+      current_scope.add_bindings(statement.bindings)
       method = Ast::Method.new(statement.name,
+                               statement.arguments.size,
+                               statement.bindings.size,
                                current_scope.literal_frame,
                                statement.body.collect { |expression| analyze_any(expression) })
-      current_scope.symbol_table.add(statement.name, method, current_scope.top_scope?)
+      root_scope.add_method(method)
       top_methods << method
     ensure
       leave_scope
@@ -56,6 +60,22 @@ class Analyzer
 
   def analyze_expression(expression)
     analyze_any(expression.body)
+  end
+
+  def analyze_invoke(invoke)
+    symbol = current_scope.find_symbol(invoke.message)
+    if symbol
+      case symbol.reference
+      when Ast::Method
+        Ast::Invoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) })
+      when Ast::Assignment
+        Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
+      else
+        Ast::Load.new(:value, current_scope.value_index(symbol.reference))
+      end
+    else
+      Ast::UnresolvedInvoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) })
+    end
   end
 
   def analyze_literal(literal)

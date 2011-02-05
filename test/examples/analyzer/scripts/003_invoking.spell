@@ -1,0 +1,5 @@
+method1 () = 1.0
+
+method2 (p v) = p + v
+
+main () = method2 method1 2

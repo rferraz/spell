@@ -2,13 +2,18 @@ module Ast
 
   class Method
 
-    def initialize(name, literal_frame, body)
-      @name, @literal_frame, @body = name, literal_frame, body
+    attr_reader :name
+
+    def initialize(name, arguments_size, bindings_size, literal_frame, body)
+      @name, @arguments_size, @bindings_size, @literal_frame, @body = name, arguments_size, bindings_size, literal_frame, body
     end
 
     def to_sexp
       [:method, @name] +
-        ([[:activation] + (@literal_frame.empty? ? [[]] : @literal_frame.collect { |literal| [:const, literal] })]) +
+        ([[:activation] +
+          (@arguments_size.zero? ? [] : [[:arguments, @arguments_size]]) +
+          (@bindings_size.zero? ? [] : [[:bindings, @bindings_size]]) +
+          (@literal_frame.empty? ? [[]] : @literal_frame.collect { |literal| [:const, literal] })]) +
         @body.collect(&:to_sexp)
     end
 
