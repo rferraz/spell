@@ -6,8 +6,10 @@ class Analyser
 
   def analyse
     reset_scopes
+    reset_method_table
     reset_symbol_table
     analyze_all
+    Ast::Program.new(@methods)
   end
 
   def self.analyze(ast)
@@ -33,15 +35,15 @@ class Analyser
   end
 
   def analyze_program(program)
-    Ast::Program.new(program.statements.collect { |statement| analyze_any(statement) })
+    program.statements.collect { |statement| analyze_any(statement) }
   end
 
   def analyze_statement(statement)
     enter_scope
     begin
-      Ast::Method.new(statement.name,
-                      current_scope.literal_frame,
-                      statement.body.collect { |expression| analyze_any(expression) })
+      @methods << Ast::Method.new(statement.name,
+                                 current_scope.literal_frame,
+                                 statement.body.collect { |expression| analyze_any(expression) })
     ensure
       leave_scope
     end
@@ -61,6 +63,10 @@ class Analyser
 
   def reset_scopes
     @scopes = [Scope.new]
+  end
+
+  def reset_method_table
+    @methods = []
   end
 
   def reset_symbol_table
