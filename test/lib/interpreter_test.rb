@@ -1,10 +1,14 @@
 require File.join(File.dirname(__FILE__), "..", "test_helper")
 
-SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "interpreter", "*.spell")
+class InterpreterTestCase < Test::Unit::TestCase
 
-Dir[SCRIPTS_PATH].each do |file|
+  SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "interpreter", "*.spell")
 
-  Class.new(Test::Unit::TestCase) do
+  files = Dir[SCRIPTS_PATH]
+
+  raise "No target files found for the interpreter test in #{SCRIPTS_PATH}" if files.empty?
+
+  Dir[SCRIPTS_PATH].each do |file|
 
     define_method("test_" + File.basename(file, ".spell")) do
       flunk
