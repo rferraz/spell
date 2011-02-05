@@ -1,4 +1,4 @@
-class Analyser
+class Analyzer
 
   def initialize(ast)
     @ast = ast

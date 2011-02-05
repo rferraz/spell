@@ -40,8 +40,8 @@ require "spell/ast/return"
 require "spell/ast/method"
 require "spell/ast/load"
 
-require "spell/analyser/analyser"
-require "spell/analyser/scope"
+require "spell/analyzer/analyzer"
+require "spell/analyzer/scope"
 
 require "spell/interpreter"
 require "spell/code_generator"
