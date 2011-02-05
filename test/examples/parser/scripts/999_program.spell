@@ -32,7 +32,7 @@ array#partition (array predicate) = (filter predicate array) , (filter (invert p
   
 quicksort (array) =
   ? array#length array <= 1 -> array
-  ?                    _ -> quicksort' array
+  ?                       _ -> quicksort' array
   with
     quicksort' (array) = (quicksort (first partition)) ++ (quicksort (last partition))
       with
