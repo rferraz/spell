@@ -1,8 +1,11 @@
 class Analyzer
 
+  PRIMITIVES = %w(+ - * /)
+
   def analyze(ast)
     reset_environment
     analyze_all(ast)
+    fix_unresolved
     create_program
   end
 
@@ -23,6 +26,7 @@ class Analyzer
   def reset_environment
     reset_scopes
     reset_method_table
+    reset_unresolved
   end
 
   def analyze_all(ast)
@@ -74,7 +78,8 @@ class Analyzer
         Ast::Load.new(:value, current_scope.value_index(symbol.reference))
       end
     else
-      Ast::UnresolvedInvoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) })
+      unresolved << Ast::Invoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) }, false)
+      unresolved.last
     end
   end
 
@@ -92,6 +97,14 @@ class Analyzer
 
   def reset_method_table
     @top_methods = []
+  end
+
+  def reset_unresolved
+    @unresolved = []
+  end
+
+  def unresolved
+    @unresolved
   end
 
   def top_methods
@@ -112,6 +125,14 @@ class Analyzer
 
   def leave_scope
     @scopes.pop
+  end
+
+  def fix_unresolved
+    unresolved.each do |invoke|
+      if PRIMITIVES.include?(invoke.message)
+        invoke.resolve!
+      end
+    end
   end
 
 end

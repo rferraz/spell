@@ -5,16 +5,18 @@ module Ast
     attr_reader :message
     attr_reader :parameters
 
-    def initialize(message, parameters)
-      @message, @parameters = message, parameters
+    def initialize(message, parameters, resolved = true)
+      @message, @parameters, @resolved = message, parameters, resolved
     end
 
     def to_sexp
-      [:invoke, @message] + @parameters.collect(&:to_sexp)
+      [@resolved ? :invoke : :unresolved, @message] + @parameters.collect(&:to_sexp)
+    end
+
+    def resolve!
+      @resolved = true
     end
 
   end
-
-  class UnresolvedInvoke < Invoke; end
 
 end
