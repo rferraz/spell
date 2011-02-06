@@ -1,7 +1,7 @@
 module WithLines
 
   def build
-    elements.collect { |element| Ast::Expression.new(element.binding.build) }
+    elements.collect { |element| element.binding.build }
   end
 
 end

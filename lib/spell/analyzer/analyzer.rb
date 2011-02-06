@@ -48,13 +48,14 @@ class Analyzer
   def analyze_statement(statement)
     enter_scope
     begin
-      current_scope.add_arguments(statement.arguments)
-      current_scope.add_bindings(statement.bindings)
+      current_scope.add_statement(statement)
+      body_expressions = statement.body.collect { |expression| analyze_any(expression) }
+      binding_expressions = statement.bindings.collect { |binding| analyze_any(binding) }
       method = Ast::Method.new(statement.name,
                                statement.arguments.size,
                                statement.bindings.size,
                                current_scope.literal_frame,
-                               statement.body.collect { |expression| analyze_any(expression) })
+                               binding_expressions + body_expressions)
       root_scope.add_method(method)
       top_methods << method
     ensure
@@ -64,6 +65,10 @@ class Analyzer
 
   def analyze_expression(expression)
     analyze_any(expression.body)
+  end
+
+  def analyze_assignment(assignment)
+    Ast::Store.new(:value, current_scope.value_index(assignment.name), analyze_any(assignment.expression))
   end
 
   def analyze_invoke(invoke)

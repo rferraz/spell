@@ -1,0 +1,4 @@
+((method main (activation (bindings 2) (const 1) (const 2))
+         (store value 0 (load const 0))
+         (store value 1 (load const 1))
+         (invoke + (load value 0) (load value 1))))

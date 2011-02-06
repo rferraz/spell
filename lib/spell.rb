@@ -39,6 +39,7 @@ require "spell/ast/primitive"
 require "spell/ast/return"
 require "spell/ast/method"
 require "spell/ast/load"
+require "spell/ast/store"
 
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"

@@ -24,14 +24,11 @@ class Scope
     @symbol_table.add(method.name, method, false)
   end
 
-  def add_arguments(arguments)
-    @values_table += arguments
-    @symbol_table.add_arguments(arguments)
-  end
-
-  def add_bindings(bindings)
-    @values_table += bindings.collect(&:name)
-    @symbol_table.add_bindings(bindings)
+  def add_statement(statement)
+    @values_table += statement.arguments
+    @values_table += statement.bindings.collect(&:name)
+    @symbol_table.add_arguments(statement.arguments)
+    @symbol_table.add_bindings(statement.bindings)
   end
 
   def literal_frame
