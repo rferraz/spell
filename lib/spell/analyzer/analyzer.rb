@@ -49,18 +49,23 @@ class Analyzer
     enter_scope
     begin
       current_scope.add_statement(statement)
-      body_expressions = statement.body.collect { |expression| analyze_any(expression) }
       binding_expressions = statement.bindings.inject([]) { |memo, binding|
         analyzed_expression = analyze_any(binding)
         memo << analyzed_expression if binding.is_a?(Ast::Assignment)
         memo
       }
-      method = Ast::Method.new(statement.name,
+      body_expressions = statement.body.collect { |expression| analyze_any(expression) }
+      name = unique_method_name(statement)
+      method = Ast::Method.new(name,
                                statement.arguments.size,
                                binding_expressions.size,
                                current_scope.literal_frame,
                                binding_expressions + body_expressions)
-      root_scope.add_method(method)
+      if current_scope.top_scope?
+        current_scope.add_method(method)
+      else
+        current_scope.parent_scope.add_method(method, statement.name)
+      end
       top_methods << method
     ensure
       leave_scope
@@ -80,7 +85,7 @@ class Analyzer
     if symbol
       case symbol.reference
       when Ast::Method
-        Ast::Invoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) })
+        Ast::Invoke.new(symbol.reference.name, invoke.parameters.collect { |parameter| analyze_any(parameter) })
       when Ast::Assignment
         Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
       else
@@ -134,6 +139,15 @@ class Analyzer
 
   def leave_scope
     @scopes.pop
+  end
+
+  def unique_method_name(statement)
+    if current_scope.top_scope?
+      name = statement.name
+    else
+      root_name = "__inner__" + statement.name
+      root_name + "__" + (top_methods.collect(&:name).grep(/#{root_name}/).size + 1).to_s
+    end
   end
 
   def fix_unresolved

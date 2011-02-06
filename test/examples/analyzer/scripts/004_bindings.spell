@@ -8,3 +8,15 @@ method2 () = x + y
     x () = 1
     y () = 2
 
+method3 () = (x 3) + y
+  with
+    x (p) = p * 2
+    y () = 4
+
+method4 () = p
+  with
+    p () = a
+      with
+        a () = z
+          with
+            z <- 1

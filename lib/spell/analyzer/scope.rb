@@ -1,5 +1,7 @@
 class Scope
 
+  attr_reader :parent_scope
+
   def initialize(parent_scope = nil)
     @parent_scope = parent_scope
     @literal_table = []
@@ -20,8 +22,8 @@ class Scope
     @values_table.index(name)
   end
 
-  def add_method(method)
-    @symbol_table.add(method.name, method, false)
+  def add_method(method, real_name = nil)
+    @symbol_table.add(real_name || method.name, method, false)
   end
 
   def add_statement(statement)
