@@ -1,3 +1,5 @@
 ((method method1 (activation (const 1.0)) (load const 0))
  (method method2 (activation (arguments 2) ()) (invoke + (load value 0) (load value 1)))
+ (method method3 (activation ()) (invoke method4))
+ (method method4 (activation ()) (return))
  (method main (activation (const 2)) (invoke method2 (invoke method1) (load const 0))))

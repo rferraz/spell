@@ -131,6 +131,10 @@ class Analyzer
     unresolved.each do |invoke|
       if PRIMITIVES.include?(invoke.message)
         invoke.resolve!
+      elsif top_methods.find { |method| method.name == invoke.message }
+        invoke.resolve!
+      else
+        raise SpellAnalyzerError.new("Undefined method #{invoke.message}")
       end
     end
   end

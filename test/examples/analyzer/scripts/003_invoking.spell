@@ -2,4 +2,8 @@ method1 () = 1.0
 
 method2 (p v) = p + v
 
+method3 () = method4
+
+method4 () = pass
+
 main () = method2 method1 2
