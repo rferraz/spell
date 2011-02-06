@@ -25,10 +25,12 @@ class Scope
   end
 
   def add_statement(statement)
-    @values_table += statement.arguments
-    @values_table += statement.bindings.collect(&:name)
-    @symbol_table.add_arguments(statement.arguments)
-    @symbol_table.add_bindings(statement.bindings)
+    arguments = statement.arguments
+    bindings = statement.bindings.select { |binding| binding.is_a?(Ast::Assignment) }
+    @values_table += arguments
+    @values_table += bindings.collect(&:name)
+    @symbol_table.add_arguments(arguments)
+    @symbol_table.add_bindings(bindings)
   end
 
   def literal_frame

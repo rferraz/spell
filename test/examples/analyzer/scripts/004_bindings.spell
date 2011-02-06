@@ -1,4 +1,10 @@
-main () = x + y
+method1 () = x + y
   with
     x <- 1
     y <- 2
+
+method2 () = x + y
+  with
+    x () = 1
+    y () = 2
+

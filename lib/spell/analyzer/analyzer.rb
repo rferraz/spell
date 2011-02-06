@@ -50,10 +50,14 @@ class Analyzer
     begin
       current_scope.add_statement(statement)
       body_expressions = statement.body.collect { |expression| analyze_any(expression) }
-      binding_expressions = statement.bindings.collect { |binding| analyze_any(binding) }
+      binding_expressions = statement.bindings.inject([]) { |memo, binding|
+        analyzed_expression = analyze_any(binding)
+        memo << analyzed_expression if binding.is_a?(Ast::Assignment)
+        memo
+      }
       method = Ast::Method.new(statement.name,
                                statement.arguments.size,
-                               statement.bindings.size,
+                               binding_expressions.size,
                                current_scope.literal_frame,
                                binding_expressions + body_expressions)
       root_scope.add_method(method)
