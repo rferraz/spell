@@ -29,38 +29,49 @@ class Analyzer
     reset_unresolved
   end
 
-  def analyze_all(ast)
-    analyze_any(ast)
-  end
-
   def create_program
     Ast::Program.new(top_methods)
+  end
+
+  def fix_unresolved
+    unresolved.each do |invoke|
+      if PRIMITIVES.include?(invoke.message)
+        invoke.resolve!
+      elsif top_methods.find { |method| method.name == invoke.message }
+        invoke.resolve!
+      else
+        raise SpellAnalyzerError.new("Undefined method #{invoke.message}")
+      end
+    end
+  end
+
+  def analyze_all(ast)
+    analyze_any(ast)
   end
 
   def analyze_any(ast)
     send("analyze_#{ast.class.name.demodulize.underscore}", ast)
   end
 
+  def analyze_list(list)
+    list.collect { |item| analyze_any(item) }
+  end
+
   def analyze_program(program)
-    program.statements.collect { |statement| analyze_any(statement) }
+    analyze_list(program.statements)
   end
 
   def analyze_statement(statement)
     enter_scope
     begin
       current_scope.add_statement(statement)
-      binding_expressions = statement.bindings.inject([]) { |memo, binding|
-        analyzed_expression = analyze_any(binding)
-        memo << analyzed_expression if binding.is_a?(Ast::Assignment)
-        memo
-      }
-      body_expressions = statement.body.collect { |expression| analyze_any(expression) }
-      name = unique_method_name(statement)
-      method = Ast::Method.new(name,
+      assignments, statements = statement.bindings.partition { |binding| binding.is_a?(Ast::Assignment) }
+      analyze_list(statements)
+      method = Ast::Method.new(unique_method_name(statement),
                                statement.arguments.size,
-                               binding_expressions.size,
+                               assignments.size,
                                current_scope.literal_frame,
-                               binding_expressions + body_expressions)
+                               analyze_list(assignments) + analyze_list(statement.body))
       if current_scope.top_scope?
         current_scope.add_method(method)
       else
@@ -85,14 +96,14 @@ class Analyzer
     if symbol
       case symbol.reference
       when Ast::Method
-        Ast::Invoke.new(symbol.reference.name, invoke.parameters.collect { |parameter| analyze_any(parameter) })
+        Ast::Invoke.new(symbol.reference.name, analyze_list(invoke.parameters))
       when Ast::Assignment
         Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
       else
         Ast::Load.new(:value, current_scope.value_index(symbol.reference))
       end
     else
-      unresolved << Ast::Invoke.new(invoke.message, invoke.parameters.collect { |parameter| analyze_any(parameter) }, false)
+      unresolved << Ast::Invoke.new(invoke.message, analyze_list(invoke.parameters), false)
       unresolved.last
     end
   end
@@ -147,18 +158,6 @@ class Analyzer
     else
       root_name = "__inner__" + statement.name
       root_name + "__" + (top_methods.collect(&:name).grep(/#{root_name}/).size + 1).to_s
-    end
-  end
-
-  def fix_unresolved
-    unresolved.each do |invoke|
-      if PRIMITIVES.include?(invoke.message)
-        invoke.resolve!
-      elsif top_methods.find { |method| method.name == invoke.message }
-        invoke.resolve!
-      else
-        raise SpellAnalyzerError.new("Undefined method #{invoke.message}")
-      end
     end
   end
 
