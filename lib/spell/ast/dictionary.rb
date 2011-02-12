@@ -2,6 +2,8 @@ module Ast
 
   class Dictionary
 
+    attr_reader :items
+
     def initialize(items)
       @items = items
     end
@@ -14,6 +16,9 @@ module Ast
 
   class DictionaryItem
 
+    attr_reader :name
+    attr_reader :expression
+
     def initialize(name, expression)
       @name, @expression = name, expression
     end
@@ -25,6 +30,9 @@ module Ast
   end
 
   class DictionaryAccess
+
+    attr_reader :target
+    attr_reader :accessor
 
     def initialize(target, accessor)
       @target, @accessor = target, accessor

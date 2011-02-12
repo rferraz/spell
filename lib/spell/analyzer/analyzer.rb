@@ -120,6 +120,18 @@ class Analyzer
     default_case_item
   end
 
+  def analyze_dictionary(dictionary)
+    Ast::Dictionary.new(analyze_list(dictionary.items))
+  end
+
+  def analyze_dictionary_item(dictionary_item)
+    Ast::DictionaryItem.new(dictionary_item.name, analyze_any(dictionary_item.expression))
+  end
+
+  def analyze_dictionary_access(dictionary_access)
+    Ast::DictionaryAccess.new(analyze_any(dictionary_access.target), dictionary_access.accessor)
+  end
+
   def analyze_literal(literal)
     Ast::Load.new(:const, current_scope.add_literal(literal.value))
   end

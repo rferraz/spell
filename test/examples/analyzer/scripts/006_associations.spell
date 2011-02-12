@@ -1,0 +1,14 @@
+one () = { a: 0 }
+
+two () = { x: a }
+  with
+    a <- 0
+
+three () = a.b
+  with
+    x <- 1
+    a <- { b: x }
+
+four () = a.b
+  with
+    a () = { b: 0 }
