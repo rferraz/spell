@@ -26,12 +26,15 @@ module Ast
 
   class ArrayAccess
 
+    attr_reader :target
+    attr_reader :index
+
     def initialize(target, index)
       @target, @index = target, index
     end
 
     def to_sexp
-      [:array, :access, @target.to_sexp, @index]
+      [:array, :access, @target.to_sexp, @index.to_sexp]
     end
 
   end
