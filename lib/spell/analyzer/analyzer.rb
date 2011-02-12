@@ -132,6 +132,18 @@ class Analyzer
     Ast::DictionaryAccess.new(analyze_any(dictionary_access.target), dictionary_access.accessor)
   end
 
+  def analyze_array(array)
+    Ast::Array.new(analyze_list(array.items))
+  end
+
+  def analyze_array_item(array_item)
+    Ast::ArrayItem.new(analyze_any(array_item.expression))
+  end
+
+  def analyze_array_access(array_access)
+    Ast::ArrayAccess.new(analyze_any(array_access.target), analyze_any(array_access.index))
+  end
+
   def analyze_literal(literal)
     Ast::Load.new(:const, current_scope.add_literal(literal.value))
   end

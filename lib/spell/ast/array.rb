@@ -2,6 +2,8 @@ module Ast
 
   class Array
 
+    attr_reader :items
+
     def initialize(items)
       @items = items
     end
@@ -13,6 +15,8 @@ module Ast
   end
 
   class ArrayItem
+
+    attr_reader :expression
 
     def initialize(expression)
       @expression = expression
