@@ -1,6 +1,6 @@
 class Analyzer
 
-  PRIMITIVES = %w(+ - * /)
+  PRIMITIVES = %w(+ - * / < >)
 
   def analyze(ast)
     reset_environment
@@ -106,6 +106,18 @@ class Analyzer
       unresolved << Ast::Invoke.new(invoke.message, analyze_list(invoke.parameters), false)
       unresolved.last
     end
+  end
+
+  def analyze_case(case_statement)
+    Ast::Case.new(analyze_list(case_statement.items))
+  end
+
+  def analyze_case_item(case_item)
+    Ast::CaseItem.new(analyze_any(case_item.condition), analyze_any(case_item.result))
+  end
+
+  def analyze_default_case_item(default_case_item)
+    default_case_item
   end
 
   def analyze_literal(literal)

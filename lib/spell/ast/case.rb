@@ -2,6 +2,8 @@ module Ast
 
   class Case
 
+    attr_reader :items
+
     def initialize(items)
       @items = items
     end
@@ -13,6 +15,9 @@ module Ast
   end
 
   class CaseItem
+
+    attr_reader :condition
+    attr_reader :result
 
     def initialize(condition, result)
       @condition, @result = condition, result
