@@ -1,0 +1,8 @@
+((method __inner__call__1 (activation (arguments 1) ()) (invoke apply (load value 0)))
+ (method one (activation ()) (invoke __inner__call__1 (closure (activation (const 1)) (load const 0))))
+ (method __inner__call__2 (activation (arguments 1) (const 1)) (invoke apply (load value 0) (load const 0)))
+ (method two (activation ()) (invoke __inner__call__2 (closure (activation (arguments 1) ()) (load value 0))))
+ (method __inner__call__3 (activation (arguments 1) ()) (invoke apply (load value 0)))
+ (method __inner__other__1 (activation (const 1)) (load const 0))
+ (method three (activation ()) (invoke __inner__call__3 (closure (activation ()) (invoke __inner__other__1)))))
+

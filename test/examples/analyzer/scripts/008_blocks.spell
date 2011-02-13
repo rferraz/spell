@@ -1,0 +1,12 @@
+one () = call { | 1 }
+  with
+    call (block) = apply block
+
+two () = call { a | a }
+  with
+    call (block) = apply block 1
+
+three () = call { | other }
+  with
+    call (block) = apply block
+    other () = 1

@@ -35,6 +35,11 @@ class Scope
     @symbol_table.add_bindings(bindings)
   end
 
+  def add_block(block)
+    @values_table += block.arguments
+    @symbol_table.add_arguments(block.arguments)
+  end
+
   def literal_frame
     @literal_table
   end

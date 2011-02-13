@@ -1,6 +1,6 @@
 class Analyzer
 
-  PRIMITIVES = %w(+ - * / < >)
+  PRIMITIVES = %w(+ - * / < > apply)
 
   def analyze(ast)
     reset_environment
@@ -142,6 +142,18 @@ class Analyzer
 
   def analyze_array_access(array_access)
     Ast::ArrayAccess.new(analyze_any(array_access.target), analyze_any(array_access.index))
+  end
+
+  def analyze_block(block)
+    enter_scope
+    begin
+      current_scope.add_block(block)
+      Ast::Closure.new(block.arguments.size,
+                       current_scope.literal_frame,
+                       analyze_list(block.expressions))
+    ensure
+      leave_scope
+    end
   end
 
   def analyze_literal(literal)

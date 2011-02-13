@@ -2,6 +2,9 @@ module Ast
 
   class Block
 
+    attr_reader :arguments
+    attr_reader :expressions
+
     def initialize(arguments, expressions)
       @arguments, @expressions = arguments, expressions
     end
