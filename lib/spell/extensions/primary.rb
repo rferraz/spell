@@ -6,7 +6,7 @@ module Primary
         if element.respond_to?(:identifier)
           Ast::DictionaryAccess.new(memo, element.identifier.text_value)
         else
-          Ast::ArrayAccess.new(memo, Ast::Literal.new(element.index.text_value.to_i))
+          Ast::ArrayAccess.new(memo, element.index.build)
         end
       }
     else

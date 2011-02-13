@@ -102,7 +102,7 @@ grammar Spell
   end
 
   rule array_access
-    ("[" index:integer "]")+
+    ("[" index:expression "]")+
   end
 
   rule call
