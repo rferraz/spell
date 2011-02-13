@@ -1,6 +1,6 @@
 class Analyzer
 
-  PRIMITIVES = %w(+ - * / < > apply)
+  PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply)
 
   def analyze(ast)
     reset_environment
