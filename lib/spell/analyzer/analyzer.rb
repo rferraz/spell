@@ -164,6 +164,10 @@ class Analyzer
     end
   end
 
+  def analyze_primitive(primitive)
+    primitive
+  end
+
   def analyze_literal(literal)
     Ast::Load.new(:const, current_scope.add_literal(literal.value))
   end
