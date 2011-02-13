@@ -10,3 +10,17 @@ three () = call { | other }
   with
     call (block) = apply block
     other () = 1
+
+four () = call { | a } { | b }
+  with
+    call (block1 block2) = (apply block1) + (apply block2)
+    a <- 1
+    b <- 2
+
+five () = apply { | apply { | a } }
+  with
+    a <- 1
+
+six (a) = apply { | apply { | a + b } }
+  with
+    b <- 1

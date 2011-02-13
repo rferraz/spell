@@ -92,15 +92,23 @@ class Analyzer
   end
 
   def analyze_invoke(invoke)
-    symbol = current_scope.find_symbol(invoke.message)
+    symbol, origin_scope = current_scope.find_symbol(invoke.message)
     if symbol
       case symbol.reference
       when Ast::Method
         Ast::Invoke.new(symbol.reference.name, analyze_list(invoke.parameters))
       when Ast::Assignment
-        Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
+        if origin_scope == current_scope
+          Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
+        else
+          Ast::Up.new(origin_scope.value_index(symbol.reference.name), current_scope.distance_from(origin_scope))
+        end
       else
-        Ast::Load.new(:value, current_scope.value_index(symbol.reference))
+        if origin_scope == current_scope
+          Ast::Load.new(:value, current_scope.value_index(symbol.reference))
+        else
+          Ast::Up.new(origin_scope.value_index(symbol.reference), current_scope.distance_from(origin_scope))
+        end
       end
     else
       unresolved << Ast::Invoke.new(invoke.message, analyze_list(invoke.parameters), false)

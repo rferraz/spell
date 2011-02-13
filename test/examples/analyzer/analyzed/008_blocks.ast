@@ -4,5 +4,25 @@
  (method two (activation ()) (invoke __inner__call__2 (closure (activation (arguments 1) ()) (load value 0))))
  (method __inner__call__3 (activation (arguments 1) ()) (invoke apply (load value 0)))
  (method __inner__other__1 (activation (const 1)) (load const 0))
- (method three (activation ()) (invoke __inner__call__3 (closure (activation ()) (invoke __inner__other__1)))))
+ (method three (activation ()) (invoke __inner__call__3 (closure (activation ()) (invoke __inner__other__1))))
+ (method __inner__call__4 (activation (arguments 2) ()) (invoke + (invoke apply (load value 0)) (invoke apply (load value 1))))
+ (method four (activation (bindings 2) (const 1) (const 2))
+         (store value 0 (load const 0))
+         (store value 1 (load const 1))
+         (invoke __inner__call__4 
+                 (closure (activation ()) (up 0 1))
+                 (closure (activation ()) (up 1 1))))
+ (method five (activation (bindings 1) (const 1))
+         (store value 0 (load const 0))
+         (invoke apply 
+                 (closure (activation ()) 
+                          (invoke apply 
+                                  (closure (activation ()) (up 0 2))))))
+ (method six (activation (arguments 1) (bindings 1) (const 1))
+         (store value 1 (load const 0))
+         (invoke apply 
+                 (closure (activation ()) 
+                          (invoke apply 
+                                  (closure (activation ()) (invoke + (up 0 2) (up 1 2))))))))
+
 

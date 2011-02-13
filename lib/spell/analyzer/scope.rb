@@ -53,7 +53,24 @@ class Scope
   end
 
   def find_symbol(symbol_name)
-    @symbol_table.find(symbol_name) || (@parent_scope ? @parent_scope.find_symbol(symbol_name) : nil)
+    symbol = @symbol_table.find(symbol_name)
+    if symbol
+      [symbol, self]
+    elsif @parent_scope
+      @parent_scope.find_symbol(symbol_name)
+    else
+      [nil, self]
+    end
+  end
+
+  def distance_from(scope)
+    if scope == self
+      0
+    elsif @parent_scope
+      1 + @parent_scope.distance_from(scope)
+    else
+      raise SpellUnrelatedScopeError.new
+    end
   end
 
 end
