@@ -5,7 +5,8 @@ grammar Spell
   end
 
   rule statement
-    identifier arguments spaces? equal spaces? body <Statement>
+    identifier arguments spaces? equal spaces? body <Statement> /
+    import <Import>
   end
 
   rule arguments
@@ -19,6 +20,10 @@ grammar Spell
   rule body
     expressions:(pass / guard_expressions / do_expression / expression)
     with:(line_breaks with_expression)?
+  end
+
+  rule import
+    "import" spaces file:string
   end
 
   rule guard_expressions

@@ -1,0 +1,2 @@
+(((define secondary (pass)))
+ (define main (invoke secondary)))

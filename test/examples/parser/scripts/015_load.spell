@@ -1,0 +1,3 @@
+import "015_load_secondary"
+
+main () = secondary

@@ -1,0 +1,1 @@
+SPELL_EXTENSION = ".spell"

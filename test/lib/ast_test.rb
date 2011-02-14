@@ -15,7 +15,7 @@ class AstTestCase < Test::Unit::TestCase
       ast_file = file.sub("scripts", "asts").sub(SPELL_EXTENSION, AST_EXTENSION)
       assert File.exists?(ast_file), "in finding #{ast_file}"
       assert_equal(cleanup_sexp(File.read(ast_file)),
-                   sexp_to_string(Parser.parse(File.read(file)).to_sexp),
+                   sexp_to_string(Parser.parse(File.read(file), File.dirname(SCRIPTS_PATH)).to_sexp),
                    "for file #{file}")
     end
 
