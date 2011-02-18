@@ -2,14 +2,14 @@ module Bytecode
 
   class Invoke
     
-    attr_reader :message
+    attr_reader :method
     
-    def initialize(message)
-      @message = message
+    def initialize(method)
+      @method = method
     end
     
     def inspect
-      "invoke #{@message}"
+      "invoke #{@method}"
     end
     
   end

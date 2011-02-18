@@ -11,11 +11,25 @@ class InterpreterTestCase < Test::Unit::TestCase
   Dir[SCRIPTS_PATH].each do |file|
 
     define_method("test_" + File.basename(file, ".spell")) do
-      interpreter = Interpreter.new(File.read(file))
-      interpreter.attach_primitive("assert") { argument | assert(argument) }
-      assert interpreter.run
+      code = File.read(file)
+      interpreter = Interpreter.new(code)
+      interpreter.attach_primitive("assert#equal", method(:primitive_assert_equal))
+      assert_equal result_for(code), formatted_result_for(interpreter.run)
     end
 
+  end
+  
+  def primitive_assert_equal(expected, actual)
+    assert_equal(expected, actual)
+    actual
+  end
+  
+  def result_for(code)
+    code.lines.first.strip
+  end
+  
+  def formatted_result_for(result)
+    "# Result: #{result}"
   end
 
 end

@@ -23,7 +23,9 @@ class CodeGenerator
   end
 
   def generate_program(program)
-    program.statements.inject([]) { |memo, statement| memo += generate_any(statement) ; memo }
+    instructions = program.statements.inject([]) { |memo, statement| memo += generate_any(statement) ; memo }
+    instructions << Bytecode::Invoke.new("main")
+    instructions
   end
 
   def generate_method(method)
@@ -32,6 +34,7 @@ class CodeGenerator
       instructions << Bytecode::Push.new(literal)
     end
     instructions += method.body.inject([]) { |memo, expression| memo += generate_any(expression) ; memo }
+    instructions << Bytecode::Return.new
     instructions
   end
 

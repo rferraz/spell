@@ -49,6 +49,7 @@ require "spell/bytecode/invoke"
 require "spell/bytecode/label"
 require "spell/bytecode/load"
 require "spell/bytecode/push"
+require "spell/bytecode/return"
 
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"
