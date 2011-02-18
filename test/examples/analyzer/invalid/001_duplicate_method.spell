@@ -1,0 +1,5 @@
+# Duplicate method "main"
+
+main () = pass
+
+main () = pass

@@ -31,3 +31,7 @@ def cleanup_sexp(sexp)
     gsub(/\s+/, " ").
     gsub("\\\"", "")
 end
+
+def assert_raise_with_message(exception, message, &block)
+  assert_equal(message, assert_raises(exception, &block).message)
+end

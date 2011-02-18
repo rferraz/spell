@@ -44,7 +44,7 @@ class Analyzer
       end
     end
   end
-
+  
   def analyze_all(ast)
     analyze_any(ast)
   end
@@ -77,6 +77,7 @@ class Analyzer
       else
         current_scope.parent_scope.add_method(method, statement.name)
       end
+      check_for_duplication(method, statement.name)
       top_methods << method
     ensure
       leave_scope
@@ -219,6 +220,10 @@ class Analyzer
       root_name = "__inner__" + statement.name
       root_name + "__" + (top_methods.collect(&:name).grep(/#{root_name}/).size + 1).to_s
     end
+  end
+  
+  def check_for_duplication(method, real_name)
+    raise SpellAnalyzerError.new("Duplicate method \"#{real_name}\"") if top_methods.collect(&:name).include?(method.name)
   end
 
 end

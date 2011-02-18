@@ -4,6 +4,8 @@ class AnalyzerTestCase < Test::Unit::TestCase
 
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "scripts", "*" + SPELL_EXTENSION)
   AST_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "analyzed", "*" + AST_EXTENSION)
+  
+  INVALID_SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "invalid", "*" + SPELL_EXTENSION)
 
   files = Dir[SCRIPTS_PATH]
 
@@ -19,6 +21,26 @@ class AnalyzerTestCase < Test::Unit::TestCase
                    "for file #{file}")
     end
 
+  end
+
+  invalid_files = Dir[INVALID_SCRIPTS_PATH]
+
+  raise "No invalid target files found for the analyzer test in #{INVALID_SCRIPTS_PATH}" if files.empty?
+
+  invalid_files.each do |file|
+
+    define_method("test_" + File.basename(file, SPELL_EXTENSION)) do
+      code = File.read(file)
+      assert File.exists?(file), "in finding #{file}"
+      assert_raise_with_message(SpellAnalyzerError, error_message_for(code)) do
+        Analyzer.analyze(Parser.parse(code))
+      end
+    end
+
+  end
+  
+  def error_message_for(code)
+    code.lines.first.gsub("#", "").strip
   end
 
 end
