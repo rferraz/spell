@@ -3,6 +3,10 @@ module Ast
   class Method
 
     attr_reader :name
+    attr_reader :arguments_size
+    attr_reader :bindings_size
+    attr_reader :literal_frame
+    attr_reader :body
 
     def initialize(name, arguments_size, bindings_size, literal_frame, body)
       @name, @arguments_size, @bindings_size, @literal_frame, @body = name, arguments_size, bindings_size, literal_frame, body

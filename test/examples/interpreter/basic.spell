@@ -1,4 +1,1 @@
-main () = 
-  do 
-    assert#equal 4 (2 + 2)
-    assert#equal 9 (3 * 3)
+main () = assert 1

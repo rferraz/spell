@@ -1,7 +1,7 @@
 class VM
 
   def initialize(instructions)
-    puts instructions.inspect
+    # puts instructions.inspect
     @instructions = instructions
   end
 

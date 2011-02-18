@@ -26,17 +26,31 @@ class CodeGenerator
     program.statements.inject([]) { |memo, statement| memo += generate_any(statement) ; memo }
   end
 
-  def generate_statement(statement)
-    statement.body.inject([]) { |memo, expression| memo += generate_any(expression) ; memo }
+  def generate_method(method)
+    instructions = [Bytecode::Label.new(method.name, method.literal_frame.size, method.bindings_size)]
+    method.literal_frame.each do |literal|
+      instructions << Bytecode::Push.new(literal)
+    end
+    instructions += method.body.inject([]) { |memo, expression| memo += generate_any(expression) ; memo }
+    instructions
   end
 
   def generate_expression(expression)
     generate_any(expression.body)
   end
-
-  def generate_invoke(invoke)
-    [:invoke, invoke.message]
+  
+  def generate_load(load)
+    [Bytecode::Load.new(load.type, load.index)]
   end
 
+  def generate_invoke(invoke)
+    instructions = []
+    invoke.parameters.reverse.each do |parameter|
+      instructions += generate_any(parameter)
+    end
+    instructions << Bytecode::Invoke.new(invoke.message)
+    instructions
+  end
+  
 end
 

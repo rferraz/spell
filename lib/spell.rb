@@ -45,6 +45,11 @@ require "spell/ast/store"
 require "spell/ast/closure"
 require "spell/ast/up"
 
+require "spell/bytecode/invoke"
+require "spell/bytecode/label"
+require "spell/bytecode/load"
+require "spell/bytecode/push"
+
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"
 require "spell/analyzer/symbol_table"

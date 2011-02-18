@@ -11,8 +11,9 @@ class InterpreterTestCase < Test::Unit::TestCase
   Dir[SCRIPTS_PATH].each do |file|
 
     define_method("test_" + File.basename(file, ".spell")) do
-      flunk
-      Interpreter.run(File.read(file))
+      interpreter = Interpreter.new(File.read(file))
+      interpreter.attach_primitive("assert") { argument | assert(argument) }
+      assert interpreter.run
     end
 
   end
