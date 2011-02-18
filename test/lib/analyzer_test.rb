@@ -39,6 +39,12 @@ class AnalyzerTestCase < Test::Unit::TestCase
 
   end
   
+  def test_primitive
+    assert_nothing_raised do
+      Analyzer.analyze(Parser.parse("main () = primitive"), ["primitive"])
+    end
+  end
+  
   def error_message_for(code)
     code.lines.first.gsub("#", "").strip
   end

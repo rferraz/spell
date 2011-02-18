@@ -2,15 +2,15 @@ class Analyzer
 
   PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply)
 
-  def analyze(ast)
-    reset_environment
+  def analyze(ast, primitives)
+    reset_environment(primitives)
     analyze_all(ast)
     fix_unresolved
     create_program
   end
 
-  def self.analyze(ast)
-    new.analyze(ast)
+  def self.analyze(ast, primitives = [])
+    new.analyze(ast, primitives)
   end
 
   def method_missing(method, *args, &block)
@@ -23,7 +23,8 @@ class Analyzer
 
   protected
 
-  def reset_environment
+  def reset_environment(primitives)
+    reset_primitives(primitives)
     reset_scopes
     reset_method_table
     reset_unresolved
@@ -35,7 +36,7 @@ class Analyzer
 
   def fix_unresolved
     unresolved.each do |invoke|
-      if PRIMITIVES.include?(invoke.message)
+      if primitives.include?(invoke.message)
         invoke.resolve!
       elsif top_methods.find { |method| method.name == invoke.message }
         invoke.resolve!
@@ -177,6 +178,10 @@ class Analyzer
     Ast::Return.new
   end
 
+  def reset_primitives(primitives)
+    @primitives = PRIMITIVES + primitives
+  end
+  
   def reset_scopes
     @scopes = [Scope.new]
   end
@@ -193,6 +198,10 @@ class Analyzer
     @unresolved
   end
 
+  def primitives
+    @primitives
+  end
+  
   def top_methods
     @top_methods
   end
