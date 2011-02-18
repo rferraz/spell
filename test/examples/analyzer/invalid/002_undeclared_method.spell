@@ -1,0 +1,3 @@
+# Undefined method "run"
+
+main () = run

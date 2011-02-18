@@ -40,7 +40,7 @@ class Analyzer
       elsif top_methods.find { |method| method.name == invoke.message }
         invoke.resolve!
       else
-        raise SpellAnalyzerError.new("Undefined method #{invoke.message}")
+        raise SpellAnalyzerError.new("Undefined method \"#{invoke.message}\"")
       end
     end
   end
