@@ -1,0 +1,8 @@
+# Result: 2
+
+method#a (p) = p
+
+method#b () = method#a 2
+
+main () = method#b
+

@@ -29,7 +29,7 @@ class BytecodeGenerator
   end
 
   def generate_method(method)
-    instructions = [Bytecode::Label.new(method.name, method.literal_frame.size, method.bindings_size)]
+    instructions = [Bytecode::Label.new(method.name, method.arguments_size, method.literal_frame.size, method.bindings_size)]
     method.literal_frame.each do |literal|
       instructions << Bytecode::Push.new(literal)
     end

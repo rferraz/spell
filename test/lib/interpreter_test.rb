@@ -12,7 +12,7 @@ class InterpreterTestCase < Test::Unit::TestCase
 
     define_method("test_" + File.basename(file, ".spell")) do
       code = File.read(file)
-      interpreter = Interpreter.new(code)
+      interpreter = Interpreter.new(code, false)
       interpreter.attach_primitive("assert#equal", method(:primitive_assert_equal))
       assert_equal result_for(code), formatted_result_for(interpreter.run)
     end

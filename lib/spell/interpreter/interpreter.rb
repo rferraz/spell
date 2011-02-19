@@ -1,6 +1,7 @@
 class Interpreter
 
-  def initialize(code)
+  def initialize(code, debug)
+    @debug = debug
     @code = code
     @primitives = {}
   end
@@ -13,7 +14,7 @@ class Interpreter
     ast = Analyzer.analyze(Parser.parse(@code), @primitives.keys)
     if ast
       instructions = BytecodeGenerator.new(ast).generate
-      vm = VM.new(instructions, @primitives)
+      vm = VM.new(instructions, @primitives, @debug)
       vm.run
     else
       raise @parser.failure_reason

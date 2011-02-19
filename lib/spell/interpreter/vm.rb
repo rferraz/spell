@@ -1,55 +1,54 @@
 class VM
 
-  def initialize(instructions, primitives = [])
+  def initialize(instructions, primitives = [], debug = false)
+    @debug = debug
     @primitives = primitives
     @instructions = instructions
   end
 
   def run
+    if debug?
+      puts @instructions.inspect
+    end
     reset_ip
-    reset_sp
-    reset_call_sites
+    reset_frames
     while has_instructions?
       execute(current_instruction)
       next_instruction
     end
-    stack.pop
+    current_frame.pop
   end
 
   protected
-
-  def stack
-    @stack ||= []
+  
+  def debug?
+    @debug
   end
 
   def ip
     @ip
   end
-
-  def reset_sp
-    @sp = @ip
-  end
   
   def reset_ip
     @ip = @instructions.size - 1
   end
-  
-  def reset_call_sites
-    @call_sites = []
+
+  def reset_frames
+    @frames = [Frame.new(ip)]
   end
   
-  def enter_call_site(sp)
-    @call_sites.push(:sp => sp)
+  def enter(frame)
+    @frames.push(frame)
   end
   
-  def leave_call_site
-    @call_sites.pop
+  def leave
+    @frames.pop
+  end
+  
+  def current_frame
+    @frames.last
   end
 
-  def sp
-    @call_sites.last[:sp]
-  end
-  
   def ip_of(instruction)
     @instructions.index(instruction)
   end
@@ -71,30 +70,40 @@ class VM
   end
 
   def execute(instruction)
+    if debug?
+      puts "frame before: " + current_frame.inspect
+      puts instruction.inspect
+    end
     case instruction
     when Bytecode::Invoke
       call_method(instruction.method)
     when Bytecode::Push
-      stack.push(instruction.value)
+      current_frame.push(instruction.value)
     when Bytecode::Load
-      stack.push(stack[sp + instruction.index])
+      if instruction.type == :const
+        current_frame.load_const(instruction.index)
+      else
+        current_frame.load_value(instruction.index)
+      end
     when Bytecode::Return
       return_from_method
     else
       raise SpellInvalidBytecodeError.new("Invalid bytecode: #{instruction.inspect}")
+    end
+    if debug?
+      puts "frame after: " + current_frame.inspect
     end
   end
   
   def call_method(name)
     instruction = @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
     if instruction
-      stack.push(ip)
-      enter_call_site(stack.size)
+      enter(Frame.new(ip, instruction.literal_frame_size, arguments(instruction.arguments_size)))
       jump_to(ip_of(instruction))
     else
       primitive = primitive_for(name)
       if primitive
-        stack.push(primitive.call(*arguments(primitive.arity)))
+        current_frame.push(primitive.call(*arguments(primitive.arity)))
       else
         raise SpellInvalidMethodCallError.new("Invalid method \"#{name}\" called")
       end
@@ -102,11 +111,10 @@ class VM
   end
   
   def return_from_method
-    return_value = stack.pop
-    stack.slice!(sp, stack.size - sp)
-    leave_call_site
-    jump_to(stack.pop)
-    stack.push(return_value)
+    return_value = current_frame.pop
+    jump_to(current_frame.return_ip)
+    leave
+    current_frame.push(return_value)
   end
   
   def primitive_for(name)
@@ -115,7 +123,7 @@ class VM
   
   def arguments(count)
     parameters = []
-    count.times { parameters.push(stack.pop) }
+    count.times { parameters.push(current_frame.pop) }
     parameters
   end
 

@@ -60,3 +60,4 @@ require "spell/code_generators/bytecode_generator"
 
 require "spell/interpreter/interpreter"
 require "spell/interpreter/vm"
+require "spell/interpreter/frame"
