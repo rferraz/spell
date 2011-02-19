@@ -22,8 +22,12 @@ class BytecodeGenerator
     send("generate_#{ast.class.name.demodulize.underscore}", ast)
   end
 
+  def generate_list(list)
+    list.collect { |item| generate_any(item) }.flatten
+  end
+
   def generate_program(program)
-    instructions = program.statements.inject([]) { |memo, statement| memo += generate_any(statement) ; memo }
+    instructions = generate_list(program.statements)
     instructions << Bytecode::Invoke.new("main")
     instructions
   end
@@ -36,7 +40,7 @@ class BytecodeGenerator
     method.literal_frame.each do |literal|
       instructions << Bytecode::Push.new(literal)
     end
-    instructions += method.body.inject([]) { |memo, expression| memo += generate_any(expression) ; memo }
+    instructions += generate_list(method.body)
     instructions << Bytecode::Return.new
     instructions
   end
@@ -46,7 +50,7 @@ class BytecodeGenerator
   end
 
   def generate_case(case_statement)
-    case_statement.items.inject([]) { |memo, item| memo += generate_any(item) ; memo }
+    generate_list(case_statement.items)
   end
 
   def generate_case_item(case_item)
@@ -75,10 +79,7 @@ class BytecodeGenerator
   end
 
   def generate_invoke(invoke)
-    instructions = []
-    invoke.parameters.reverse.each do |parameter|
-      instructions += generate_any(parameter)
-    end
+    instructions = generate_list(invoke.parameters.reverse)
     instructions << Bytecode::Invoke.new(invoke.message)
     instructions
   end
