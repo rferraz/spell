@@ -1,0 +1,15 @@
+# Result: 1
+
+main () =
+  do
+    assert#equal 6 (first[0] + first[1] + first[2])
+    assert#equal 6 (second[0] + second[1][0] + second[1][1][0])
+    assert#equal 1 second[first[0] - first[1 - 1]]
+  with
+    x <- 1
+    y <- 3
+    a () = 1
+    b () = 2
+    first <- [(x) 2 (y)]
+    second <- [(a) [(b) [a + b]]]
+

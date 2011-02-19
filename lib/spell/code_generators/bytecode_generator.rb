@@ -86,18 +86,40 @@ class BytecodeGenerator
 
   def generate_dictionary(dictionary)
     instructions = [Bytecode::Dictionary.new]
-    instructions << generate_list(dictionary.items)
+    instructions += generate_list(dictionary.items)
     instructions
   end
 
   def generate_dictionary_item(dictionary_item)
     instructions = generate_any(dictionary_item.expression)
     instructions << Bytecode::DictionarySet.new(dictionary_item.name)
+    instructions
   end
 
   def generate_dictionary_access(dictionary_access)
     instructions = generate_any(dictionary_access.target)
     instructions << Bytecode::DictionaryGet.new(dictionary_access.accessor)
+    instructions
+  end
+
+  def generate_array(array)
+    instructions = [Bytecode::Array.new]
+    instructions += generate_list(array.items)
+    instructions
+  end
+
+  def generate_array_item(array_item)
+    instructions = generate_any(array_item.expression)
+    instructions << Bytecode::ArraySet.new
+    instructions
+  end
+
+  def generate_array_access(array_access)
+    instructions = []
+    instructions += generate_any(array_access.index)
+    instructions += generate_any(array_access.target)
+    instructions << Bytecode::ArrayGet.new
+    instructions
   end
 
 end

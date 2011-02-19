@@ -101,6 +101,14 @@ class VM
       value, hash = current_frame.pop, current_frame.pop
       hash[instruction.name] = value
       current_frame.push(hash)
+    when Bytecode::Array
+      current_frame.push(Array.new)
+    when Bytecode::ArrayGet
+      current_frame.push(current_frame.pop[current_frame.pop])
+    when Bytecode::ArraySet
+      value, array = current_frame.pop, current_frame.pop
+      array.push(value)
+      current_frame.push(array)
     when Bytecode::DictionaryGet
       current_frame.push(current_frame.pop[instruction.name])
     else
