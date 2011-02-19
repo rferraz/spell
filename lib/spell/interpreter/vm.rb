@@ -93,6 +93,16 @@ class VM
       current_frame.store_value(instruction.index)
     when Bytecode::Return
       return_from_method
+    when Bytecode::Dictionary
+      current_frame.push(Hash.new)
+    when Bytecode::DictionaryGet
+      current_frame.push(current_frame.pop[instruction.name])
+    when Bytecode::DictionarySet
+      value, hash = current_frame.pop, current_frame.pop
+      hash[instruction.name] = value
+      current_frame.push(hash)
+    when Bytecode::DictionaryGet
+      current_frame.push(current_frame.pop[instruction.name])
     else
       raise SpellInvalidBytecodeError.new("Invalid bytecode: #{instruction.inspect}")
     end

@@ -1,0 +1,8 @@
+# Result: 9
+
+main () =
+  do
+    (first.one + first.two) * second.nested.root
+  with
+    first <- { one: 1; two: 2 }
+    second <- { nested: { root: 3 } }
