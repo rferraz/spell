@@ -52,6 +52,7 @@ require "spell/bytecode/load"
 require "spell/bytecode/store"
 require "spell/bytecode/push"
 require "spell/bytecode/return"
+require "spell/bytecode/jump"
 
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"

@@ -8,8 +8,8 @@ module Guard
 
   def case_items
     elements.collect { |element|
-      Ast::CaseItem.new(Ast::Expression.new(element.guard.condition.build),
-                        Ast::Expression.new(element.guard.result.build))
+      Ast::CaseItem.new(element.guard.condition.build,
+                        element.guard.result.build)
     }
   end
 
@@ -18,7 +18,7 @@ end
 module DefaultGuard
 
   def build
-    Ast::DefaultCaseItem.new
+    Ast::NullCaseCondition.new
   end
 
 end

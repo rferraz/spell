@@ -29,7 +29,10 @@ class BytecodeGenerator
   end
 
   def generate_method(method)
-    instructions = [Bytecode::Label.new(method.name, method.arguments_size, method.literal_frame.size, method.bindings_size)]
+    instructions = [Bytecode::Label.new(method.name, method.arguments_size, method.bindings_size, method.literal_frame.size)]
+    method.bindings_size.times do
+      instructions << Bytecode::Push.new(nil)
+    end
     method.literal_frame.each do |literal|
       instructions << Bytecode::Push.new(literal)
     end
@@ -41,13 +44,32 @@ class BytecodeGenerator
   def generate_expression(expression)
     generate_any(expression.body)
   end
-  
+
+  def generate_case(case_statement)
+    case_statement.items.inject([]) { |memo, item| memo += generate_any(item) ; memo }
+  end
+
+  def generate_case_item(case_item)
+    instructions = []
+    if case_item.condition.is_a?(Ast::NullCaseCondition)
+      instructions += generate_any(case_item.result)
+      instructions << Bytecode::Return.new
+    else
+      result_instructions = generate_any(case_item.result)
+      instructions += generate_any(case_item.condition)
+      instructions << Bytecode::JumpFalse.new(result_instructions.size + 1)
+      instructions += result_instructions
+      instructions << Bytecode::Return.new
+    end
+    instructions
+  end
+
   def generate_store(store)
     instructions = generate_any(store.body)
     instructions << Bytecode::Store.new(store.type, store.index)
     instructions
   end
-  
+
   def generate_load(load)
     [Bytecode::Load.new(load.type, load.index)]
   end
@@ -60,6 +82,6 @@ class BytecodeGenerator
     instructions << Bytecode::Invoke.new(invoke.message)
     instructions
   end
-  
+
 end
 

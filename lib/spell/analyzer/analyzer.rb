@@ -45,7 +45,7 @@ class Analyzer
       end
     end
   end
-  
+
   def analyze_all(ast)
     analyze_any(ast)
   end
@@ -119,15 +119,15 @@ class Analyzer
   end
 
   def analyze_case(case_statement)
-    Ast::Case.new(analyze_list(case_statement.items))
+    Ast::Case.new(analyze_list(reorder_case_items(case_statement.items)))
   end
 
   def analyze_case_item(case_item)
     Ast::CaseItem.new(analyze_any(case_item.condition), analyze_any(case_item.result))
   end
 
-  def analyze_default_case_item(default_case_item)
-    default_case_item
+  def analyze_null_case_condition(null_case_condition)
+    null_case_condition
   end
 
   def analyze_dictionary(dictionary)
@@ -181,7 +181,7 @@ class Analyzer
   def reset_primitives(primitives)
     @primitives = PRIMITIVES + primitives
   end
-  
+
   def reset_scopes
     @scopes = [Scope.new]
   end
@@ -201,7 +201,7 @@ class Analyzer
   def primitives
     @primitives
   end
-  
+
   def top_methods
     @top_methods
   end
@@ -230,9 +230,14 @@ class Analyzer
       root_name + "__" + (top_methods.collect(&:name).grep(/#{root_name}/).size + 1).to_s
     end
   end
-  
+
   def check_for_duplication(method, real_name)
     raise SpellAnalyzerError.new("Duplicate method \"#{real_name}\"") if top_methods.collect(&:name).include?(method.name)
+  end
+
+  def reorder_case_items(items)
+    default, conditions = items.partition { |item| item.condition.is_a?(Ast::NullCaseCondition) }
+    conditions + default
   end
 
 end

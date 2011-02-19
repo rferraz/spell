@@ -1,0 +1,15 @@
+# Result: "3rd case"
+
+method (parameter) = 
+  ? parameter > 0 -> "1st case"
+  ? parameter < 0 -> "2nd case"
+  ?             _ -> "3rd case"
+  
+main () =
+  do
+    assert#equal "1st case" (method +1)
+    assert#equal "2nd case" (method -1)
+    assert#equal "3rd case" (method  0)
+  
+  
+

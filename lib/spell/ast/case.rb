@@ -29,7 +29,7 @@ module Ast
 
   end
 
-  class DefaultCaseItem
+  class NullCaseCondition
 
     def to_sexp
       []

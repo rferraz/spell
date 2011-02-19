@@ -18,16 +18,16 @@ class InterpreterTestCase < Test::Unit::TestCase
     end
 
   end
-  
+
   def primitive_assert_equal(expected, actual)
     assert_equal(expected, actual)
     actual
   end
-  
+
   def result_for(code)
     code.lines.first.strip
   end
-  
+
   def formatted_result_for(result)
     "# Result: #{result}"
   end

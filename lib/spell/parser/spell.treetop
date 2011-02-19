@@ -222,7 +222,7 @@ grammar Spell
   end
 
   rule sign
-    "-"
+    "-" / "+"
   end
 
   rule period
