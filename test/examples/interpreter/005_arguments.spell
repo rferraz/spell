@@ -1,0 +1,7 @@
+# Result: 9
+
+method#a (a b) = a + b
+
+method#b (a b c) = (method#a a b) * c
+
+main () = assert#equal 9 (method#b 1 2 3)
