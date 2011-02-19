@@ -12,7 +12,7 @@ class Interpreter
   def run
     ast = Analyzer.analyze(Parser.parse(@code), @primitives.keys)
     if ast
-      instructions = CodeGenerator.new(ast).generate
+      instructions = BytecodeGenerator.new(ast).generate
       vm = VM.new(instructions, @primitives)
       vm.run
     else

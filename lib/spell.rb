@@ -1,11 +1,12 @@
 require "treetop"
 
-Treetop.load File.join(File.dirname(__FILE__), "spell", "spell.treetop")
+Treetop.load File.join(File.dirname(__FILE__), "spell", "parser", "spell.treetop")
 
 require "spell/defaults"
 require "spell/extensions"
 require "spell/errors"
-require "spell/parser"
+
+require "spell/parser/parser"
 
 require "spell/extensions/program"
 require "spell/extensions/statement"
@@ -55,6 +56,7 @@ require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"
 require "spell/analyzer/symbol_table"
 
-require "spell/interpreter"
-require "spell/code_generator"
-require "spell/vm"
+require "spell/code_generators/bytecode_generator"
+
+require "spell/interpreter/interpreter"
+require "spell/interpreter/vm"

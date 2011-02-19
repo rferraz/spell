@@ -1,4 +1,4 @@
-class CodeGenerator
+class BytecodeGenerator
 
   def initialize(ast)
     @ast = ast
