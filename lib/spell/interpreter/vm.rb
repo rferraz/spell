@@ -1,4 +1,6 @@
 class VM
+  
+  BINARY_PRIMITIVES = %w(+ - * / ** & |)
 
   def initialize(instructions, primitives = [], debug = false)
     @debug = debug
@@ -96,18 +98,26 @@ class VM
   end
   
   def call_method(name)
-    instruction = @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
-    if instruction
-      enter(Frame.new(ip, instruction.literal_frame_size, arguments(instruction.arguments_size)))
-      jump_to(ip_of(instruction))
+    if BINARY_PRIMITIVES.include?(name)
+      binary_primitive(name)
     else
-      primitive = primitive_for(name)
-      if primitive
-        current_frame.push(primitive.call(*arguments(primitive.arity)))
+      instruction = @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
+      if instruction
+        enter(Frame.new(ip, instruction.literal_frame_size, arguments(instruction.arguments_size)))
+        jump_to(ip_of(instruction))
       else
-        raise SpellInvalidMethodCallError.new("Invalid method \"#{name}\" called")
+        primitive = primitive_for(name)
+        if primitive
+          current_frame.push(primitive.call(*arguments(primitive.arity)))
+        else
+          raise SpellInvalidMethodCallError.new("Invalid method \"#{name}\" called")
+        end
       end
     end
+  end
+  
+  def binary_primitive(primitive)
+    current_frame.push(current_frame.pop.send(primitive, current_frame.pop))
   end
   
   def return_from_method
