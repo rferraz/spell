@@ -23,6 +23,10 @@ class Frame
     @stack.push(@stack[index + @value_offset])
   end
   
+  def store_value(index)
+    @stack[index + @value_offset] = @stack.pop
+  end
+  
   def inspect
     "@#{@return_ip} -> #{@stack.inspect}"
   end

@@ -1,6 +1,10 @@
 module Ast
 
   class Store
+    
+    attr_reader :type
+    attr_reader :index
+    attr_reader :body
 
     def initialize(type, index, body)
       @type, @index, @body = type, index, body

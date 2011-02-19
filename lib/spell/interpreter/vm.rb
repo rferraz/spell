@@ -87,6 +87,8 @@ class VM
       else
         current_frame.load_value(instruction.index)
       end
+    when Bytecode::Store
+      current_frame.store_value(instruction.index)
     when Bytecode::Return
       return_from_method
     else

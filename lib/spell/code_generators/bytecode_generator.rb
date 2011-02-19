@@ -42,6 +42,12 @@ class BytecodeGenerator
     generate_any(expression.body)
   end
   
+  def generate_store(store)
+    instructions = generate_any(store.body)
+    instructions << Bytecode::Store.new(store.type, store.index)
+    instructions
+  end
+  
   def generate_load(load)
     [Bytecode::Load.new(load.type, load.index)]
   end

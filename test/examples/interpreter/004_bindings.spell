@@ -1,0 +1,32 @@
+# Result: 2
+
+test#assignments () = 
+  do
+    assert#equal expected actual
+  with
+    expected <- 1
+    actual <- 1
+    
+test#methods () =
+  do
+    assert#equal expected actual
+  with
+    expected () = 1
+    actual () = 1
+
+test#nested () =
+  do
+    nested
+  with
+    nested () = 
+      do
+        assert#equal expected actual
+      with
+        expected <- 2
+        actual () = 2
+
+main () =
+  do
+    test#assignments
+    test#methods
+    test#nested

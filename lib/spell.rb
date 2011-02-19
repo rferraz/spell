@@ -49,6 +49,7 @@ require "spell/ast/up"
 require "spell/bytecode/invoke"
 require "spell/bytecode/label"
 require "spell/bytecode/load"
+require "spell/bytecode/store"
 require "spell/bytecode/push"
 require "spell/bytecode/return"
 
