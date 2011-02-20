@@ -20,11 +20,13 @@ class InterpreterTestCase < Test::Unit::TestCase
   end
 
   def initialize_primitives(interpreter)
-      interpreter.attach_primitive("assert#equal", method(:primitive_assert_equal))
-      interpreter.attach_primitive("null", method(:primitive_null))
-      interpreter.attach_primitive("head", method(:primitive_head))
-      interpreter.attach_primitive("tail", method(:primitive_tail))
-      interpreter.attach_primitive(":", method(:primitive_cons))
+    interpreter.attach_primitive("assert#equal", method(:primitive_assert_equal))
+    interpreter.attach_primitive("null", method(:primitive_null))
+    interpreter.attach_primitive("head", method(:primitive_head))
+    interpreter.attach_primitive("tail", method(:primitive_tail))
+    interpreter.attach_primitive(":", method(:primitive_cons))
+    interpreter.attach_primitive("math#round", method(:primitive_round))
+    interpreter.attach_primitive("math#sqrt", Math.method(:sqrt))
   end
 
   def primitive_assert_equal(expected, actual)
@@ -48,6 +50,10 @@ class InterpreterTestCase < Test::Unit::TestCase
   def primitive_cons(element, list)
     list.unshift(element)
     list
+  end
+
+  def primitive_round(value)
+    value.round
   end
 
   def result_for(code)

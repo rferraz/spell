@@ -1,0 +1,15 @@
+# Result: 55
+
+fib#recursive (value) =
+  ? value <= 1 -> value
+  ?          _ -> (fib#recursive (value - 1)) + (fib#recursive (value - 2))
+  
+fib#iterative (value) = math#round (phi ** value) / sq5
+  with 
+    sq5 <- math#sqrt 5
+    phi <- (1 + sq5) / 2
+
+main () = 
+  do
+    assert#equal 55 (fib#recursive 10)
+    assert#equal 55 (fib#iterative 10)
