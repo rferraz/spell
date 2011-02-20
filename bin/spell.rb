@@ -12,7 +12,9 @@ def primitives
     "null" => lambda { |list| list.empty? },
     "head" => lambda { |list| list.first },
     "tail" => lambda { |list| first, *rest = list ; rest },
-    ":" => lambda { |element, list| list.unshift(element) ; list }
+    ":" => lambda { |element, list| list.unshift(element) ; list },
+    "math#sqrt" => Math.method(:sqrt),
+    "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" }
   }
 end
 
