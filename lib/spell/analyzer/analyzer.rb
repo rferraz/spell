@@ -1,7 +1,5 @@
 class Analyzer
 
-  PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply & | !)
-
   def analyze(ast, primitives)
     reset_environment(primitives)
     analyze_all(ast)
@@ -179,7 +177,7 @@ class Analyzer
   end
 
   def reset_primitives(primitives)
-    @primitives = PRIMITIVES + primitives
+    @primitives = primitives
   end
 
   def reset_scopes

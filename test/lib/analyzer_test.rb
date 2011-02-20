@@ -4,8 +4,10 @@ class AnalyzerTestCase < Test::Unit::TestCase
 
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "scripts", "*" + SPELL_EXTENSION)
   AST_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "analyzed", "*" + AST_EXTENSION)
-  
+
   INVALID_SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "invalid", "*" + SPELL_EXTENSION)
+
+  ANALYZER_TEST_PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply & | !)
 
   files = Dir[SCRIPTS_PATH]
 
@@ -17,7 +19,7 @@ class AnalyzerTestCase < Test::Unit::TestCase
       ast_file = file.sub("scripts", "analyzed").sub(SPELL_EXTENSION, AST_EXTENSION)
       assert File.exists?(ast_file), "in finding #{ast_file}"
       assert_equal(cleanup_sexp(File.read(ast_file)),
-                   sexp_to_string(Analyzer.analyze(Parser.parse(File.read(file))).to_sexp),
+                   sexp_to_string(Analyzer.analyze(Parser.parse(File.read(file)), ANALYZER_TEST_PRIMITIVES).to_sexp),
                    "for file #{file}")
     end
 
@@ -38,13 +40,13 @@ class AnalyzerTestCase < Test::Unit::TestCase
     end
 
   end
-  
+
   def test_primitive
     assert_nothing_raised do
       Analyzer.analyze(Parser.parse("main () = primitive"), ["primitive"])
     end
   end
-  
+
   def error_message_for(code)
     code.lines.first.gsub("#", "").strip
   end

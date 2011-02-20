@@ -2,6 +2,8 @@ class VM
 
   BINARY_PRIMITIVES = %w(+ - * / ** & | < > <= >= ==)
 
+  PRIMITIVES = BINARY_PRIMITIVES
+
   def initialize(instructions, primitives = [], debug = false)
     @debug = debug
     @primitives = primitives

@@ -5,13 +5,13 @@ class Interpreter
     @code = code
     @primitives = {}
   end
-  
+
   def attach_primitive(name, method)
     @primitives[name] = method
   end
-  
+
   def run
-    ast = Analyzer.analyze(Parser.parse(@code), @primitives.keys)
+    ast = Analyzer.analyze(Parser.parse(@code), @primitives.keys + VM::PRIMITIVES)
     if ast
       instructions = BytecodeGenerator.new(ast).generate
       vm = VM.new(instructions, @primitives, @debug)
