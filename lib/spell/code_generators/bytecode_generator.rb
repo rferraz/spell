@@ -122,5 +122,9 @@ class BytecodeGenerator
     instructions
   end
 
+  def generate_primitive(primitive)
+    Bytecode::Invoke.new(primitive.name)
+  end
+
 end
 
