@@ -1,0 +1,20 @@
+# Result: 190
+
+account#create (balance) = { balance: balance }
+
+account#deposit (account amount) = { balance: account.balance + amount }
+
+account#withdraw (account amount) = 
+  ? account.balance < amount -> error#signal "Insufficient funds!"
+  ?                        _ -> { balance: account.balance - amount }
+  
+account#run () = 
+  do
+    run#withdraw
+  with  
+    account <- account#create 10
+    run#first#deposit <- account#deposit account 10
+    run#second#deposit <- account#deposit run#first#deposit 200
+    run#withdraw <- account#withdraw run#second#deposit 30
+
+main () = assert#equal 190 account#run.balance

@@ -27,6 +27,7 @@ class InterpreterTestCase < Test::Unit::TestCase
     interpreter.attach_primitive(":", method(:primitive_cons))
     interpreter.attach_primitive("math#round", method(:primitive_round))
     interpreter.attach_primitive("math#sqrt", Math.method(:sqrt))
+    interpreter.attach_primitive("error#signal", Exception.method(:new))
   end
 
   def primitive_assert_equal(expected, actual)
