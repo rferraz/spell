@@ -158,7 +158,7 @@ class Analyzer
       current_scope.add_block(block)
       Ast::Closure.new(block.arguments.size,
                        current_scope.literal_frame,
-                       analyze_list(block.expressions))
+                       analyze_list(block.body))
     ensure
       leave_scope
     end

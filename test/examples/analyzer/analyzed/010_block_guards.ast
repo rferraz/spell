@@ -1,0 +1,6 @@
+((method main (activation ())
+         (closure (activation (const 1))
+                  (case ((invoke == (load const 0) (load const 0))
+                         (load const 0))
+                        ((invoke != (load const 0) (load const 0))
+                         (load const 0))))))

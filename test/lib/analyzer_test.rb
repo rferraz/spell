@@ -7,7 +7,7 @@ class AnalyzerTestCase < Test::Unit::TestCase
 
   INVALID_SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "analyzer", "invalid", "*" + SPELL_EXTENSION)
 
-  ANALYZER_TEST_PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply & | !)
+  ANALYZER_TEST_PRIMITIVES = %w(+ - * / < > <= >= ** : ++ , apply & | ! == !=)
 
   files = Dir[SCRIPTS_PATH]
 

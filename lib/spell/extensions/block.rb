@@ -1,7 +1,7 @@
 module Block
 
   def build
-    Ast::Block.new(argument_list, expressions)
+    Ast::Block.new(argument_list, [body.build].flatten)
   end
 
   private
@@ -14,8 +14,12 @@ module Block
     end
   end
 
-  def expressions
-    [body.head.build] + body.rest.elements.collect { |element| element.expression.build }
+end
+
+module BlockExpression
+
+  def build
+    [head.build] + rest.elements.collect { |element| element.expression.build }
   end
 
 end

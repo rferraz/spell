@@ -1,0 +1,5 @@
+((define main
+         (block (case ((invoke == (literal 1) (literal 1))
+                       (literal 1))
+                      ((invoke != (literal 1) (literal 1))
+                       (literal 1))))))

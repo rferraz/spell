@@ -3,16 +3,16 @@ module Ast
   class Block
 
     attr_reader :arguments
-    attr_reader :expressions
+    attr_reader :body
 
-    def initialize(arguments, expressions)
-      @arguments, @expressions = arguments, expressions
+    def initialize(arguments, body)
+      @arguments, @body = arguments, body
     end
 
     def to_sexp
       [:block] +
         (@arguments.empty? ? [] : [[:arguments] + @arguments]) +
-        @expressions.collect(&:to_sexp)
+        @body.collect(&:to_sexp)
     end
 
   end

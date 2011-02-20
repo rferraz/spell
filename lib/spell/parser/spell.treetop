@@ -117,13 +117,21 @@ grammar Spell
     "{"
       extra_spaces?
       list:argument_list? "|"
-      extra_spaces?
-      body:(head:expression rest:(line_breaks expression)*)
+      body:(block_guards / block_expressions)
       extra_spaces?
     "}"
   end
 
+  rule block_expressions
+    extra_spaces? head:expression rest:(line_breaks expression)* <BlockExpression>
+  end
+
+  rule block_guards
+    (line_breaks guard)+ <Guard>
+  end
+
   rule literal
+    block <Block> /
     array <ArrayLiteral> /
     dictionary <DictionaryLiteral> /
     number / 
