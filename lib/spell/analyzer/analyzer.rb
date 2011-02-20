@@ -175,7 +175,7 @@ class Analyzer
   end
 
   def analyze_pass(pass)
-    Ast::Return.new
+    pass
   end
 
   def reset_primitives(primitives)
