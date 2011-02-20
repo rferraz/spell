@@ -1,0 +1,18 @@
+# Result: 4
+
+one (value) = apply { parameter | value + parameter } 2
+
+two () = apply { | apply { | value } }
+  with
+    value <- 1
+
+filter (predicate list) = 
+  ? null list                   -> list
+  ? apply predicate (head list) -> (head list) : (filter predicate (tail list))
+  ?                           _ -> filter predicate (tail list)
+
+main () = 
+  do
+    assert#equal 3 (one 1)
+    assert#equal 1 two
+    assert#equal 4 head (filter { element | element > 3 } [1, 2, 3, 4])

@@ -2,7 +2,9 @@ class VM
 
   BINARY_PRIMITIVES = %w(+ - * / ** & | < > <= >= ==)
 
-  PRIMITIVES = BINARY_PRIMITIVES
+  BLOCK_PRIMITIVES = %w(apply)
+
+  PRIMITIVES = BINARY_PRIMITIVES + BLOCK_PRIMITIVES
 
   def initialize(instructions, primitives = [], debug = false)
     @debug = debug
@@ -38,19 +40,27 @@ class VM
   end
 
   def reset_frames
-    @frames = [Frame.new(ip)]
+    @current_frame = Frame.new(ip)
   end
 
-  def enter(frame)
-    @frames.push(frame)
+  def enter(value_offset, arguments)
+    @current_frame = Frame.new(ip, @current_frame, value_offset, arguments)
   end
 
   def leave
-    @frames.pop
+    @current_frame = @current_frame.previous
+  end
+
+  def enter_closure(context, arguments)
+    @current_frame = Frame.new(ip, @current_frame, arguments.size, arguments, context.frame)
+  end
+
+  def leave_closure
+    @current_frame = @current_frame.previous
   end
 
   def current_frame
-    @frames.last
+    @current_frame
   end
 
   def ip_of(instruction)
@@ -80,7 +90,9 @@ class VM
     end
     case instruction
     when Bytecode::Invoke
-      call_method(instruction.method)
+      invoke_method(instruction.method)
+    when Bytecode::Return
+      return_from_method
     when Bytecode::Push
       current_frame.push(instruction.value)
     when Bytecode::JumpFalse
@@ -93,8 +105,6 @@ class VM
       end
     when Bytecode::Store
       current_frame.store_value(instruction.index)
-    when Bytecode::Return
-      return_from_method
     when Bytecode::Dictionary
       current_frame.push(Hash.new)
     when Bytecode::DictionaryGet
@@ -116,6 +126,15 @@ class VM
     when Bytecode::Pass
       current_frame.push(nil)
       return_from_method
+    when Bytecode::Apply
+      apply
+    when Bytecode::Closure
+      current_frame.push(ClosureContext.new(instruction, ip, current_frame))
+      jump_to(ip + instruction.instructions_size)
+    when Bytecode::Close
+      close
+    when Bytecode::Up
+      current_frame.up(instruction.index, instruction.distance)
     else
       raise SpellInvalidBytecodeError.new("Invalid bytecode: #{instruction.inspect}")
     end
@@ -124,13 +143,13 @@ class VM
     end
   end
 
-  def call_method(name)
+  def invoke_method(name)
     if BINARY_PRIMITIVES.include?(name)
       binary_primitive(name)
     else
       instruction = @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
       if instruction
-        enter(Frame.new(ip, instruction.arguments_size + instruction.bindings_size, arguments(instruction.arguments_size)))
+        enter(instruction.arguments_size + instruction.bindings_size, arguments(instruction.arguments_size))
         jump_to(ip_of(instruction))
       else
         primitive = primitive_for(name)
@@ -143,15 +162,28 @@ class VM
     end
   end
 
-  def binary_primitive(primitive)
-    current_frame.push(current_frame.pop.send(primitive, current_frame.pop))
-  end
-
   def return_from_method
     return_value = current_frame.pop
     jump_to(current_frame.return_ip)
     leave
     current_frame.push(return_value)
+  end
+
+  def apply
+    context = current_frame.pop
+    enter_closure(context, arguments(context.closure.arguments_size))
+    jump_to(context.ip)
+  end
+
+  def close
+    return_value = current_frame.pop
+    jump_to(current_frame.return_ip)
+    leave_closure
+    current_frame.push(return_value)
+  end
+
+  def binary_primitive(primitive)
+    current_frame.push(current_frame.pop.send(primitive, current_frame.pop))
   end
 
   def primitive_for(name)

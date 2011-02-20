@@ -2,6 +2,10 @@ module Ast
 
   class Closure
 
+    attr_reader :arguments_size
+    attr_reader :literal_frame
+    attr_reader :body
+
     def initialize(arguments_size, literal_frame, body)
       @arguments_size, @literal_frame, @body = arguments_size, literal_frame, body
     end

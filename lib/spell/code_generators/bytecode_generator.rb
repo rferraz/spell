@@ -80,8 +80,12 @@ class BytecodeGenerator
 
   def generate_invoke(invoke)
     instructions = generate_list(invoke.parameters.reverse)
-    instructions << Bytecode::Invoke.new(invoke.message)
-    instructions
+    if invoke.message == "apply"
+      instructions << Bytecode::Apply.new
+    else
+      instructions << Bytecode::Invoke.new(invoke.message)
+      instructions
+    end
   end
 
   def generate_dictionary(dictionary)
@@ -128,6 +132,23 @@ class BytecodeGenerator
 
   def generate_pass(pass)
     Bytecode::Pass.new
+  end
+
+  def generate_closure(closure)
+    instructions = []
+    closure.literal_frame.each do |literal|
+      instructions << Bytecode::Push.new(literal)
+    end
+    instructions += generate_list(closure.body)
+    instructions << Bytecode::Close.new
+    closure_instruction = Bytecode::Closure.new(closure.arguments_size,
+                                                closure.literal_frame.size,
+                                                instructions.size)
+    [closure_instruction] + instructions
+  end
+
+  def generate_up(up)
+    [Bytecode::Up.new(up.index, up.distance)]
   end
 
 end
