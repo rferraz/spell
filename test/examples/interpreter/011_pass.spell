@@ -1,0 +1,5 @@
+# Result: nothing
+
+method () = pass
+
+main () = assert#equal method method

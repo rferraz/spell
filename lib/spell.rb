@@ -54,6 +54,7 @@ require "spell/bytecode/return"
 require "spell/bytecode/jump"
 require "spell/bytecode/dictionary"
 require "spell/bytecode/array"
+require "spell/bytecode/pass"
 
 require "spell/analyzer/analyzer"
 require "spell/analyzer/scope"

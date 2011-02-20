@@ -21,7 +21,7 @@ class InterpreterTestCase < Test::Unit::TestCase
 
   def primitive_assert_equal(expected, actual)
     assert_equal(expected, actual)
-    actual
+    actual || :nothing
   end
 
   def result_for(code)

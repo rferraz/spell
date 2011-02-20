@@ -126,5 +126,9 @@ class BytecodeGenerator
     Bytecode::Invoke.new(primitive.name)
   end
 
+  def generate_pass(pass)
+    Bytecode::Pass.new
+  end
+
 end
 

@@ -113,6 +113,9 @@ class VM
       current_frame.push(array)
     when Bytecode::DictionaryGet
       current_frame.push(current_frame.pop[instruction.name])
+    when Bytecode::Pass
+      current_frame.push(nil)
+      return_from_method
     else
       raise SpellInvalidBytecodeError.new("Invalid bytecode: #{instruction.inspect}")
     end
