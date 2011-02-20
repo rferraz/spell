@@ -24,7 +24,9 @@ class InterpreterTestCase < Test::Unit::TestCase
     interpreter.attach_primitive("null", method(:primitive_null))
     interpreter.attach_primitive("head", method(:primitive_head))
     interpreter.attach_primitive("tail", method(:primitive_tail))
+    interpreter.attach_primitive("length", method(:primitive_length))
     interpreter.attach_primitive(":", method(:primitive_cons))
+    interpreter.attach_primitive("++", method(:primitive_concat))
     interpreter.attach_primitive("math#round", method(:primitive_round))
     interpreter.attach_primitive("math#sqrt", Math.method(:sqrt))
     interpreter.attach_primitive("error#signal", Exception.method(:new))
@@ -48,9 +50,17 @@ class InterpreterTestCase < Test::Unit::TestCase
     rest
   end
 
+  def primitive_length(list)
+    list.size
+  end
+
   def primitive_cons(element, list)
     list.unshift(element)
     list
+  end
+
+  def primitive_concat(first_list, second_list)
+    first_list + second_list
   end
 
   def primitive_round(value)
