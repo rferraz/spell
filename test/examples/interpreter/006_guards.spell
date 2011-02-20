@@ -1,4 +1,4 @@
-# Result: "3rd case"
+# Result: 3rd case
 
 method (parameter) = 
   ? parameter > 0 -> "1st case"

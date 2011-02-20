@@ -38,7 +38,7 @@ class BytecodeGenerator
       instructions << Bytecode::Push.new(nil)
     end
     method.literal_frame.each do |literal|
-      instructions << Bytecode::Push.new(literal)
+      instructions << Bytecode::Push.new(eval(literal.to_s))
     end
     instructions += generate_list(method.body)
     instructions << Bytecode::Return.new
@@ -137,7 +137,7 @@ class BytecodeGenerator
   def generate_closure(closure)
     instructions = []
     closure.literal_frame.each do |literal|
-      instructions << Bytecode::Push.new(literal)
+      instructions << Bytecode::Push.new(eval(literal.to_s))
     end
     instructions += generate_list(closure.body)
     instructions << Bytecode::Close.new
