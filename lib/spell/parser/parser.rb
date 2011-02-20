@@ -2,16 +2,16 @@
 # Treetop, we use this hack to create a global
 # root path for import statement
 class Treetop::Runtime::SyntaxNode
-  class << self; attr_accessor :spell_root_path;  end
+  class << self; attr_accessor :spell_root_paths;  end
 end
 
 class Parser
 
-  def initialize(root_path)
+  def initialize(*root_paths)
     # Encapsulates the Treetop generated parser and
     # provides an already pre-processed AST
     @internal_parser = SpellParser.new
-    Treetop::Runtime::SyntaxNode.spell_root_path = root_path
+    Treetop::Runtime::SyntaxNode.spell_root_paths = root_paths
   end
 
   def parse(code)

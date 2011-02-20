@@ -1,0 +1,3 @@
+map (predicate list) = 
+  ? null list -> list
+  ?         _ -> (apply predicate (head list)) : (map predicate (tail list))

@@ -84,8 +84,8 @@ class BytecodeGenerator
       instructions << Bytecode::Apply.new
     else
       instructions << Bytecode::Invoke.new(invoke.message)
-      instructions
     end
+    instructions
   end
 
   def generate_dictionary(dictionary)

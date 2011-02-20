@@ -1,8 +1,9 @@
 class Interpreter
 
-  def initialize(code, debug)
+  def initialize(code, debug, *root_paths)
     @debug = debug
     @code = code
+    @root_paths = root_paths
     @primitives = {}
   end
 
@@ -10,8 +11,12 @@ class Interpreter
     @primitives[name] = method
   end
 
+  def attach_primitives(primitives)
+    @primitives.merge!(primitives)
+  end
+
   def run
-    ast = Analyzer.analyze(Parser.parse(@code), @primitives.keys + VM::PRIMITIVES)
+    ast = Analyzer.analyze(Parser.parse(@code, @root_paths), @primitives.keys + VM::PRIMITIVES)
     if ast
       instructions = BytecodeGenerator.new(ast).generate
       vm = VM.new(instructions, @primitives, @debug)
