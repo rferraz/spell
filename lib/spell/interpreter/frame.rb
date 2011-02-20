@@ -36,6 +36,15 @@ class Frame
     (distance - 1).times { context = @context_frame.previous }
     @stack.push(context.get_up_value(index))
   end
+  
+  def arguments(count)
+    @stack.slice!(-count, count)
+  end
+  
+  def closure_arguments
+    index = @stack.rindex { |item| item.is_a?(ClosureContext) }
+    arguments(@stack.size - index)
+  end
 
   def inspect
     "@#{@return_ip} -> #{@stack.inspect}"

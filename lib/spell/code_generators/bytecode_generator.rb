@@ -79,7 +79,7 @@ class BytecodeGenerator
   end
 
   def generate_invoke(invoke)
-    instructions = generate_list(invoke.parameters.reverse)
+    instructions = generate_list(invoke.parameters)
     if invoke.message == "apply"
       instructions << Bytecode::Apply.new
     else

@@ -9,7 +9,7 @@ class InterpreterTestCase < Test::Unit::TestCase
   raise "No target files found for the interpreter test in #{SCRIPTS_PATH}" if files.empty?
 
   Dir[SCRIPTS_PATH].each do |file|
-
+    
     define_method("test_" + File.basename(file, ".spell")) do
       code = File.read(file)
       interpreter = Interpreter.new(code, false)

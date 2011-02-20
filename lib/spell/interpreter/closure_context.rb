@@ -7,5 +7,9 @@ class ClosureContext
   def initialize(closure, ip, frame)
     @closure, @ip, @frame = closure, ip, frame
   end
+  
+  def inspect
+    "context"
+  end
 
 end

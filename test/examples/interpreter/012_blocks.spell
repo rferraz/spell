@@ -15,4 +15,4 @@ main () =
   do
     assert#equal 3 (one 1)
     assert#equal 1 two
-    assert#equal 4 head (filter { element | element > 3 } [1, 2, 3, 4])
+    assert#equal 4 (head (filter { element | element > 3 } [1, 2, 3, 4]))
