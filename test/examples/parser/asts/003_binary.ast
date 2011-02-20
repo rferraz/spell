@@ -2,7 +2,7 @@
  (define main (invoke * (literal 1) (literal 2)))
  (define main (invoke + (literal 1) (invoke * (literal 2) (literal 3))))
  (define main (invoke - (literal 1) (invoke / (literal 2) (literal 3))))
- (define main (invoke ,, (literal 1) (invoke ,,, (literal 3) (literal 5))))
+ (define main (invoke || (literal 1) (invoke ||| (literal 3) (literal 5))))
  (define main (invoke ** (literal 1) (invoke :::: (literal 3) (literal 5))))
  (define main
    (invoke ++ (literal 11) 
@@ -19,7 +19,7 @@
                          (invoke && (invoke b#b) 
                            (invoke ?? (invoke c#c) 
                              (invoke !! (invoke d#d) 
-                               (invoke ,, (invoke e#e) 
+                               (invoke || (invoke e#e) 
                                  (invoke ^^ (invoke f#f) (invoke g#g))))))))))))))))))
  (define main (invoke + (literal 1) (invoke * (literal 2) (literal 3))))
  (define main (invoke + (literal 1) (invoke - (invoke * (literal 2) (literal 3)) (literal 4)))))

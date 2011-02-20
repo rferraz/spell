@@ -40,7 +40,7 @@
                (()
                 (invoke filter (load value 0) (invoke tail (load value 1))))))
  (method array#partition (activation (arguments 2) ())
-         (invoke , (invoke filter (load value 1) (load value 0))
+         (invoke ! (invoke filter (load value 1) (load value 0))
                    (invoke filter (invoke invert (load value 1)) (load value 0))))
          
  (method __inner__quicksort'__1 (activation (arguments 1) (bindings 2) (const 2))

@@ -10,6 +10,6 @@ main () =
     y <- 3
     a () = 1
     b () = 2
-    first <- [(x) 2 (y)]
-    second <- [(a) [(b) [a + b]]]
+    first <- [x, 2, y]
+    second <- [a, [b, [a + b]]]
 

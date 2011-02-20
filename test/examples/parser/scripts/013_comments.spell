@@ -23,7 +23,7 @@ main () = # A comment
 
 main () = 
   do
-    [1 2 # Acomment
+    [1, 2, # Acomment
        3] # A comment
     { a: # Acomment
       b } # A comment

@@ -28,7 +28,7 @@ filter (predicate list) =
   ? apply predicate (head list) -> (head list) : filter predicate (tail list)
   ?                           _ -> filter predicate (tail list)
   
-array#partition (array predicate) = (filter predicate array) , (filter (invert predicate) array)
+array#partition (array predicate) = (filter predicate array) ! (filter (invert predicate) array)
   
 quicksort (array) =
   ? array#length array <= 1 -> array

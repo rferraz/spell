@@ -1,13 +1,13 @@
-one () = [0 1 2]
+one () = [0, 1, 2]
 
-two () = [1 a]
+two () = [1, a]
   with
     a <- 0
 
 three () = a[0]
   with
-    a <- [1 2]
+    a <- [1, 2]
 
 four () = a[0]
   with
-    a () = [1 2]
+    a () = [1, 2]

@@ -29,7 +29,7 @@
      (()
       (invoke filter (invoke predicate) (invoke tail (invoke list))))))
  (define array#partition (arguments array predicate)
-   (invoke , (invoke filter (invoke predicate) (invoke array))
+   (invoke ! (invoke filter (invoke predicate) (invoke array))
              (invoke filter (invoke invert (invoke predicate)) (invoke array))))
  (define quicksort (arguments array)
    (bindings 
