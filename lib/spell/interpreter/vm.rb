@@ -10,6 +10,7 @@ class VM
     @debug = debug
     @primitives = primitives
     @instructions = instructions
+    @labels_cache = {}
   end
 
   def run
@@ -147,14 +148,13 @@ class VM
     if BINARY_PRIMITIVES.include?(name)
       binary_primitive(name)
     else
-      instruction = @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
-      if instruction
-        enter(instruction.arguments_size + instruction.bindings_size, current_frame.arguments(instruction.arguments_size))
-        jump_to(ip_of(instruction))
+      if primitive = @primitives[name]
+        current_frame.push(primitive.call(*current_frame.arguments(primitive.arity)))
       else
-        primitive = primitive_for(name)
-        if primitive
-          current_frame.push(primitive.call(*current_frame.arguments(primitive.arity)))
+        instruction = @labels_cache[name] || @instructions.find { |instruction| instruction.is_a?(Bytecode::Label) && instruction.name == name }
+        if instruction
+          enter(instruction.arguments_size + instruction.bindings_size, current_frame.arguments(instruction.arguments_size))
+          jump_to(ip_of(instruction))
         else
           raise SpellInvalidMethodCallError.new("Invalid method \"#{name}\" called")
         end
@@ -186,10 +186,6 @@ class VM
   def binary_primitive(primitive)
     operand1, operand2 = current_frame.arguments(2)
     current_frame.push(operand1.send(primitive, operand2))
-  end
-
-  def primitive_for(name)
-    @primitives[name]
   end
 
 end
