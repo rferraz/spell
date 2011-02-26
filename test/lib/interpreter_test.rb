@@ -2,7 +2,11 @@ require File.join(File.dirname(__FILE__), "..", "test_helper")
 
 class InterpreterTestCase < Test::Unit::TestCase
 
-  SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "interpreter", "*.spell")
+  EXAMPLES_PATH = File.join(File.dirname(__FILE__), "..", "examples", "interpreter")
+  
+  SCRIPTS_PATH = File.join(EXAMPLES_PATH, "*.spell")
+  
+  DUMP_PATH = File.join(EXAMPLES_PATH, "graham.dump")
 
   files = Dir[SCRIPTS_PATH]
 
@@ -12,11 +16,19 @@ class InterpreterTestCase < Test::Unit::TestCase
     
     define_method("test_" + File.basename(file, ".spell")) do
       code = File.read(file)
-      interpreter = Interpreter.new(code, false)
-      initialize_primitives(interpreter)
-      assert_equal result_for(code), formatted_result_for(interpreter.run)
+      assert_equal result_for(code), formatted_result_for(interpreter_instance(code).run)
     end
 
+  end
+  
+  def test_dump
+    assert_equal "right\n", interpreter_instance(File.read(DUMP_PATH)).run
+  end
+  
+  def interpreter_instance(code)
+    interpreter = Interpreter.new(code, false)
+    initialize_primitives(interpreter)
+    interpreter
   end
 
   def initialize_primitives(interpreter)
@@ -30,11 +42,16 @@ class InterpreterTestCase < Test::Unit::TestCase
     interpreter.attach_primitive("math#round", method(:primitive_round))
     interpreter.attach_primitive("math#sqrt", Math.method(:sqrt))
     interpreter.attach_primitive("error#signal", Exception.method(:new))
+    interpreter.attach_primitive("show", method(:primitive_show))
   end
 
   def primitive_assert_equal(expected, actual)
     assert_equal(expected, actual)
     actual || :nothing
+  end
+  
+  def primitive_show(value)
+    value
   end
 
   def primitive_null(list)

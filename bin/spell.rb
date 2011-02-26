@@ -2,6 +2,24 @@
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), "..", "lib")
 
+require 'optparse'
+
+  $options = {}
+  
+  OptionParser.new do |opts|
+    opts.banner = "Usage: spell.rb [options] FILENAME"
+    opts.on("-D", "--debug", "Print debug information when running") do |v|
+      $options[:debug] = true
+    end
+    opts.on("-d", "--dump", "Dump bytecode") do |d|
+      $options[:dump] = d
+    end
+    opts.on_tail("-h", "--help", "Show this message") do
+      puts opts
+      exit
+    end    
+  end.parse!
+
 require "spell"
 
 def primitives
@@ -20,10 +38,10 @@ end
 
 def run
   interpreter = Interpreter.new(ARGF.read,
-                                ENV["DEBUG"],
+                                $options[:debug],
                                 Dir[File.join(File.dirname(__FILE__), "..", "stdlib")])
   interpreter.attach_primitives(primitives)
-  interpreter.run
+  interpreter.send($options[:dump] ? :dump : :run)
 end
 
 if $0 == __FILE__

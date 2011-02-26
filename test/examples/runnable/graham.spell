@@ -16,7 +16,7 @@ direction#from#to (pa pb pc) =
   with
     cp <- cross#product pa pb pc
 
-main () = show direction
+main () = show (direction + "\n")
   with
     pa <- { x: 1; y: 1 }
     pb <- { x: 3; y: 5 }

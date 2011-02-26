@@ -2,6 +2,8 @@ module Bytecode
 
   class Store
     
+    include Storable
+    
     attr_reader :type
     attr_reader :index
     
@@ -12,6 +14,10 @@ module Bytecode
     def inspect
       "store #{@type} #{@index}"
     end
+    
+    def self.load(type, index)
+       new(type.to_sym, index.to_i)
+     end
     
   end
   

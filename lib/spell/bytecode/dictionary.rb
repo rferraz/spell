@@ -1,7 +1,9 @@
 module Bytecode
 
-  class Dictionary
+  class DictionaryNew
 
+    include Storable
+    
     def inspect
       "dictionary new"
     end
@@ -9,6 +11,8 @@ module Bytecode
   end
 
   class DictionaryGet
+    
+    include Storable
 
     attr_reader :name
 
@@ -23,6 +27,8 @@ module Bytecode
   end
 
   class DictionarySet
+    
+    include Storable
 
     attr_reader :name
 

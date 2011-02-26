@@ -48,6 +48,10 @@ require "spell/ast/store"
 require "spell/ast/closure"
 require "spell/ast/up"
 
+require "spell/bytecode/dumper"
+require "spell/bytecode/loader"
+require "spell/bytecode/storable"
+
 require "spell/bytecode/invoke"
 require "spell/bytecode/label"
 require "spell/bytecode/load"

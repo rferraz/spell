@@ -1,6 +1,8 @@
 module Bytecode
 
   class Apply
+    
+    include Storable
 
     def inspect
       "apply"
@@ -9,6 +11,8 @@ module Bytecode
   end
 
   class Closure
+    
+    include Storable
 
     attr_reader :arguments_size
     attr_reader :literal_frame_size
@@ -22,10 +26,16 @@ module Bytecode
     def inspect
       "closure #{@arguments_size} #{@literal_frame_size} #{@instructions_size}"
     end
+    
+    def self.load(arguments_size, literal_frame_size, instructions_size)
+      new(arguments_size.to_i, literal_frame_size.to_i, instructions_size.to_i)
+    end
 
   end
 
   class Up
+    
+    include Storable
 
     attr_reader :index
     attr_reader :distance
@@ -37,10 +47,16 @@ module Bytecode
     def inspect
       "up #{@index} #{@distance}"
     end
+    
+    def self.load(index, distance)
+      new(index.to_i, distance.to_i)
+    end
 
   end
 
   class Close
+    
+    include Storable
 
     def inspect
       "close"

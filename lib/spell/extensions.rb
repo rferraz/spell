@@ -11,5 +11,9 @@ class String
       tr("-", "_").
       downcase
   end
-
+  
+  def starts_with?(prefix)
+    self[0, prefix.length] == prefix
+  end
+  
 end

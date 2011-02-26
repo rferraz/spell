@@ -1,0 +1,138 @@
+SPELL
+
+label cross#product 3 0 0
+load value 1
+dictionary get x
+load value 0
+dictionary get x
+invoke -
+load value 2
+dictionary get y
+load value 0
+dictionary get y
+invoke -
+invoke *
+load value 2
+dictionary get x
+load value 0
+dictionary get x
+invoke -
+load value 1
+dictionary get y
+load value 0
+dictionary get y
+invoke -
+invoke *
+invoke -
+return
+label distance#from 2 0 1
+push integer 2
+load value 0
+dictionary get x
+load value 1
+dictionary get x
+invoke -
+load const 0
+invoke **
+load value 0
+dictionary get y
+load value 1
+dictionary get y
+invoke -
+load const 0
+invoke **
+invoke +
+invoke math#sqrt
+return
+label compare#cross#product 3 2 2
+push nothing
+push nothing
+push integer 0
+push string eq
+load value 0
+load value 1
+load value 2
+invoke cross#product
+load const 0
+invoke compare
+store value 3
+load value 1
+invoke distance#from
+load value 2
+invoke distance#from
+invoke compare
+store value 4
+load value 3
+load const 1
+invoke ==
+jump false 2
+load value 4
+return
+load value 3
+return
+return
+label direction#from#to 3 1 4
+push nothing
+push integer 0
+push string right
+push string left
+push string straight
+load value 0
+load value 1
+load value 2
+invoke cross#product
+store value 3
+load value 3
+load const 0
+invoke >
+jump false 2
+load const 1
+return
+load value 3
+load const 0
+invoke <
+jump false 2
+load const 2
+return
+load const 3
+return
+return
+label main 0 4 5
+push nothing
+push nothing
+push nothing
+push nothing
+push integer 1
+push integer 3
+push integer 5
+push integer 2
+push string \n
+dictionary new
+load const 0
+dictionary set x
+load const 0
+dictionary set y
+store value 0
+dictionary new
+load const 1
+dictionary set x
+load const 2
+dictionary set y
+store value 1
+dictionary new
+load const 0
+dictionary set x
+load const 3
+dictionary set y
+store value 2
+load value 0
+load value 1
+load value 2
+invoke direction#from#to
+store value 3
+load value 3
+load const 4
+invoke +
+invoke show
+return
+invoke main

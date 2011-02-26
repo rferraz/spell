@@ -1,7 +1,7 @@
 class Analyzer
 
-  def initialize(primitives)
-    @primitives = primitives
+  def initialize(*primitives)
+    @primitives = *primitives
   end
   
   def run(ast)
@@ -22,7 +22,6 @@ class Analyzer
   protected
 
   def reset_environment
-    reset_primitives(@primitives)
     reset_scopes
     reset_method_table
     reset_unresolved
@@ -176,10 +175,6 @@ class Analyzer
     pass
   end
 
-  def reset_primitives(primitives)
-    @primitives = primitives
-  end
-
   def reset_scopes
     @scopes = [Scope.new]
   end
@@ -197,7 +192,7 @@ class Analyzer
   end
 
   def primitives
-    @primitives
+    @primitives || []
   end
 
   def top_methods

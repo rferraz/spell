@@ -106,7 +106,7 @@ class VM
       end
     when Bytecode::Store
       current_frame.store_value(instruction.index)
-    when Bytecode::Dictionary
+    when Bytecode::DictionaryNew
       current_frame.push(Hash.new)
     when Bytecode::DictionaryGet
       current_frame.push(current_frame.pop[instruction.name])
@@ -114,7 +114,7 @@ class VM
       value, hash = current_frame.pop, current_frame.pop
       hash[instruction.name] = value
       current_frame.push(hash)
-    when Bytecode::Array
+    when Bytecode::ArrayNew
       current_frame.push(Array.new)
     when Bytecode::ArrayGet
       current_frame.push(current_frame.pop[current_frame.pop])

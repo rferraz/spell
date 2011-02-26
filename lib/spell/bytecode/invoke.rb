@@ -2,6 +2,8 @@ module Bytecode
 
   class Invoke
     
+    include Storable
+    
     attr_reader :method
     
     def initialize(method)

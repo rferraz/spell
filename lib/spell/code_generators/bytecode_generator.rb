@@ -85,7 +85,7 @@ class BytecodeGenerator
   end
 
   def generate_dictionary(dictionary)
-    instructions = [Bytecode::Dictionary.new]
+    instructions = [Bytecode::DictionaryNew.new]
     instructions += generate_list(dictionary.items)
     instructions
   end
@@ -103,7 +103,7 @@ class BytecodeGenerator
   end
 
   def generate_array(array)
-    instructions = [Bytecode::Array.new]
+    instructions = [Bytecode::ArrayNew.new]
     instructions += generate_list(array.items)
     instructions
   end

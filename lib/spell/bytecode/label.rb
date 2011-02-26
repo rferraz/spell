@@ -1,6 +1,8 @@
 module Bytecode
 
   class Label
+    
+    include Storable
 
     attr_reader :name
     attr_reader :arguments_size
@@ -13,6 +15,10 @@ module Bytecode
 
     def inspect
       "label #{@name} #{@arguments_size} #{@bindings_size} #{@literal_frame_size}"
+    end
+    
+    def self.load(name, arguments_size, bindings_size, literal_frame_size)
+      new(name, arguments_size.to_i, bindings_size.to_i, literal_frame_size.to_i)
     end
 
   end

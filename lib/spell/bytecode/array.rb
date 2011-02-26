@@ -1,7 +1,9 @@
 module Bytecode
 
-  class Array
-
+  class ArrayNew
+    
+    include Storable
+    
     def inspect
       "array new"
     end
@@ -9,6 +11,8 @@ module Bytecode
   end
 
   class ArrayGet
+    
+    include Storable
 
     def inspect
       "array get"
@@ -17,6 +21,8 @@ module Bytecode
   end
 
   class ArraySet
+    
+    include Storable
 
     def inspect
       "array set"
