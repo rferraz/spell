@@ -19,7 +19,7 @@ class AnalyzerTestCase < Test::Unit::TestCase
       ast_file = file.sub("scripts", "analyzed").sub(SPELL_EXTENSION, AST_EXTENSION)
       assert File.exists?(ast_file), "in finding #{ast_file}"
       assert_equal(cleanup_sexp(File.read(ast_file)),
-                   sexp_to_string(Analyzer.analyze(Parser.parse(File.read(file)), ANALYZER_TEST_PRIMITIVES).to_sexp),
+                   sexp_to_string(analyze(File.read(file), ANALYZER_TEST_PRIMITIVES).to_sexp),
                    "for file #{file}")
     end
 
@@ -35,15 +35,22 @@ class AnalyzerTestCase < Test::Unit::TestCase
       code = File.read(file)
       assert File.exists?(file), "in finding #{file}"
       assert_raise_with_message(SpellAnalyzerError, error_message_for(code)) do
-        Analyzer.analyze(Parser.parse(code))
+        analyze(code)
       end
     end
 
   end
+  
+  def analyze(code, primitives = [])
+    PassManager.
+      chain(Parser).
+      chain(Analyzer, primitives).
+      run(code)
+  end
 
   def test_primitive
     assert_nothing_raised do
-      Analyzer.analyze(Parser.parse("main () = primitive"), ["primitive"])
+      analyze("main () = primitive", ["primitive"])
     end
   end
 

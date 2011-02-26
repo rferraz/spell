@@ -6,16 +6,16 @@ class VM
 
   PRIMITIVES = BINARY_PRIMITIVES + BLOCK_PRIMITIVES
 
-  def initialize(instructions, primitives = [], debug = false)
+  def initialize(primitives = [], debug = false)
     @debug = debug
     @primitives = primitives
-    @instructions = instructions
     @labels_cache = {}
   end
 
-  def run
+  def run(instructions)
+    @instructions = instructions
     if debug?
-      puts @instructions.collect { |instruction| instruction.inspect }
+      puts instructions.collect { |instruction| instruction.inspect }
     end
     reset_ip
     reset_frames
@@ -25,7 +25,7 @@ class VM
     end
     current_frame.pop
   end
-
+  
   protected
 
   def debug?

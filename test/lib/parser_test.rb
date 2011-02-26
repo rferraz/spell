@@ -12,10 +12,14 @@ class ParserTestCase < Test::Unit::TestCase
 
     define_method("test_" + File.basename(file, SPELL_EXTENSION)) do
       assert_nothing_raised("in file #{file}") do
-        Parser.parse(File.read(file), File.dirname(EXAMPLES_PATH))
+        parse(File.read(file))
       end
     end
 
+  end
+  
+  def parse(code)
+    PassManager.chain(Parser, File.dirname(EXAMPLES_PATH)).run(code)
   end
 
 end

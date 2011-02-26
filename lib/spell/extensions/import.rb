@@ -1,7 +1,7 @@
 module Import
 
   def build
-    Parser.parse(File.read(real_file_name(file.text_value)))
+    self.class.import_parser.run(File.read(real_file_name(file.text_value)))
   end
 
   private

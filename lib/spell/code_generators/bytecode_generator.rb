@@ -1,11 +1,7 @@
 class BytecodeGenerator
 
-  def initialize(ast)
-    @ast = ast
-  end
-
-  def generate
-    generate_any(@ast)
+  def run(ast)
+    generate_any(ast)
   end
 
   def method_missing(method, *args, &block)

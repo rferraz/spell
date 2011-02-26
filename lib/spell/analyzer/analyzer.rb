@@ -1,14 +1,14 @@
 class Analyzer
 
-  def analyze(ast, primitives)
-    reset_environment(primitives)
+  def initialize(primitives)
+    @primitives = primitives
+  end
+  
+  def run(ast)
+    reset_environment
     analyze_all(ast)
     fix_unresolved
     create_program
-  end
-
-  def self.analyze(ast, primitives = [])
-    new.analyze(ast, primitives)
   end
 
   def method_missing(method, *args, &block)
@@ -21,8 +21,8 @@ class Analyzer
 
   protected
 
-  def reset_environment(primitives)
-    reset_primitives(primitives)
+  def reset_environment
+    reset_primitives(@primitives)
     reset_scopes
     reset_method_table
     reset_unresolved

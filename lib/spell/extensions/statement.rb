@@ -1,4 +1,3 @@
-
 module Statement
 
   def build

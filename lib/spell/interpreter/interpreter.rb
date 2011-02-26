@@ -16,18 +16,21 @@ class Interpreter
   end
 
   def run
-    ast = Analyzer.analyze(Parser.parse(@code, @root_paths), @primitives.keys + VM::PRIMITIVES)
-    if ast
-      instructions = BytecodeGenerator.new(ast).generate
-      vm = VM.new(instructions, @primitives, @debug)
-      vm.run
-    else
-      raise @parser.failure_reason
-    end
+    passes.run(@code)
   end
 
   def self.run(code)
     new(code).run
+  end
+  
+  protected
+  
+  def passes
+    PassManager.
+      chain(Parser, @root_paths).
+      chain(Analyzer, @primitives.keys + VM::PRIMITIVES).
+      chain(BytecodeGenerator).
+      chain(VM, @primitives, @debug)
   end
 
 end

@@ -6,8 +6,11 @@ require "spell/defaults"
 require "spell/extensions"
 require "spell/errors"
 
+require "spell/pass_manager"
+
 require "spell/parser/parser"
 
+require "spell/extensions/parser_extension"
 require "spell/extensions/program"
 require "spell/extensions/statement"
 require "spell/extensions/pass"
