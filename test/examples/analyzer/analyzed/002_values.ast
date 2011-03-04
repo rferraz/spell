@@ -8,4 +8,7 @@
          (activation (const 1.0)
                      (const 2.0))
          (load const 0)
-         (load const 1)))
+         (load const 1))
+ (method main
+          (activation ())
+          (pass)))

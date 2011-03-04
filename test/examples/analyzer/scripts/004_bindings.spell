@@ -20,3 +20,5 @@ method4 () = p
         a () = z
           with
             z <- 1
+            
+main () = pass

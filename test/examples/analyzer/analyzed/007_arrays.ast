@@ -9,4 +9,7 @@
  (method __inner__a__1 (activation (const 1) (const 2))
          (array new ((load const 0) (load const 1))))
  (method four (activation (const 0))
-         (array access (invoke __inner__a__1) (load const 0))))
+         (array access (invoke __inner__a__1) (load const 0)))
+ (method main
+          (activation ())
+          (pass)))

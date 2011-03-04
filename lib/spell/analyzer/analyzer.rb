@@ -28,6 +28,7 @@ class Analyzer
   end
 
   def create_program
+    verify_main
     Ast::Program.new(top_methods)
   end
 
@@ -231,6 +232,12 @@ class Analyzer
   def reorder_case_items(items)
     default, conditions = items.partition { |item| item.condition.is_a?(Ast::NullCaseCondition) }
     conditions + default
+  end
+  
+  def verify_main
+    main = top_methods.find { |method| method.name == ORIGINAL_MAIN_METHOD_NAME }
+    raise SpellAnalyzerError.new("Missing \"main\" method") unless main
+    raise SpellAnalyzerError.new("Method \"main\" should have no parameters") unless main.arguments_size.zero?
   end
 
 end

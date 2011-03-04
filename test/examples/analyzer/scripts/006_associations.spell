@@ -12,3 +12,5 @@ three () = a.b
 four () = a.b
   with
     a () = { b: 0 }
+    
+main () = pass

@@ -10,4 +10,7 @@
  (method three (activation (bindings 1) (const 3) (const 1))
          (store value 0 (load const 0))
          (case ((invoke < (load value 0) (load const 1)) (invoke __inner__a__1))
-               ((invoke > (load value 0) (load const 1)) (invoke __inner__b__1)))))
+               ((invoke > (load value 0) (load const 1)) (invoke __inner__b__1))))
+ (method main
+          (activation ())
+          (pass)))

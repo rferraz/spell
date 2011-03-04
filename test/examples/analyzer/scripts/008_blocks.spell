@@ -24,3 +24,5 @@ five () = apply { | apply { | a } }
 six (a) = apply { | apply { | a + b } }
   with
     b <- 1
+
+main () = pass

@@ -1,1 +1,4 @@
 SPELL_EXTENSION = ".spell"
+
+ORIGINAL_MAIN_METHOD_NAME = "main"
+MAIN_METHOD_NAME = "__main"

@@ -23,6 +23,7 @@
          (invoke apply 
                  (closure (activation ()) 
                           (invoke apply 
-                                  (closure (activation ()) (invoke + (up 0 2) (up 1 2))))))))
-
-
+                                  (closure (activation ()) (invoke + (up 0 2) (up 1 2)))))))
+  (method main
+           (activation ())
+           (pass)))

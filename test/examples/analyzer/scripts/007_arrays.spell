@@ -11,3 +11,5 @@ three () = a[0]
 four () = a[0]
   with
     a () = [1, 2]
+
+main () = pass
