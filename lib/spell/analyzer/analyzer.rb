@@ -65,17 +65,18 @@ class Analyzer
     begin
       current_scope.add_statement(statement)
       assignments, statements = statement.bindings.partition { |binding| binding.is_a?(Ast::Assignment) }
+      new_name = unique_method_name(statement)
+      if current_scope.top_scope?
+        current_scope.add_method(statement.name)
+      else
+        current_scope.parent_scope.add_method(new_name, statement.name)
+      end
       analyze_list(statements)
-      method = Ast::Method.new(unique_method_name(statement),
+      method = Ast::Method.new(new_name,
                                statement.arguments.size,
                                assignments.size,
                                current_scope.literal_frame,
                                analyze_list(assignments) + analyze_list(statement.body))
-      if current_scope.top_scope?
-        current_scope.add_method(method)
-      else
-        current_scope.parent_scope.add_method(method, statement.name)
-      end
       check_for_duplication(method, statement.name)
       top_methods << method
     ensure
@@ -95,19 +96,19 @@ class Analyzer
     symbol, origin_scope = current_scope.find_symbol(invoke.message)
     if symbol
       case symbol.reference
-      when Ast::Method
-        Ast::Invoke.new(symbol.reference.name, analyze_list(invoke.parameters))
-      when Ast::Assignment
+      when :method
+        Ast::Invoke.new(symbol.name, analyze_list(invoke.parameters))
+      when :binding
         if origin_scope == current_scope
-          Ast::Load.new(:value, current_scope.value_index(symbol.reference.name))
+          Ast::Load.new(:value, current_scope.value_index(symbol.name))
         else
-          Ast::Up.new(origin_scope.value_index(symbol.reference.name), current_scope.distance_from(origin_scope))
+          Ast::Up.new(origin_scope.value_index(symbol.name), current_scope.distance_from(origin_scope))
         end
       else
         if origin_scope == current_scope
-          Ast::Load.new(:value, current_scope.value_index(symbol.reference))
+          Ast::Load.new(:value, current_scope.value_index(symbol.name))
         else
-          Ast::Up.new(origin_scope.value_index(symbol.reference), current_scope.distance_from(origin_scope))
+          Ast::Up.new(origin_scope.value_index(symbol.name), current_scope.distance_from(origin_scope))
         end
       end
     else

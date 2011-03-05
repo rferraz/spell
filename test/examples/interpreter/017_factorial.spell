@@ -1,0 +1,11 @@
+# Result: 3628800
+
+factorial (value) = factorial' value 1
+  with
+    factorial' (number accumulator) = 
+      ? number == 0 -> accumulator
+      ?           _ -> factorial' (number - 1) (number * accumulator)
+
+main () = 
+  do
+    assert#equal 3628800 (factorial 10)

@@ -22,8 +22,8 @@ class Scope
     @values_table.index(name)
   end
 
-  def add_method(method, real_name = nil)
-    @symbol_table.add(real_name || method.name, method, false)
+  def add_method(name, aliased_name = nil)
+    @symbol_table.add(aliased_name, :method, name)
   end
 
   def add_statement(statement)
