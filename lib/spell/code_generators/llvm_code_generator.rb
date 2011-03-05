@@ -70,7 +70,7 @@ class LLVMCodeGenerator
   def build_program(program)
     build_list(program.statements)
     builder.function [], pointer_type(MALLOC_TYPE), ORIGINAL_MAIN_METHOD_NAME do |f|
-      f.returns(f.call(UNBOX, f.call(MAIN_METHOD_NAME)))
+      f.returns(f.call(PRIMITIVE_UNBOX, f.call(MAIN_METHOD_NAME)))
     end
   end
   
@@ -89,7 +89,7 @@ class LLVMCodeGenerator
   
   def build_invoke(invoke)
     if invoke.message == "+"
-      builder.call("primitive_plus", *build_list(invoke.parameters))
+      builder.call(PRIMITIVE_PLUS, *build_list(invoke.parameters))
     end
   end
   
@@ -98,7 +98,7 @@ class LLVMCodeGenerator
       value = current_method.literal_frame[load.index]
       case value
       when ::Fixnum
-        builder.bit_cast(int(mask_int(value)), SPELL_VALUE)
+        builder.int2ptr(int(mask_int(value)), SPELL_VALUE)
       when ::Float
         allocate_float(value)
       end
@@ -110,7 +110,7 @@ class LLVMCodeGenerator
   end
    
   def allocate_float(value)
-    builder.call(NEW_FLOAT, float(value))
+    builder.call(PRIMITIVE_NEW_FLOAT, float(value))
   end
   
   def mask_int(value)

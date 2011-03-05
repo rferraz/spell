@@ -17,32 +17,30 @@ class LLVMPrimitivesBuilder
     
     def build_allocation_primitives(builder)
       build_allocation_primitive(builder, :float)
-      builder.function [SPELL_VALUE], SPELL_VALUE, UNBOX do |f|
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_UNBOX do |f|
         f.returns(f.gep(f.arg(0), int(1)))
       end
     end
     
     def build_allocation_primitive(builder, type)
-      builder.function [type], SPELL_VALUE, NEW_FLOAT do |f|
-        pointer = f.call("malloc", int(SIZE_INT + SIZE_FLOAT))
-        ip = f.bit_cast(pointer, pointer_type(:int))
-        fp = f.bit_cast(f.gep(pointer, int(1)), pointer_type(type))
-        f.store(flag(type), ip)
-        f.store(f.arg(0), fp)
+      builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
+        pointer = f.malloc(SIZE_INT + SIZE_FLOAT)
+        f.store(flag_of(type), f.get_flag(pointer))
+        f.store(f.arg(0), f.get_box(pointer, :float))
         f.returns(pointer)
       end
     end
     
     def build_numeric_primitives(builder)
-      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, "primitive_plus" do |f|
-        fv = f.load(f.bit_cast(f.gep(f.arg(0), int(1)), pointer_type(:float)))
-        iv = f.ui2fp(f.lshr(f.arg(1), int(1)), type_by_name(:float))
-        fpv = f.call(NEW_FLOAT, f.fadd(fv, iv))
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_PLUS do |f|
+        fv = f.unbox(f.arg(0), :float)
+        iv = f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float))
+        fpv = f.new_float(f.fadd(fv, iv))
         f.returns(fpv)
       end
     end
 
-    def flag(type)
+    def flag_of(type)
       case type
       when :float
         int(FLOAT_FLAG)

@@ -11,8 +11,10 @@ MAIN_METHOD_NAME = "__main"
 INT_FLAG = 1
 FLOAT_FLAG = 3
 
-UNBOX = "__unbox__"
-NEW_FLOAT = "__new_float__"
+PRIMITIVE_UNBOX = "__unbox__"
+PRIMITIVE_NEW_FLOAT = "__new_float__"
+
+PRIMITIVE_PLUS = "__plus__"
 
 SIZE_INT = [1.to_i].pack("l!").size
 SIZE_FLOAT = [1.to_f].pack("f").size

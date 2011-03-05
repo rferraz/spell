@@ -70,8 +70,9 @@ require "spell/analyzer/scope"
 require "spell/analyzer/symbol_table"
 
 require "spell/code_generators/bytecode_generator"
-require "spell/code_generators/llvm_code_generator"
+require "spell/code_generators/llvm_helpers"
 require "spell/code_generators/llvm_primitives"
+require "spell/code_generators/llvm_code_generator"
 
 require "spell/interpreter/interpreter"
 require "spell/interpreter/vm"
