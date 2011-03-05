@@ -7,6 +7,7 @@ class LLVMTestCase < Test::Unit::TestCase
   end
   
   PRIMITIVES = %w(
+    + - * /
     assert#equal null head tail length : ++ 
     math#round math#sqrt error#signal show
   )
