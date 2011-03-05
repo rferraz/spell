@@ -35,7 +35,7 @@ class LLVMTestCase < Test::Unit::TestCase
     builder.verified_module.dump
     LLVM::ExecutionEngine.
       create_jit_compiler(builder.verified_module).
-      run_function(builder.default_function).to_i
+      run_function(builder.default_function).to_ptr.read_pointer.read_float
   end
   
   def result_for(code)
