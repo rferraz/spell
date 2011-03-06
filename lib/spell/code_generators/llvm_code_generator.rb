@@ -1,8 +1,5 @@
 class LLVMCodeGenerator
   
-  ORIGINAL_MAIN_METHOD_NAME = "main"
-  MAIN_METHOD_NAME = "__main"
-  
   def initialize(primitive_builder_class)
     @primitive_builder_class = primitive_builder_class
   end

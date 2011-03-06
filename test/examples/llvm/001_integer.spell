@@ -1,0 +1,3 @@
+# Result: integer, 4
+
+main () = 1 + 3

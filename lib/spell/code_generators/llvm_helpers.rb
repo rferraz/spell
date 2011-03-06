@@ -16,15 +16,27 @@ class FunctionBuilderWrapper
     cast(get_boxed_value(value), pointer_type(type))
   end
   
+  def as_int(value)
+    ptr2int(value, :int)
+  end
+  
+  def is_int(value)
+    icmp(:eq, send(:and, as_int(value), int(1)), int(1))
+  end
+  
   def unbox_int(value)
-    lshr(ptr2int(value, :int), int(1))
+    lshr(as_int(value), int(1))
+  end
+  
+  def box_int(value)
+    int2ptr(add(shl(value, int(1)), int(1)), SPELL_VALUE)
   end
   
   def malloc(size)
     call("malloc", int(size, :size => 32))
   end
   
-  def new_float(value)
+  def primitive_new_float(value)
     call(PRIMITIVE_NEW_FLOAT, value)
   end
   
