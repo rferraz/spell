@@ -11,7 +11,6 @@ MAIN_METHOD_NAME = "__main"
 INT_FLAG = 1
 FLOAT_FLAG = 3
 
-PRIMITIVE_UNBOX = "__unbox__"
 PRIMITIVE_NEW_FLOAT = "__new_float__"
 
 PRIMITIVE_PLUS = "__plus__"

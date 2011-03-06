@@ -1,15 +1,15 @@
 class FunctionBuilderWrapper
   
-  def get_flag(value)
+  def flag_pointer(value)
     cast(value, pointer_type(:int))
   end
   
-  def get_box(value, type)
-    cast(gep(value, int(1)), pointer_type(type))
+  def box_pointer(value, type)
+    cast(gep(value, int(SIZE_INT)), pointer_type(type))
   end
   
   def unbox(pointer, type)
-    load(get_box(pointer, type))
+    load(box_pointer(pointer, type))
   end
   
   def box(value, type)
@@ -21,7 +21,7 @@ class FunctionBuilderWrapper
   end
   
   def malloc(size)
-    call("malloc", int(size))
+    call("malloc", int(size, :size => 32))
   end
   
   def new_float(value)

@@ -34,9 +34,14 @@ class LLVMTestCase < Test::Unit::TestCase
       chain(LLVMCodeGenerator, PrimitiveBuilder).
       run(code)
     builder.verified_module.dump
-    LLVM::ExecutionEngine.
+    result = LLVM::ExecutionEngine.
       create_jit_compiler(builder.verified_module).
-      run_function(builder.default_function).to_ptr.read_pointer.read_float
+      run_function(builder.default_function)
+    FloatValue.new(result.to_ptr.read_pointer)[:value]
+  end
+  
+  class FloatValue < FFI::Struct
+    layout :flag, :long, :value, :float 
   end
   
   def result_for(code)

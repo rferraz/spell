@@ -11,22 +11,19 @@ class LLVMPrimitivesBuilder
     protected
     
     def build_memory_primitives(builder)
-      builder.external "malloc", [:int], SPELL_VALUE
+      builder.external "malloc", [:int32], SPELL_VALUE
       builder.external "free", [SPELL_VALUE], :void
     end
     
     def build_allocation_primitives(builder)
       build_allocation_primitive(builder, :float)
-      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_UNBOX do |f|
-        f.returns(f.gep(f.arg(0), int(1)))
-      end
     end
     
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
         pointer = f.malloc(SIZE_INT + SIZE_FLOAT)
-        f.store(flag_of(type), f.get_flag(pointer))
-        f.store(f.arg(0), f.get_box(pointer, :float))
+        f.store(flag_for(type), f.flag_pointer(pointer))
+        f.store(f.arg(0), f.box_pointer(pointer, :float))
         f.returns(pointer)
       end
     end
@@ -40,7 +37,7 @@ class LLVMPrimitivesBuilder
       end
     end
 
-    def flag_of(type)
+    def flag_for(type)
       case type
       when :float
         int(FLOAT_FLAG)

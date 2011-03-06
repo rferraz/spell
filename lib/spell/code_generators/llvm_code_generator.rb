@@ -70,7 +70,7 @@ class LLVMCodeGenerator
   def build_program(program)
     build_list(program.statements)
     builder.function [], pointer_type(MALLOC_TYPE), ORIGINAL_MAIN_METHOD_NAME do |f|
-      f.returns(f.call(PRIMITIVE_UNBOX, f.call(MAIN_METHOD_NAME)))
+      f.returns(f.call(MAIN_METHOD_NAME))
     end
   end
   
