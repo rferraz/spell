@@ -14,6 +14,9 @@ FLOAT_FLAG = 3
 PRIMITIVE_NEW_FLOAT = "spell.new.float"
 
 PRIMITIVE_PLUS = "spell.plus"
+PRIMITIVE_MINUS = "spell.minus"
+PRIMITIVE_TIMES = "spell.times"
+PRIMITIVE_DIVIDE = "spell.divide"
 
 SIZE_INT = [1.to_i].pack("l!").size
 SIZE_FLOAT = [1.to_f].pack("f").size

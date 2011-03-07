@@ -8,7 +8,6 @@ class LLVMCodeGenerator
     reset_builders
     build_internal_primitives
     reset_primitives(@primitive_builder_class)
-    reset_main_method(ast)
     build_any(ast)
     builder
   end
@@ -43,11 +42,6 @@ class LLVMCodeGenerator
     builder_class.build(builder)
   end
   
-  def reset_main_method(ast)
-    @main_method = ast.statements.find { |method| method.name == "main" } ||
-      ast.statement.first
-  end
-  
   def enter_method(method)
     @method = method
   end
@@ -66,9 +60,7 @@ class LLVMCodeGenerator
   
   def build_program(program)
     build_list(program.statements)
-    builder.function [], pointer_type(MALLOC_TYPE), ORIGINAL_MAIN_METHOD_NAME do |f|
-      f.returns(f.call(MAIN_METHOD_NAME))
-    end
+    LLVMPrimitivesBuilder.build_main(builder)
   end
   
   def build_method(method)
