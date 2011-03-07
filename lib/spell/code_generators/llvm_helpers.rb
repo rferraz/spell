@@ -31,9 +31,13 @@ class FunctionBuilderWrapper
   def box_int(value)
     int2ptr(add(shl(value, int(1)), int(1)), SPELL_VALUE)
   end
+
+  def malloc(type)
+    call("malloc", size_of(type))
+  end
   
-  def malloc(size)
-    call("malloc", int(size, :size => 32))
+  def size_of(type)
+    ptr2int(gep(pointer_type(type).null_pointer, int(1)), :int32)
   end
   
   def primitive_new_float(value)

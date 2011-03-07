@@ -18,6 +18,8 @@ PRIMITIVE_MINUS = "spell.minus"
 PRIMITIVE_TIMES = "spell.times"
 PRIMITIVE_DIVIDE = "spell.divide"
 
+PRIMITIVE_RAISE = "spell.raise"
+
 SIZE_INT = [1.to_i].pack("l!").size
 SIZE_FLOAT = [1.to_f].pack("f").size
 

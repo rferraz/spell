@@ -36,7 +36,7 @@ class LLVMPrimitivesBuilder
       end
       builder.function [pointer_type(:int8), :int], :void, PRIMITIVE_RAISE do |f|
         f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(99, :size => 32))
-        f.returns(:void)
+        f.unreachable
       end
     end
     
@@ -51,7 +51,7 @@ class LLVMPrimitivesBuilder
     
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
-        pointer = f.malloc(SIZE_INT * 2)
+        pointer = f.malloc(struct_type(:int, :float))
         f.store(flag_for(type), f.flag_pointer(pointer))
         f.store(f.arg(0), f.box_pointer(pointer, :float))
         f.returns(pointer)
