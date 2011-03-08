@@ -1,9 +1,5 @@
 class FunctionBuilderWrapper
-  
-  def flag_pointer(value)
-    cast(value, pointer_type(:int))
-  end
-  
+
   def flag_for(type)
     case type
     when :float
@@ -12,17 +8,21 @@ class FunctionBuilderWrapper
       int(EXCEPTION_FLAG)
     end
   end
+
+  def flag_pointer(value)
+    gep(value, int(0), int(0, :size => 32))
+  end
   
-  def box_pointer(value, type)
+  def box_pointer(value)
+    gep(value, int(0), int(1, :size => 32))
+  end
+  
+  def _box_pointer(value, type)
     cast(gep(value, int(SIZE_INT)), pointer_type(type))
   end
   
   def unbox(pointer, type)
-    load(box_pointer(pointer, type))
-  end
-  
-  def box(value, type)
-    cast(get_boxed_value(value), pointer_type(type))
+    load(box_pointer(cast(pointer, pointer_type(SPELL_FLOAT))))
   end
   
   def as_int(value)

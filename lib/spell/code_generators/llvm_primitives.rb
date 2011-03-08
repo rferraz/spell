@@ -55,9 +55,9 @@ class LLVMPrimitivesBuilder
     
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
-        pointer = f.call("malloc", int(SIZE_INT * 2))
+        pointer = f.malloc(SPELL_FLOAT)
         f.store(f.flag_for(type), f.flag_pointer(pointer))
-        f.store(f.arg(0), f.box_pointer(pointer, :float))
+        f.store(f.arg(0), f.box_pointer(pointer))
         f.returns(pointer)
       end
     end
@@ -85,7 +85,7 @@ class LLVMPrimitivesBuilder
           f.branch(:dosecond)
         }
         f.block(:p1float) {
-          f.set_bookmark(:p1b, f.unbox(f.arg(0), :float))
+          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
           f.branch(:dosecond)
         }
         f.block(:dosecond) {
@@ -100,7 +100,7 @@ class LLVMPrimitivesBuilder
           f.branch(:addfloat)
         }
         f.block(:p2float) {
-          f.set_bookmark(:p2b, f.unbox(f.arg(1), :float))
+          f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
           f.branch(:addfloat)
         }
         f.block(:addfloat) {
