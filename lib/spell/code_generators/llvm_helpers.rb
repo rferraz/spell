@@ -58,8 +58,8 @@ class FunctionBuilderWrapper
     string_pointer = malloc(string_type)
     store(LLVM::ConstantArray.string(value), string_pointer)
     pointer = malloc(SPELL_EXCEPTION)
-    store(flag_for(:exception), gep(pointer, int(0), int(0, :size => 32)))
-    store(cast(string_pointer, pointer_type(:int8)), gep(pointer, int(0), int(1, :size => 32)))
+    store(flag_for(:exception), flag_pointer(pointer))
+    store(cast(string_pointer, pointer_type(:int8)), box_pointer(pointer))
     call(PRIMITIVE_RAISE, pointer)
   end
   
