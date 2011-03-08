@@ -9,8 +9,10 @@ ORIGINAL_MAIN_METHOD_NAME = "main"
 MAIN_METHOD_NAME = "spell.main"
 
 INT_FLAG = 1
+EXCEPTION_FLAG = 2
 FLOAT_FLAG = 3
 
+PRIMITIVE_NEW_EXCEPTION = "spell.new.exception"
 PRIMITIVE_NEW_FLOAT = "spell.new.float"
 
 PRIMITIVE_PLUS = "spell.plus"
@@ -26,5 +28,8 @@ SIZE_FLOAT = [1.to_f].pack("f").size
 MALLOC_TYPE = :int8
 
 SPELL_VALUE = pointer_type(MALLOC_TYPE)
+
+SPELL_EXCEPTION = struct_type(:int, pointer_type(:int8))
+SPELL_FLOAT = struct_type(:int, :float)
 
 MEMORY_ROOT = "__root__"

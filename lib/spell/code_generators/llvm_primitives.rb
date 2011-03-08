@@ -20,7 +20,7 @@ class LLVMPrimitivesBuilder
           f.returns(f.call(MAIN_METHOD_NAME))
         }
         f.block(:exception) {
-          f.returns(f.get_bookmark(:setjmp))
+          f.returns(f.cast(builder.get_global(:exception), pointer_type(:int8)))
         }
       end
     end
@@ -34,8 +34,12 @@ class LLVMPrimitivesBuilder
       builder.global :jmpenv, [:int8] * 256 do
         LLVM::ConstantArray.const(LLVM::Int, 256) { |i| LLVM::Int(0) }
       end
-      builder.function [pointer_type(:int8), :int], :void, PRIMITIVE_RAISE do |f|
-        f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(99, :size => 32))
+      builder.global :exception, SPELL_EXCEPTION do
+        builder.constant("")
+      end
+      builder.function [pointer_type(SPELL_EXCEPTION)], :void, PRIMITIVE_RAISE do |f|
+        f.store(f.load(f.arg(0)), builder.get_global(:exception))
+        f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(1, :size => 32))
         f.unreachable
       end
     end
@@ -51,8 +55,8 @@ class LLVMPrimitivesBuilder
     
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
-        pointer = f.malloc(struct_type(:int, :float))
-        f.store(flag_for(type), f.flag_pointer(pointer))
+        pointer = f.call("malloc", int(SIZE_INT * 2))
+        f.store(f.flag_for(type), f.flag_pointer(pointer))
         f.store(f.arg(0), f.box_pointer(pointer, :float))
         f.returns(pointer)
       end
@@ -105,13 +109,6 @@ class LLVMPrimitivesBuilder
                 { :on => f.get_bookmark(:p2b), :return_from => :p2float }
           f.returns(f.primitive_new_float(f.send(float_operator, f.get_bookmark(:p1), p2)))
         }
-      end
-    end
-
-    def flag_for(type)
-      case type
-      when :float
-        int(FLOAT_FLAG)
       end
     end
 
