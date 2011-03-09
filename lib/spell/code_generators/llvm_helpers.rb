@@ -63,8 +63,8 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_NEW_EXCEPTION, string_pointer)
   end
   
-  def primitive_raise(exception)
-    call(PRIMITIVE_RAISE, exception)
+  def primitive_raise(string_pointer)
+    call(PRIMITIVE_RAISE, primitive_new_exception(string_pointer))
   end
   
 end
