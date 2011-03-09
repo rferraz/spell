@@ -45,20 +45,35 @@ class LLVMPrimitivesBuilder
     end
     
     def build_memory_primitives(builder)
+      builder.external "memcpy", [pointer_type(:int8), pointer_type(:int8), :int, :int32], pointer_type(:int8)
+      builder.external "llvm.memset.i64", [pointer_type(:int8), :int8, :int, :int32], :void
       builder.external "malloc", [:int32], SPELL_VALUE
       builder.external "free", [SPELL_VALUE], :void
     end
     
     def build_allocation_primitives(builder)
       build_allocation_primitive(builder, :float)
-    end
-    
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_EXCEPTION do |f|
+        pointer = f.malloc(SPELL_EXCEPTION)
+        f.store(f.flag_for(:exception), f.flag_pointer(pointer))
+        f.store(f.cast(f.arg(0), pointer_type(:int8)), f.box_pointer(pointer))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+      builder.function [SPELL_VALUE, :int], SPELL_VALUE, PRIMITIVE_NEW_STRING do |f|
+        string_pointer = f.malloc_on_size(f.arg(1))
+        f.call("memcpy", string_pointer, f.arg(0), f.arg(1), int(0, :size => 32))
+        pointer = f.malloc(SPELL_STRING)
+        f.store(f.flag_for(:string), f.flag_pointer(pointer))
+        f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+    end    
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
         pointer = f.malloc(SPELL_FLOAT)
         f.store(f.flag_for(type), f.flag_pointer(pointer))
         f.store(f.arg(0), f.box_pointer(pointer))
-        f.returns(pointer)
+        f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end
     

@@ -50,13 +50,18 @@ class LLVMTestCase < Test::Unit::TestCase
     layout :value, :float 
   end
 
-  class ExceptionValue < FFI::Struct
+  class StringValue < FFI::Struct
     layout :value, :pointer 
   end
   
+  class ExceptionValue < FFI::Struct
+    layout :value, :pointer 
+  end
+
   class Box < FFI::Union
     layout :float, FloatValue,
-           :exception, ExceptionValue
+           :exception, ExceptionValue,
+           :string, StringValue
   end
   
   class Value < FFI::Struct
@@ -71,6 +76,8 @@ class LLVMTestCase < Test::Unit::TestCase
       result.to_i
     when "float"
       result.to_f
+    when "string"
+      result
     when "exception"
       result
     else
@@ -85,8 +92,10 @@ class LLVMTestCase < Test::Unit::TestCase
       result.to_i >> 1
     when "float"
       Value.new(result)[:box][:float][:value]
+    when "string"
+      Value.new(result)[:box][:string][:value].read_string_to_null
     when "exception"
-      Value.new(result)[:box][:exception][:value].read_string_to_null
+      Value.new(Value.new(result)[:box][:exception][:value])[:box][:string][:value].read_string_to_null
     else
       raise "Unknown type"
     end

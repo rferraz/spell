@@ -29,6 +29,10 @@ class LLVMCodeGenerator
   def builder
     @builders.last
   end
+  
+  def module_builder
+    @builders.first
+  end
     
   def enter_builder(builder)
     @builders.push(builder)
@@ -90,6 +94,9 @@ class LLVMCodeGenerator
         builder.int2ptr(int(mask_int(value)), SPELL_VALUE)
       when ::Float
         allocate_float(value)
+      when ::String
+        # FIX: parser is generating the incorrect string value
+        allocate_string(value[1, value.size - 2])
       end
     end
   end
@@ -99,11 +106,23 @@ class LLVMCodeGenerator
   end
    
   def allocate_float(value)
-    builder.call(PRIMITIVE_NEW_FLOAT, float(value))
+    builder.primitive_new_float(float(value))
+  end
+
+  def allocate_string(value)
+    global = module_builder.global(random_const_name, [:int8] * (value.size + 1)) do
+      module_builder.constant(value)
+    end
+    builder.primitive_new_string(builder.gep(global, int(0), int(0)), int(value.size + 1))
   end
   
   def mask_int(value)
     (value << 1) | INT_FLAG
+  end
+  
+  def random_const_name
+    base = rand.to_s
+    "const_" + base[2, base.length - 2]
   end
   
 end

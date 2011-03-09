@@ -6,6 +6,8 @@ class FunctionBuilderWrapper
       int(FLOAT_FLAG)
     when :exception
       int(EXCEPTION_FLAG)
+    when :string
+      int(STRING_FLAG)
     end
   end
 
@@ -16,11 +18,7 @@ class FunctionBuilderWrapper
   def box_pointer(value)
     gep(value, int(0), int(1, :size => 32))
   end
-  
-  def _box_pointer(value, type)
-    cast(gep(value, int(SIZE_INT)), pointer_type(type))
-  end
-  
+
   def unbox(pointer, type)
     load(box_pointer(cast(pointer, pointer_type(SPELL_FLOAT))))
   end
@@ -44,6 +42,10 @@ class FunctionBuilderWrapper
   def malloc(type)
     cast(call("malloc", size_of(type)), pointer_type(type))
   end
+
+  def malloc_on_size(size)
+    call("malloc", trunc(size, type_by_name(:int32)))
+  end
   
   def size_of(type)
     ptr2int(gep(pointer_type(type).null_pointer, int(1)), :int32)
@@ -53,14 +55,16 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_NEW_FLOAT, value)
   end
   
-  def primitive_raise(value)
-    string_type = array_type(:int8, value.size + 1)
-    string_pointer = malloc(string_type)
-    store(LLVM::ConstantArray.string(value), string_pointer)
-    pointer = malloc(SPELL_EXCEPTION)
-    store(flag_for(:exception), flag_pointer(pointer))
-    store(cast(string_pointer, pointer_type(:int8)), box_pointer(pointer))
-    call(PRIMITIVE_RAISE, pointer)
+  def primitive_new_string(value, size)
+    call(PRIMITIVE_NEW_STRING, value, size)
+  end
+  
+  def primitive_new_exception(string_pointer)
+    call(PRIMITIVE_NEW_EXCEPTION, string_pointer)
+  end
+  
+  def primitive_raise(exception)
+    call(PRIMITIVE_RAISE, exception)
   end
   
 end
