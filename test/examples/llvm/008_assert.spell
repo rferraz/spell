@@ -1,0 +1,3 @@
+# Result: exception, 1 != 2
+
+main () = assert (1 == 2) "1 != 2"

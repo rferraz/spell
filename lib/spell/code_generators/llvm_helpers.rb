@@ -15,12 +15,20 @@ class FunctionBuilderWrapper
     gep(value, int(0), int(0, :size => 32))
   end
   
+  def type_of(value)
+    load(cast(value, pointer_type(:int)))
+  end
+  
   def box_pointer(value)
     gep(value, int(0), int(1, :size => 32))
   end
 
+  def length_pointer(value)
+    gep(cast(value, pointer_type(SPELL_STRING)), int(0), int(2, :size => 32))
+  end
+
   def unbox(pointer, type)
-    load(box_pointer(cast(pointer, pointer_type(SPELL_FLOAT))))
+    load(box_pointer(cast(pointer, pointer_type(type))))
   end
   
   def as_int(value)
@@ -38,7 +46,7 @@ class FunctionBuilderWrapper
   def box_int(value)
     int2ptr(add(shl(value, int(1)), int(1)), SPELL_VALUE)
   end
-
+  
   def malloc(type)
     cast(call("malloc", size_of(type)), pointer_type(type))
   end
@@ -65,6 +73,24 @@ class FunctionBuilderWrapper
   
   def primitive_raise(string_pointer)
     call(PRIMITIVE_RAISE, primitive_new_exception(string_pointer))
+  end
+  
+  def allocate_float(value)
+    primitive_new_float(float(value))
+  end
+  
+  def allocate_string(value)
+    string = global(random_const_name, [:int8] * (value.size + 1)) do
+      constant(value)
+    end
+    primitive_new_string(gep(string, int(0), int(0)), int(value.size + 1))
+  end
+  
+  private
+  
+  def random_const_name
+    base = rand.to_s
+    "const_" + base[2, base.length - 2]
   end
   
 end

@@ -70,7 +70,7 @@ class LLVMCodeGenerator
   def build_method(method)
     name = method.name == ORIGINAL_MAIN_METHOD_NAME ? MAIN_METHOD_NAME : method.name
     enter_method(method)
-    builder.function [], pointer_type(MALLOC_TYPE), name do |f|
+    builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
       enter_builder(f)
       begin
         f.returns(build_list(method.body).last)
@@ -81,8 +81,13 @@ class LLVMCodeGenerator
   end
   
   def build_invoke(invoke)
-    if invoke.message == "+"
+    case invoke.message
+    when "=="
+      builder.call(PRIMITIVE_EQUALS, *build_list(invoke.parameters))
+    when "+"
       builder.call(PRIMITIVE_PLUS, *build_list(invoke.parameters))
+    else
+      builder.call(invoke.message, *build_list(invoke.parameters))
     end
   end
   
@@ -93,11 +98,13 @@ class LLVMCodeGenerator
       when ::Fixnum
         builder.int2ptr(int(mask_int(value)), SPELL_VALUE)
       when ::Float
-        allocate_float(value)
+        builder.allocate_float(value)
       when ::String
         # FIX: parser is generating the incorrect string value
-        allocate_string(value[1, value.size - 2])
+        builder.allocate_string(value[1, value.size - 2])
       end
+    else
+      builder.arg(load.index)
     end
   end
   
@@ -109,20 +116,8 @@ class LLVMCodeGenerator
     builder.primitive_new_float(float(value))
   end
 
-  def allocate_string(value)
-    global = module_builder.global(random_const_name, [:int8] * (value.size + 1)) do
-      module_builder.constant(value)
-    end
-    builder.primitive_new_string(builder.gep(global, int(0), int(0)), int(value.size + 1))
-  end
-  
   def mask_int(value)
     (value << 1) | INT_FLAG
-  end
-  
-  def random_const_name
-    base = rand.to_s
-    "const_" + base[2, base.length - 2]
   end
   
 end

@@ -7,6 +7,8 @@ class LLVMPrimitivesBuilder
       build_memory_primitives(builder)
       build_allocation_primitives(builder)
       build_numeric_primitives(builder)
+      build_equality_primitives(builder)
+      build_assertion_primitives(builder)
     end
 
     def build_main(builder)
@@ -28,6 +30,7 @@ class LLVMPrimitivesBuilder
     protected
     
     def builder_exception_primitives(builder)
+      builder.external :memcmp, [pointer_type(:int8), pointer_type(:int8), :int], :int
       builder.external :memcpy, [pointer_type(:int8), pointer_type(:int8), :int], pointer_type(:int8)
       builder.external :setjmp, [pointer_type(:int8)], :int32
       builder.external :longjmp, [pointer_type(:int8), :int32], :void
@@ -65,15 +68,90 @@ class LLVMPrimitivesBuilder
         pointer = f.malloc(SPELL_STRING)
         f.store(f.flag_for(:string), f.flag_pointer(pointer))
         f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
+        f.store(f.arg(1), f.length_pointer(pointer))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
+    
     def build_allocation_primitive(builder, type)
       builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
         pointer = f.malloc(SPELL_FLOAT)
         f.store(f.flag_for(type), f.flag_pointer(pointer))
         f.store(f.arg(0), f.box_pointer(pointer))
         f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+    end
+    
+    def build_equality_primitives(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], :int, PRIMITIVE_EQUALS do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :int, :other)
+        }
+        f.block(:int) {
+          result = f.icmp(:eq, f.as_int(f.arg(0)), f.as_int(f.arg(1)))
+          f.returns(f.box_int(f.zext(result, type_by_name(:int))))
+        }
+        f.block(:other) {
+          f.switch f.type_of(f.arg(0)), :exception,
+            { :on => f.flag_for(:float), :go_to => :float },
+            { :on => f.flag_for(:string), :go_to => :string }
+        }
+        f.block(:float) {
+          f.condition(f.is_int(f.arg(1)), :p1int, :p1float)
+        }
+        f.block(:p1int) {
+          f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
+          f.branch(:floatcompare)
+        }
+        f.block(:p1float) {
+          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
+          f.branch(:floatcompare)
+        }
+        f.block(:floatcompare) {
+          p1 = f.phi :float,
+                 { :on => f.get_bookmark(:p1a), :return_from => :p1int },
+                 { :on => f.get_bookmark(:p1b), :return_from => :p1float }
+          result = f.fcmp(:oeq, f.unbox(f.arg(0), SPELL_FLOAT), p1)
+          f.returns(f.box_int(f.zext(result, type_by_name(:int))))
+        }
+        f.block(:string) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)
+        }
+        f.block(:bothstrings) {
+          length1 = f.load(f.length_pointer(f.arg(0)))
+          length2 = f.load(f.length_pointer(f.arg(1)))
+          f.condition(f.icmp(:eq, length1, length2), :memcmp, :unequalstrings)
+        }
+        f.block(:memcmp) {
+          memcmp = f.call(:memcmp, f.unbox(f.arg(0), SPELL_STRING), f.unbox(f.arg(1), SPELL_STRING), f.load(f.length_pointer(f.arg(0))))
+          f.condition(f.icmp(:eq, memcmp, int(0)), :equalstrings, :unequalstrings)
+        }
+        f.block(:equalstrings) {
+          f.returns(f.box_int(f.zext(int(1), type_by_name(:int))))
+        }
+        f.block(:unequalstrings) {
+          f.returns(SPELL_VALUE.null_pointer)
+        }        
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Invalid comparison"))
+          f.unreachable
+        }
+      end
+    end
+    
+    def build_assertion_primitives(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ASSERT do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.arg(0)), int(1)), :ok, :notok)
+        }
+        f.block(:ok) {
+          f.returns(f.arg(0))
+        }
+        f.block(:notok) {
+          f.primitive_raise(f.arg(1))
+          f.unreachable
+        }
       end
     end
     
@@ -126,7 +204,7 @@ class LLVMPrimitivesBuilder
         }
       end
     end
-
+    
   end
   
 end

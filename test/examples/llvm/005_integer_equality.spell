@@ -1,0 +1,3 @@
+# Result: integer, true
+
+main () = 1 == 1

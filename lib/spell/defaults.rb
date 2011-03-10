@@ -17,12 +17,16 @@ PRIMITIVE_NEW_EXCEPTION = "spell.new.exception"
 PRIMITIVE_NEW_FLOAT = "spell.new.float"
 PRIMITIVE_NEW_STRING = "spell.new.string"
 
+PRIMITIVE_EQUALS = "spell.equals"
+
 PRIMITIVE_PLUS = "spell.plus"
 PRIMITIVE_MINUS = "spell.minus"
 PRIMITIVE_TIMES = "spell.times"
 PRIMITIVE_DIVIDE = "spell.divide"
 
 PRIMITIVE_RAISE = "spell.raise"
+
+PRIMITIVE_ASSERT = "assert"
 
 SIZE_INT = [1.to_i].pack("l!").size
 SIZE_FLOAT = [1.to_f].pack("f").size
@@ -31,7 +35,7 @@ MALLOC_TYPE = :int8
 
 SPELL_VALUE = pointer_type(MALLOC_TYPE)
 
-SPELL_STRING = struct_type(:int, pointer_type(:int8))
+SPELL_STRING = struct_type(:int, pointer_type(:int8), :int)
 SPELL_EXCEPTION = struct_type(:int, pointer_type(SPELL_STRING))
 SPELL_FLOAT = struct_type(:int, :float)
 

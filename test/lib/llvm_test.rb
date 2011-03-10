@@ -6,13 +6,10 @@ class LLVMTestCase < Test::Unit::TestCase
     LLVM.init_x86
   end
   
-  PRIMITIVES = %w(
-    + - * /
-    assert#equal null head tail length : ++ 
-    math#round math#sqrt error#signal show
-  )
+  PRIMITIVES = %w(+ - * / == assert)
   
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "llvm", "*.spell")
+  STDLIB_PATH = File.join(File.dirname(__FILE__), "..", "..", "stdlib")
   
   files = Dir[SCRIPTS_PATH]
 
@@ -35,7 +32,7 @@ class LLVMTestCase < Test::Unit::TestCase
   
   def execute(code, debug)
     builder = PassManager.
-      chain(Parser).
+      chain(Parser, [STDLIB_PATH]).
       chain(Analyzer, PRIMITIVES).
       chain(LLVMCodeGenerator, PrimitiveBuilder).
       run(code)
@@ -73,7 +70,14 @@ class LLVMTestCase < Test::Unit::TestCase
     type, result = code.lines.first.strip.split(":").last.split(",").collect(&:strip)
     value = case type
     when "integer"
-      result.to_i
+      case result
+      when "true"
+        1
+      when "false"
+        0
+      else
+        result.to_i
+      end
     when "float"
       result.to_f
     when "string"

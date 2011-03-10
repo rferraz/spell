@@ -1,0 +1,3 @@
+# Result: integer, true
+
+main () = 3.1415 == 3.1515

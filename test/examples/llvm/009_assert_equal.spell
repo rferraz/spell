@@ -1,0 +1,5 @@
+# Return: integer, true
+
+import "assertions"
+
+main () = assert#equal 0 0
