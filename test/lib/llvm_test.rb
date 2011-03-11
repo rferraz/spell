@@ -19,9 +19,9 @@ class LLVMTestCase < Test::Unit::TestCase
     
     define_method("test_" + File.basename(file, ".spell")) do
       code = File.read(file)
-      type, value = result_for(code)
-      result = formatted_result_for(execute(code, false), type)
-      if type == "float"
+      value = result_for(code)
+      result = formatted_result_for(execute(code, false))
+      if value.is_a?(Float)
         assert_in_delta value, result, 0.00001
       else
         assert_equal value, result
@@ -48,7 +48,7 @@ class LLVMTestCase < Test::Unit::TestCase
   end
 
   class StringValue < FFI::Struct
-    layout :value, :pointer 
+    layout :value, :pointer
   end
   
   class ExceptionValue < FFI::Struct
@@ -68,7 +68,7 @@ class LLVMTestCase < Test::Unit::TestCase
   
   def result_for(code)
     type, result = code.lines.first.strip.split(":").last.split(",").collect(&:strip)
-    value = case type
+    case type
     when "integer"
       case result
       when "true"
@@ -87,21 +87,23 @@ class LLVMTestCase < Test::Unit::TestCase
     else
       raise "Unknown type"
     end
-    [type, value]
   end
 
-  def formatted_result_for(result, type)
-    case type
-    when "integer"
+  def formatted_result_for(result)
+    if (result.to_i & 1) == 1
       result.to_i >> 1
-    when "float"
-      Value.new(result)[:box][:float][:value]
-    when "string"
-      Value.new(result)[:box][:string][:value].read_string_to_null
-    when "exception"
-      Value.new(Value.new(result)[:box][:exception][:value])[:box][:string][:value].read_string_to_null
     else
-      raise "Unknown type"
+      value = Value.new(result)
+      case value[:flag]
+      when EXCEPTION_FLAG
+        Value.new(value[:box][:exception][:value])[:box][:string][:value].read_string_to_null
+      when FLOAT_FLAG
+        value[:box][:float][:value]
+      when STRING_FLAG
+        value[:box][:string][:value].read_string_to_null
+      else
+        raise "Unknown type"
+      end
     end
   end
   
