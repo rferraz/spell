@@ -6,8 +6,6 @@ class LLVMTestCase < Test::Unit::TestCase
     LLVM.init_x86
   end
   
-  PRIMITIVES = %w(+ - * / == != assert)
-  
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "llvm", "*.spell")
   STDLIB_PATH = File.join(File.dirname(__FILE__), "..", "..", "stdlib")
   
@@ -33,7 +31,7 @@ class LLVMTestCase < Test::Unit::TestCase
   def execute(code, debug)
     builder = PassManager.
       chain(Parser, [STDLIB_PATH]).
-      chain(Analyzer, PRIMITIVES).
+      chain(Analyzer, LLVMCodeGenerator::PRIMITIVES).
       chain(LLVMCodeGenerator, PrimitiveBuilder).
       run(code)
     builder.verified_module.dump if debug

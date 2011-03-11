@@ -1,13 +1,16 @@
 class LLVMCodeGenerator
   
-  PRIMITIVES = {
+  PRIMITIVES_MAPPINGS = {
     "==" => PRIMITIVE_EQUALS,
     "!=" => PRIMITIVE_NOT_EQUALS,
     "+" => PRIMITIVE_PLUS,
     "-" => PRIMITIVE_MINUS,
     "*" => PRIMITIVE_TIMES,
-    "/" => PRIMITIVE_DIVIDE
+    "/" => PRIMITIVE_DIVIDE,
+    "assert" => PRIMITIVE_ASSERT
   }
+  
+  PRIMITIVES = PRIMITIVES_MAPPINGS.keys
   
   def initialize(primitive_builder_class)
     @primitive_builder_class = primitive_builder_class
@@ -90,7 +93,7 @@ class LLVMCodeGenerator
   end
   
   def build_invoke(invoke)
-    message = PRIMITIVES.keys.include?(invoke.message) ? PRIMITIVES[invoke.message] : invoke.message
+    message = PRIMITIVES.include?(invoke.message) ? PRIMITIVES_MAPPINGS[invoke.message] : invoke.message
     builder.call(message, *build_list(invoke.parameters))
   end
   
