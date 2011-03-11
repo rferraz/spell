@@ -30,8 +30,6 @@ class LLVMPrimitivesBuilder
     protected
     
     def builder_exception_primitives(builder)
-      builder.external :memcmp, [pointer_type(:int8), pointer_type(:int8), :int], :int
-      builder.external :memcpy, [pointer_type(:int8), pointer_type(:int8), :int], pointer_type(:int8)
       builder.external :setjmp, [pointer_type(:int8)], :int32
       builder.external :longjmp, [pointer_type(:int8), :int32], :void
       builder.global :jmpenv, [:int8] * 256 do
@@ -40,16 +38,16 @@ class LLVMPrimitivesBuilder
       builder.global :exception, SPELL_EXCEPTION do
         builder.constant("")
       end
-      builder.function [pointer_type(SPELL_EXCEPTION)], :void, PRIMITIVE_RAISE do |f|
-        f.store(f.load(f.arg(0)), builder.get_global(:exception))
+      builder.function [SPELL_VALUE], :void, PRIMITIVE_RAISE do |f|
+        f.store(f.load(f.cast(f.arg(0), pointer_type(SPELL_EXCEPTION))), builder.get_global(:exception))
         f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(1, :size => 32))
         f.unreachable
       end
     end
     
     def build_memory_primitives(builder)
-      builder.external "memcpy", [pointer_type(:int8), pointer_type(:int8), :int, :int32], pointer_type(:int8)
-      builder.external "llvm.memset.i64", [pointer_type(:int8), :int8, :int, :int32], :void
+      builder.external "memcmp", [pointer_type(:int8), pointer_type(:int8), :int], :int
+      builder.external "memcpy", [pointer_type(:int8), pointer_type(:int8), :int], pointer_type(:int8)
       builder.external "malloc", [:int32], SPELL_VALUE
       builder.external "free", [SPELL_VALUE], :void
     end
@@ -59,12 +57,12 @@ class LLVMPrimitivesBuilder
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_EXCEPTION do |f|
         pointer = f.malloc(SPELL_EXCEPTION)
         f.store(f.flag_for(:exception), f.flag_pointer(pointer))
-        f.store(f.cast(f.arg(0), pointer_type(:int8)), f.box_pointer(pointer))
+        f.store(f.cast(f.arg(0), pointer_type(SPELL_STRING)), f.box_pointer(pointer))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
       builder.function [SPELL_VALUE, :int], SPELL_VALUE, PRIMITIVE_NEW_STRING do |f|
         string_pointer = f.malloc_on_size(f.arg(1))
-        f.call("memcpy", string_pointer, f.arg(0), f.arg(1), int(0, :size => 32))
+        f.call("memcpy", string_pointer, f.arg(0), f.arg(1))
         pointer = f.malloc(SPELL_STRING)
         f.store(f.flag_for(:string), f.flag_pointer(pointer))
         f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
@@ -83,7 +81,7 @@ class LLVMPrimitivesBuilder
     end
     
     def build_equality_primitives(builder)
-      builder.function [SPELL_VALUE, SPELL_VALUE], :int, PRIMITIVE_EQUALS do |f|
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :int, :other)
         }

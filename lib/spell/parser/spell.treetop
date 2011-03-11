@@ -96,7 +96,7 @@ grammar Spell
   end
 
   rule value
-    "(" expression ")" <ParenthesizedExpression> / 
+    "(" spaces? expression spaces? ")" <ParenthesizedExpression> / 
     call / 
     literal
   end

@@ -86,6 +86,12 @@ class LLVMCodeGenerator
       builder.call(PRIMITIVE_EQUALS, *build_list(invoke.parameters))
     when "+"
       builder.call(PRIMITIVE_PLUS, *build_list(invoke.parameters))
+    when "-"
+      builder.call(PRIMITIVE_MINUS, *build_list(invoke.parameters))
+    when "*"
+      builder.call(PRIMITIVE_TIMES, *build_list(invoke.parameters))
+    when "/"
+      builder.call(PRIMITIVE_DIVIDE, *build_list(invoke.parameters))
     else
       builder.call(invoke.message, *build_list(invoke.parameters))
     end
