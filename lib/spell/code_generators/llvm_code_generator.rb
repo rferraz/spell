@@ -1,5 +1,14 @@
 class LLVMCodeGenerator
   
+  PRIMITIVES = {
+    "==" => PRIMITIVE_EQUALS,
+    "!=" => PRIMITIVE_NOT_EQUALS,
+    "+" => PRIMITIVE_PLUS,
+    "-" => PRIMITIVE_MINUS,
+    "*" => PRIMITIVE_TIMES,
+    "/" => PRIMITIVE_DIVIDE
+  }
+  
   def initialize(primitive_builder_class)
     @primitive_builder_class = primitive_builder_class
   end
@@ -81,20 +90,8 @@ class LLVMCodeGenerator
   end
   
   def build_invoke(invoke)
-    case invoke.message
-    when "=="
-      builder.call(PRIMITIVE_EQUALS, *build_list(invoke.parameters))
-    when "+"
-      builder.call(PRIMITIVE_PLUS, *build_list(invoke.parameters))
-    when "-"
-      builder.call(PRIMITIVE_MINUS, *build_list(invoke.parameters))
-    when "*"
-      builder.call(PRIMITIVE_TIMES, *build_list(invoke.parameters))
-    when "/"
-      builder.call(PRIMITIVE_DIVIDE, *build_list(invoke.parameters))
-    else
-      builder.call(invoke.message, *build_list(invoke.parameters))
-    end
+    message = PRIMITIVES.keys.include?(invoke.message) ? PRIMITIVES[invoke.message] : invoke.message
+    builder.call(message, *build_list(invoke.parameters))
   end
   
   def build_load(load)

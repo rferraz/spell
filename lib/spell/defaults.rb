@@ -18,6 +18,7 @@ PRIMITIVE_NEW_FLOAT = "spell.new.float"
 PRIMITIVE_NEW_STRING = "spell.new.string"
 
 PRIMITIVE_EQUALS = "spell.equals"
+PRIMITIVE_NOT_EQUALS = "spell.not.equals"
 
 PRIMITIVE_PLUS = "spell.plus"
 PRIMITIVE_MINUS = "spell.minus"

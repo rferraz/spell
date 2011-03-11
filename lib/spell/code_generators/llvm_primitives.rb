@@ -102,14 +102,14 @@ class LLVMPrimitivesBuilder
           f.branch(:floatcompare)
         }
         f.block(:p1float) {
-          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
+          f.set_bookmark(:p1b, f.unbox(f.arg(1), SPELL_FLOAT))
           f.branch(:floatcompare)
         }
         f.block(:floatcompare) {
           p1 = f.phi :float,
                  { :on => f.get_bookmark(:p1a), :return_from => :p1int },
                  { :on => f.get_bookmark(:p1b), :return_from => :p1float }
-          result = f.fcmp(:oeq, f.unbox(f.arg(0), SPELL_FLOAT), p1)
+          result = f.fcmp(:ueq, f.unbox(f.arg(0), SPELL_FLOAT), p1)
           f.returns(f.box_int(f.zext(result, type_by_name(:int))))
         }
         f.block(:string) {
@@ -135,6 +135,9 @@ class LLVMPrimitivesBuilder
           f.primitive_raise(f.allocate_string("Invalid comparison"))
           f.unreachable
         }
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NOT_EQUALS do |f|
+        f.returns(f.box_int(f.sub(int(1), f.unbox_int(f.call(PRIMITIVE_EQUALS, f.arg(0), f.arg(1))))))
       end
     end
     

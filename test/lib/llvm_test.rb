@@ -6,7 +6,7 @@ class LLVMTestCase < Test::Unit::TestCase
     LLVM.init_x86
   end
   
-  PRIMITIVES = %w(+ - * / == assert)
+  PRIMITIVES = %w(+ - * / == != assert)
   
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "llvm", "*.spell")
   STDLIB_PATH = File.join(File.dirname(__FILE__), "..", "..", "stdlib")
