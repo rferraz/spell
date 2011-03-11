@@ -32,7 +32,8 @@ def primitives
     "tail" => lambda { |list| first, *rest = list ; rest },
     ":" => lambda { |element, list| list.unshift(element) ; list },
     "math#sqrt" => Math.method(:sqrt),
-    "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" }
+    "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" },
+    "assert" => lambda { |v, m| v || raise(m) }
   }
 end
 
