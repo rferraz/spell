@@ -6,6 +6,7 @@ class LLVMPrimitivesBuilder
       builder_exception_primitives(builder)
       build_memory_primitives(builder)
       build_allocation_primitives(builder)
+      build_string_primitives(builder)
       build_numeric_primitives(builder)
       build_equality_primitives(builder)
       build_assertion_primitives(builder)
@@ -66,7 +67,7 @@ class LLVMPrimitivesBuilder
         pointer = f.malloc(SPELL_STRING)
         f.store(f.flag_for(:string), f.flag_pointer(pointer))
         f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
-        f.store(f.arg(1), f.length_pointer(pointer))
+        f.store(f.sub(f.arg(1), int(1)), f.length_pointer(pointer))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
@@ -128,7 +129,7 @@ class LLVMPrimitivesBuilder
           f.returns(f.box_int(f.zext(int(1), type_by_name(:int))))
         }
         f.block(:unequalstrings) {
-          f.returns(SPELL_VALUE.null_pointer)
+          f.returns(f.box_int(f.zext(int(0), type_by_name(:int))))
         }        
         f.block(:exception) {
           # FIX: display operands
@@ -156,6 +157,31 @@ class LLVMPrimitivesBuilder
       end
     end
     
+    def build_string_primitives(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_CONCAT do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)
+        }
+        f.block(:bothstrings) {
+          length1 = f.load(f.length_pointer(f.arg(0)))
+          length2 = f.load(f.length_pointer(f.arg(1)))
+          string_pointer = f.malloc_on_size(f.sub(f.add(length1, length2), int(1)))
+          f.call("memcpy", string_pointer, f.unbox(f.arg(0), SPELL_STRING), length1)
+          f.call("memcpy", f.gep(string_pointer, length1), f.unbox(f.arg(1), SPELL_STRING), f.add(length2, int(1)))
+          pointer = f.malloc(SPELL_STRING)
+          f.store(f.flag_for(:string), f.flag_pointer(pointer))
+          f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
+          f.store(f.add(length1, length2), f.length_pointer(pointer))
+          f.returns(f.cast(pointer, SPELL_VALUE))
+        }
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Can't compare string to non-string"))
+          f.unreachable
+        }
+      end
+    end
+    
     def build_numeric_primitives(builder)
       build_numeric_primitive(builder, PRIMITIVE_PLUS, :add, :fadd)
       build_numeric_primitive(builder, PRIMITIVE_MINUS, :sub, :fsub)
@@ -166,11 +192,28 @@ class LLVMPrimitivesBuilder
     def build_numeric_primitive(builder, name, int_operator, float_operator)
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, name do |f|
         f.entry {
-          f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :addint, :dofirst)
+          f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :addint, :other)
         }
         f.block(:addint) {
           f.returns(f.box_int(f.send(int_operator, f.unbox_int(f.arg(0)), f.unbox_int(f.arg(1)))))
         }
+        f.block(:other) {
+          # Fix: find a better way to do that
+          if name == PRIMITIVE_PLUS
+            f.condition(f.is_not_int(f.arg(0)), :possiblestring, :dofirst)
+          else
+            f.branch(:dofirst)
+          end
+        }
+        # Fix: find a better way to do that
+        if name == PRIMITIVE_PLUS
+          f.block(:possiblestring) {
+            f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:string)), :string, :dofirst)            
+          }
+          f.block(:string) {
+            f.returns(f.primitive_concat(f.arg(0), f.arg(1)))
+          }
+        end
         f.block(:dofirst) {
           f.condition(f.is_int(f.arg(0)), :p1int, :p1float)
         }

@@ -17,6 +17,8 @@ PRIMITIVE_NEW_EXCEPTION = "spell.new.exception"
 PRIMITIVE_NEW_FLOAT = "spell.new.float"
 PRIMITIVE_NEW_STRING = "spell.new.string"
 
+PRIMITIVE_CONCAT = "spell.concat"
+
 PRIMITIVE_EQUALS = "spell.equals"
 PRIMITIVE_NOT_EQUALS = "spell.not.equals"
 

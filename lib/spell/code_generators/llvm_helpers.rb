@@ -38,6 +38,10 @@ class FunctionBuilderWrapper
   def is_int(value)
     icmp(:eq, send(:and, as_int(value), int(1)), int(1))
   end
+
+  def is_not_int(value)
+    icmp(:ne, send(:and, as_int(value), int(1)), int(1))
+  end
   
   def unbox_int(value)
     lshr(as_int(value), int(1))
@@ -73,6 +77,10 @@ class FunctionBuilderWrapper
   
   def primitive_raise(string_pointer)
     call(PRIMITIVE_RAISE, primitive_new_exception(string_pointer))
+  end
+  
+  def primitive_concat(string1, string2)
+    call(PRIMITIVE_CONCAT, string1, string2)
   end
   
   def allocate_float(value)

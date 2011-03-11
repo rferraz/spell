@@ -1,0 +1,11 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+  do
+  	assert#equal "abcdef" ("ab" + "c" + "def")
+		assert#equal "abcd" ("ab" + "" + "cd")
+		assert#equal "abc" ("abc" + "")
+		assert#equal "abc" ("" + "abc")
+		assert#equal "" ("" + "")
