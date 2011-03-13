@@ -10,6 +10,7 @@ class LLVMPrimitivesBuilder
       build_numeric_primitives(builder)
       build_equality_primitives(builder)
       build_assertion_primitives(builder)
+      build_conversion_primitives(builder)
     end
 
     def build_main(builder)
@@ -49,6 +50,7 @@ class LLVMPrimitivesBuilder
     def build_memory_primitives(builder)
       builder.external "memcmp", [pointer_type(:int8), pointer_type(:int8), :int], :int
       builder.external "memcpy", [pointer_type(:int8), pointer_type(:int8), :int], pointer_type(:int8)
+      builder.external "memset", [pointer_type(:int8), :int, :int], pointer_type(:int8)
       builder.external "malloc", [:int32], SPELL_VALUE
       builder.external "free", [SPELL_VALUE], :void
     end
@@ -248,6 +250,45 @@ class LLVMPrimitivesBuilder
         }
       end
     end
+    
+    def build_conversion_primitives(builder)
+      builder.external "sprintf", [SPELL_VALUE, SPELL_VALUE], :int32, :varargs => true
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_INT_TO_STRING do |f|
+        pointer = f.malloc_on_size(int(16, :size => 32))
+        f.call("memset", pointer, int(0), int(16))
+        size = f.call("sprintf", pointer, f.string_constant("%d"), f.unbox_int(f.arg(0)))
+        f.returns(f.cast(f.primitive_new_string(pointer, f.add(f.zext(size, type_by_name(:int)), int(1))), SPELL_VALUE))
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_FLOAT_TO_STRING do |f|
+        pointer = f.malloc_on_size(int(32, :size => 32))
+        f.call("memset", pointer, int(0), int(32))
+        size = f.call("sprintf", pointer, f.string_constant("%g"), f.fp_ext(f.unbox(f.arg(0), SPELL_FLOAT), type_by_name(:double)))
+        f.returns(f.cast(f.primitive_new_string(pointer, f.add(f.zext(size, type_by_name(:int)), int(1))), SPELL_VALUE))
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TO_STRING do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :int, :other)
+        }
+        f.block(:int) {
+          f.returns(f.call(PRIMITIVE_INT_TO_STRING, f.arg(0)))
+        }
+        f.block(:other) {
+          f.switch f.type_of(f.arg(0)), :exception,
+            { :on => f.flag_for(:float), :go_to => :float },
+            { :on => f.flag_for(:string), :go_to => :string }
+        }
+        f.block(:float) {
+          f.returns(f.call(PRIMITIVE_FLOAT_TO_STRING, f.arg(0)))
+        }
+        f.block(:string) {
+          f.returns(f.arg(0))
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Unknown type"))
+          f.unreachable
+        }
+      end
+    end   
     
   end
   

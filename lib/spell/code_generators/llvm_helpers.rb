@@ -88,10 +88,14 @@ class FunctionBuilderWrapper
   end
   
   def allocate_string(value)
+    primitive_new_string(string_constant(value), int(value.size + 1))
+  end
+  
+  def string_constant(value)
     string = global(random_const_name, [:int8] * (value.size + 1)) do
       constant(value)
     end
-    primitive_new_string(gep(string, int(0), int(0)), int(value.size + 1))
+    gep(string, int(0), int(0))
   end
   
   private

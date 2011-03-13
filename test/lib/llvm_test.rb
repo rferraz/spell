@@ -94,7 +94,7 @@ class LLVMTestCase < Test::Unit::TestCase
       value = Value.new(result)
       case value[:flag]
       when EXCEPTION_FLAG
-        Value.new(value[:box][:exception][:value])[:box][:string][:value].read_string_to_null
+        "[Exception] " + Value.new(value[:box][:exception][:value])[:box][:string][:value].read_string_to_null
       when FLOAT_FLAG
         value[:box][:float][:value]
       when STRING_FLAG

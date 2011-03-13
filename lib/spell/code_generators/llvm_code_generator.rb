@@ -7,7 +7,10 @@ class LLVMCodeGenerator
     "-" => PRIMITIVE_MINUS,
     "*" => PRIMITIVE_TIMES,
     "/" => PRIMITIVE_DIVIDE,
-    "assert" => PRIMITIVE_ASSERT
+    "assert" => PRIMITIVE_ASSERT,
+    "int#to#string" => PRIMITIVE_INT_TO_STRING,
+    "float#to#string" => PRIMITIVE_FLOAT_TO_STRING,
+    "to#string" => PRIMITIVE_TO_STRING
   }
   
   PRIMITIVES = PRIMITIVES_MAPPINGS.keys
@@ -118,10 +121,6 @@ class LLVMCodeGenerator
     LLVMPrimitivesBuilder.build(builder)
   end
    
-  def allocate_float(value)
-    builder.primitive_new_float(float(value))
-  end
-
   def mask_int(value)
     (value << 1) | INT_FLAG
   end
