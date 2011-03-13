@@ -36,9 +36,6 @@ PRIMITIVE_FLOAT_TO_STRING = "spell.float.to.string"
 
 PRIMITIVE_TO_STRING = "spell.to.string"
 
-SIZE_INT = [1.to_i].pack("l!").size
-SIZE_FLOAT = [1.to_f].pack("f").size
-
 MALLOC_TYPE = :int8
 
 SPELL_VALUE = pointer_type(MALLOC_TYPE)
