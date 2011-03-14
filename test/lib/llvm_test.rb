@@ -30,6 +30,7 @@ class LLVMTestCase < Test::Unit::TestCase
   
   def execute(code, debug)
     builder = PassManager.
+      chain(Prelude).
       chain(Parser, [STDLIB_PATH]).
       chain(Analyzer, LLVMCodeGenerator::PRIMITIVES).
       chain(LLVMCodeGenerator, PrimitiveBuilder).

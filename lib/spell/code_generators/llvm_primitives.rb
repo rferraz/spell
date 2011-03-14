@@ -78,6 +78,9 @@ class LLVMPrimitivesBuilder
     end    
     
     def build_equality_primitives(builder)
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NOT do |f|
+        f.returns(f.box_int(f.sub(int(1), f.unbox_int(f.arg(0)))))
+      end
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :int, :other)
@@ -156,6 +159,17 @@ class LLVMPrimitivesBuilder
     end
     
     def build_string_primitives(builder)
+      builder.function [SPELL_VALUE], :int, PRIMITIVE_IS_STRING do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :exception, :verify)
+        }
+        f.block(:verify) {
+          f.returns(f.box_int(f.zext(f.icmp(:eq, f.flag_for(:string), f.type_of(f.arg(0))), type_by_name(:int))))
+        }
+        f.block(:exception) {
+          f.returns(f.box_int(int(0)))
+        }
+      end
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_CONCAT do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)

@@ -19,6 +19,8 @@ PRIMITIVE_NEW_STRING = "spell.new.string"
 
 PRIMITIVE_CONCAT = "spell.concat"
 
+PRIMITIVE_IS_STRING = "spell.is.string"
+
 PRIMITIVE_EQUALS = "spell.equals"
 PRIMITIVE_NOT_EQUALS = "spell.not.equals"
 
@@ -29,12 +31,14 @@ PRIMITIVE_DIVIDE = "spell.divide"
 
 PRIMITIVE_RAISE_EXCEPTION = "spell.raise.exception"
 
-PRIMITIVE_ASSERT = "assert"
+PRIMITIVE_ASSERT = "spell.assert"
 
 PRIMITIVE_INT_TO_STRING = "spell.int.to.string"
 PRIMITIVE_FLOAT_TO_STRING = "spell.float.to.string"
 
 PRIMITIVE_TO_STRING = "spell.to.string"
+
+PRIMITIVE_NOT = "spell.not"
 
 MALLOC_TYPE = :int8
 

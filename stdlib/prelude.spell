@@ -1,0 +1,11 @@
+not (value) = <primitive: spell.not>
+
+assert (condition value) = <primitive: spell.assert>
+
+int#to#string (value) = <primitive: spell.int.to.string>
+
+float#to#string (value) = <primitive: spell.float.to.string>
+
+to#string (value) = <primitive: spell.to.string>
+
+is#string (value) = <primitive: spell.is.string>

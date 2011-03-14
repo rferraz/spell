@@ -1,0 +1,7 @@
+# Result: integer, true
+
+main () = 
+	do
+		assert (is#string "abc") "abc is a string"
+		assert (not (is#string 1)) "1 is not a string"
+		assert (not (is#string 1.0)) "1.0 is not a string"

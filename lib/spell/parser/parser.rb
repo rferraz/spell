@@ -9,6 +9,8 @@ class Treetop::Runtime::SyntaxNode
 end
 
 class Parser
+  
+  PRELUDE = %(import "prelude"\n\n)
 
   def initialize(*root_paths)
     Treetop::Runtime::SyntaxNode.spell_root_paths = root_paths

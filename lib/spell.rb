@@ -78,3 +78,5 @@ require "spell/interpreter/interpreter"
 require "spell/interpreter/vm"
 require "spell/interpreter/frame"
 require "spell/interpreter/closure_context"
+
+require "spell/prelude"

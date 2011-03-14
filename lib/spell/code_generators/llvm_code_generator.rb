@@ -6,17 +6,14 @@ class LLVMCodeGenerator
     "+" => PRIMITIVE_PLUS,
     "-" => PRIMITIVE_MINUS,
     "*" => PRIMITIVE_TIMES,
-    "/" => PRIMITIVE_DIVIDE,
-    "assert" => PRIMITIVE_ASSERT,
-    "int#to#string" => PRIMITIVE_INT_TO_STRING,
-    "float#to#string" => PRIMITIVE_FLOAT_TO_STRING,
-    "to#string" => PRIMITIVE_TO_STRING
+    "/" => PRIMITIVE_DIVIDE
   }
   
   PRIMITIVES = PRIMITIVES_MAPPINGS.keys
   
   def initialize(primitive_builder_class)
     @primitive_builder_class = primitive_builder_class
+    @defined_primitives = {}
   end
   
   def run(ast)
@@ -61,6 +58,18 @@ class LLVMCodeGenerator
     builder_class.build(builder)
   end
   
+  def defined_primitives
+    @defined_primitives.merge(PRIMITIVES_MAPPINGS)
+  end
+  
+  def define_primitive(name, primitive)
+    @defined_primitives[name] = primitive
+  end
+  
+  def is_primitive?(name)
+    defined_primitives.keys.include?(name)
+  end
+  
   def enter_method(method)
     @method = method
   end
@@ -85,18 +94,22 @@ class LLVMCodeGenerator
   def build_method(method)
     name = method.name == ORIGINAL_MAIN_METHOD_NAME ? MAIN_METHOD_NAME : method.name
     enter_method(method)
-    builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
-      enter_builder(f)
-      begin
-        f.returns(build_list(method.body).last)
-      ensure
-        leave_builder
+    if method.body.first.is_a?(Ast::Primitive)
+      define_primitive(method.name, method.body.first.name)
+    else
+      builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
+        enter_builder(f)
+        begin
+          f.returns(build_list(method.body).last)
+        ensure
+          leave_builder
+        end
       end
     end
   end
   
   def build_invoke(invoke)
-    message = PRIMITIVES.include?(invoke.message) ? PRIMITIVES_MAPPINGS[invoke.message] : invoke.message
+    message = is_primitive?(invoke.message) ? defined_primitives[invoke.message] : invoke.message
     builder.call(message, *build_list(invoke.parameters))
   end
   
