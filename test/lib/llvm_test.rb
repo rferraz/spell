@@ -46,7 +46,12 @@ class LLVMTestCase < Test::Unit::TestCase
   end
 
   class StringValue < FFI::Struct
-    layout :value, :pointer
+    layout :length, :long,
+            # FIX: don't know how to handle variable length arrays
+            # from FFI so we're temporarily limiting them to 1kb
+            # which should be enough for the tests (this doesn't
+            # affect the internal working of the generator)
+           :value, [:char, 1024] 
   end
   
   class ExceptionValue < FFI::Struct
@@ -94,11 +99,11 @@ class LLVMTestCase < Test::Unit::TestCase
       value = Value.new(result)
       case value[:flag]
       when EXCEPTION_FLAG
-        "[Exception] " + Value.new(value[:box][:exception][:value])[:box][:string][:value].read_string_to_null
+        "[Exception] " + Value.new(value[:box][:exception][:value])[:box][:string][:value]
       when FLOAT_FLAG
         value[:box][:float][:value]
       when STRING_FLAG
-        value[:box][:string][:value].read_string_to_null
+        value[:box][:string][:value].to_s
       else
         raise "Unknown type"
       end

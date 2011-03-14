@@ -40,7 +40,7 @@ class LLVMPrimitivesBuilder
       builder.global :exception, SPELL_EXCEPTION do
         builder.constant("")
       end
-      builder.function [SPELL_VALUE], :void, PRIMITIVE_RAISE do |f|
+      builder.function [SPELL_VALUE], :void, PRIMITIVE_RAISE_EXCEPTION do |f|
         f.store(f.load(f.cast(f.arg(0), pointer_type(SPELL_EXCEPTION))), builder.get_global(:exception))
         f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(1, :size => 32))
         f.unreachable
@@ -56,7 +56,12 @@ class LLVMPrimitivesBuilder
     end
     
     def build_allocation_primitives(builder)
-      build_allocation_primitive(builder, :float)
+      builder.function [:float], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
+        pointer = f.malloc(SPELL_FLOAT)
+        f.store(f.flag_for(:float), f.flag_pointer(pointer))
+        f.store(f.arg(0), f.box_pointer(pointer))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_EXCEPTION do |f|
         pointer = f.malloc(SPELL_EXCEPTION)
         f.store(f.flag_for(:exception), f.flag_pointer(pointer))
@@ -64,24 +69,13 @@ class LLVMPrimitivesBuilder
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
       builder.function [SPELL_VALUE, :int], SPELL_VALUE, PRIMITIVE_NEW_STRING do |f|
-        string_pointer = f.malloc_on_size(f.arg(1))
-        f.call("memcpy", string_pointer, f.arg(0), f.arg(1))
-        pointer = f.malloc(SPELL_STRING)
+        pointer = f.variable_malloc(SPELL_STRING, f.arg(1))
+        f.call("memcpy", f.variable_box_pointer(pointer), f.arg(0), f.arg(1))
         f.store(f.flag_for(:string), f.flag_pointer(pointer))
-        f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
-        f.store(f.sub(f.arg(1), int(1)), f.length_pointer(pointer))
+        f.store(f.sub(f.arg(1), int(1)), f.variable_length_pointer(pointer, SPELL_STRING))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
-    
-    def build_allocation_primitive(builder, type)
-      builder.function [type], SPELL_VALUE, PRIMITIVE_NEW_FLOAT do |f|
-        pointer = f.malloc(SPELL_FLOAT)
-        f.store(f.flag_for(type), f.flag_pointer(pointer))
-        f.store(f.arg(0), f.box_pointer(pointer))
-        f.returns(f.cast(pointer, SPELL_VALUE))
-      end
-    end
     
     def build_equality_primitives(builder)
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
@@ -119,19 +113,21 @@ class LLVMPrimitivesBuilder
           f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)
         }
         f.block(:bothstrings) {
-          length1 = f.load(f.length_pointer(f.arg(0)))
-          length2 = f.load(f.length_pointer(f.arg(1)))
+          length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING))
+          length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_STRING))
           f.condition(f.icmp(:eq, length1, length2), :memcmp, :unequalstrings)
         }
         f.block(:memcmp) {
-          memcmp = f.call(:memcmp, f.unbox(f.arg(0), SPELL_STRING), f.unbox(f.arg(1), SPELL_STRING), f.load(f.length_pointer(f.arg(0))))
+          memcmp = f.call(:memcmp, f.unbox_variable(f.arg(0), SPELL_STRING),
+                                   f.unbox_variable(f.arg(1), SPELL_STRING),
+                                   f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)))
           f.condition(f.icmp(:eq, memcmp, int(0)), :equalstrings, :unequalstrings)
         }
         f.block(:equalstrings) {
-          f.returns(f.box_int(f.zext(int(1), type_by_name(:int))))
+          f.returns(f.box_int(int(1)))
         }
         f.block(:unequalstrings) {
-          f.returns(f.box_int(f.zext(int(0), type_by_name(:int))))
+          f.returns(f.box_int(int(0)))
         }        
         f.block(:exception) {
           # FIX: display operands
@@ -165,16 +161,14 @@ class LLVMPrimitivesBuilder
           f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)
         }
         f.block(:bothstrings) {
-          length1 = f.load(f.length_pointer(f.arg(0)))
-          length2 = f.load(f.length_pointer(f.arg(1)))
-          string_pointer = f.malloc_on_size(f.sub(f.add(length1, length2), int(1)))
-          f.call("memcpy", string_pointer, f.unbox(f.arg(0), SPELL_STRING), length1)
-          f.call("memcpy", f.gep(string_pointer, length1), f.unbox(f.arg(1), SPELL_STRING), f.add(length2, int(1)))
-          pointer = f.malloc(SPELL_STRING)
-          f.store(f.flag_for(:string), f.flag_pointer(pointer))
-          f.store(f.cast(string_pointer, pointer_type(:int8)), f.box_pointer(pointer))
-          f.store(f.add(length1, length2), f.length_pointer(pointer))
-          f.returns(f.cast(pointer, SPELL_VALUE))
+          length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING))
+          length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_STRING))
+          new_length = f.add(f.add(length1, length2), int(1))
+          string_pointer = f.malloc_on_size(new_length)
+          f.call("memset", string_pointer, int(0), new_length)
+          f.call("memcpy", string_pointer, f.unbox_variable(f.arg(0), SPELL_STRING), length1)
+          f.call("memcpy", f.gep(string_pointer, length1), f.unbox_variable(f.arg(1), SPELL_STRING), length2)
+          f.returns(f.primitive_new_string(string_pointer, new_length))
         }
         f.block(:exception) {
           # FIX: display operands

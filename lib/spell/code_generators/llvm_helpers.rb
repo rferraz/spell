@@ -23,12 +23,20 @@ class FunctionBuilderWrapper
     gep(value, int(0), int(1, :size => 32))
   end
 
-  def length_pointer(value)
-    gep(cast(value, pointer_type(SPELL_STRING)), int(0), int(2, :size => 32))
+  def variable_box_pointer(value)
+    gep(value, int(0), int(2, :size => 32), int(0))
+  end
+
+  def variable_length_pointer(value, type)
+    gep(cast(value, pointer_type(type)), int(0), int(1, :size => 32))
   end
 
   def unbox(pointer, type)
     load(box_pointer(cast(pointer, pointer_type(type))))
+  end
+
+  def unbox_variable(pointer, type)
+    variable_box_pointer(cast(pointer, pointer_type(type)))
   end
   
   def as_int(value)
@@ -54,6 +62,10 @@ class FunctionBuilderWrapper
   def malloc(type)
     cast(call("malloc", size_of(type)), pointer_type(type))
   end
+  
+  def variable_malloc(type, length)
+    cast(call("malloc", variable_size_of(type, length)), pointer_type(type))
+  end
 
   def malloc_on_size(size)
     call("malloc", trunc(size, type_by_name(:int32)))
@@ -61,6 +73,10 @@ class FunctionBuilderWrapper
   
   def size_of(type)
     ptr2int(gep(pointer_type(type).null_pointer, int(1)), :int32)
+  end
+  
+  def variable_size_of(type, length)
+    ptr2int(gep(pointer_type(type).null_pointer, int(0), int(2, :size => 32), length), :int32)
   end
   
   def primitive_new_float(value)
@@ -76,7 +92,7 @@ class FunctionBuilderWrapper
   end
   
   def primitive_raise(string_pointer)
-    call(PRIMITIVE_RAISE, primitive_new_exception(string_pointer))
+    call(PRIMITIVE_RAISE_EXCEPTION, primitive_new_exception(string_pointer))
   end
   
   def primitive_concat(string1, string2)

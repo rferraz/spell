@@ -27,7 +27,7 @@ PRIMITIVE_MINUS = "spell.minus"
 PRIMITIVE_TIMES = "spell.times"
 PRIMITIVE_DIVIDE = "spell.divide"
 
-PRIMITIVE_RAISE = "spell.raise"
+PRIMITIVE_RAISE_EXCEPTION = "spell.raise.exception"
 
 PRIMITIVE_ASSERT = "assert"
 
@@ -40,7 +40,7 @@ MALLOC_TYPE = :int8
 
 SPELL_VALUE = pointer_type(MALLOC_TYPE)
 
-SPELL_STRING = struct_type(:int, pointer_type(:int8), :int)
+SPELL_STRING = struct_type(:int, :int, array_type(:int8, 0))
 SPELL_EXCEPTION = struct_type(:int, pointer_type(SPELL_STRING))
 SPELL_FLOAT = struct_type(:int, :float)
 
