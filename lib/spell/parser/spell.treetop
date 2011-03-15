@@ -175,7 +175,7 @@ grammar Spell
   end
 
   rule string
-    (quote (!quote .)* quote)+ <StringLiteral>
+    (quote ("\\" quote / !quote . )* quote)+ <StringLiteral>
   end
 
   rule identifier

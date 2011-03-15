@@ -1,7 +1,7 @@
 module StringLiteral
 
   def build
-    Ast::Literal.new(text_value)
+    Ast::Literal.new(text_value.gsub("\\\"", "\""))
   end
 
 end

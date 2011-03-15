@@ -1,1 +1,1 @@
-assert#equal (expected actual) = assert (expected == actual) ("Expected " + (to#string expected) + " but was " + (to#string actual))
+assert#equal (expected actual) = assert (expected == actual) ("Expected " + (inspect expected) + " but was " + (inspect actual))
