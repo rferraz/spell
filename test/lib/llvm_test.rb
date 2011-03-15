@@ -18,7 +18,7 @@ class LLVMTestCase < Test::Unit::TestCase
     define_method("test_" + File.basename(file, ".spell")) do
       code = File.read(file)
       value = result_for(code)
-      result = formatted_result_for(execute(code, false))
+      result = formatted_result_for(execute(code, true))
       if value.is_a?(Float)
         assert_in_delta value, result, 0.00001
       else

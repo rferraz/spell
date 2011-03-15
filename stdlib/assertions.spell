@@ -1,1 +1,4 @@
-assert#equal (expected actual) = assert (expected == actual) ("Expected " + (inspect expected) + " but was " + (inspect actual))
+assert#equal (expected actual) = assert condition message
+	with
+		condition <- (expected == actual)
+		message <- "Expected " + (inspect expected) + " but was " + (inspect actual)

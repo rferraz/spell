@@ -160,8 +160,17 @@ class LLVMCodeGenerator
         builder.allocate_string(value[1, value.size - 2])
       end
     else
-      builder.arg(load.index)
+      value = builder.get_bookmark("value" + load.index.to_s)
+      if value
+        value
+      else
+        builder.arg(load.index)
+      end
     end
+  end
+  
+  def build_store(store)
+    builder.set_bookmark("value" + store.index.to_s, build_any(store.body))
   end
   
   def build_internal_primitives
