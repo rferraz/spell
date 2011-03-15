@@ -35,7 +35,7 @@ class LLVMTestCase < Test::Unit::TestCase
       chain(Analyzer, LLVMCodeGenerator::PRIMITIVES).
       chain(LLVMCodeGenerator, PrimitiveBuilder).
       run(code)
-    builder.verified_module.dump if debug
+    builder.instance_variable_get(:@module).dump if debug
     result = LLVM::ExecutionEngine.
       create_jit_compiler(builder.verified_module).
       run_function(builder.default_function)

@@ -1,0 +1,9 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+	do 
+		assert#equal "11" (inspect 11)
+		assert#equal "10.5" (inspect 10.5)
+		assert#equal "<abc>" (inspect "abc")

@@ -9,3 +9,7 @@ float#to#string (value) = <primitive: spell.float.to.string>
 to#string (value) = <primitive: spell.to.string>
 
 is#string (value) = <primitive: spell.is.string>
+
+inspect (value) = 
+	? is#string value -> "<" + value + ">"
+	?								_ -> to#string value

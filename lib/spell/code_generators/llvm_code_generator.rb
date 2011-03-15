@@ -100,7 +100,11 @@ class LLVMCodeGenerator
       builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
         enter_builder(f)
         begin
-          f.returns(build_list(method.body).last)
+          if method.body.first.is_a?(Ast::Case)
+            build_list(method.body)
+          else
+            builder.returns(build_list(method.body).last)
+          end
         ensure
           leave_builder
         end
@@ -111,6 +115,36 @@ class LLVMCodeGenerator
   def build_invoke(invoke)
     message = is_primitive?(invoke.message) ? defined_primitives[invoke.message] : invoke.message
     builder.call(message, *build_list(invoke.parameters))
+  end
+  
+  def build_case(case_statement)
+    builder.block(:entry) do
+      builder.branch("test0")
+    end
+    case_statement.items.each_with_index do |item, index|
+      if item == case_statement.items.last
+        if item.condition.is_a?(Ast::NullCaseCondition)
+          builder.block("test" + index.to_s) do
+            builder.branch("result" + index.to_s)
+          end
+        else
+          builder.block("test" + index.to_s) do
+            builder.condition(builder.icmp(:eq, builder.unbox_int(build_any(item.condition)), int(1)), "result" + index.to_s, "exception")
+          end
+          builder.block("exception") do
+            builder.primitive_raise(builder.allocate_string("Case condition is not exhaustive"))
+            builder.unreachable
+          end
+        end
+      else
+        builder.block("test" + index.to_s) do
+          builder.condition(builder.icmp(:eq, builder.unbox_int(build_any(item.condition)), int(1)), "result" + index.to_s, "test" + (index + 1).to_s)
+        end
+      end
+      builder.block("result" + index.to_s) do
+        builder.returns(build_any(item.result))
+      end
+    end
   end
   
   def build_load(load)
