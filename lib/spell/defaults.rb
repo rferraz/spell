@@ -29,6 +29,11 @@ PRIMITIVE_MINUS = "spell.minus"
 PRIMITIVE_TIMES = "spell.times"
 PRIMITIVE_DIVIDE = "spell.divide"
 
+PRIMITIVE_LESS_THAN = "spell.less.than"
+PRIMITIVE_GREATER_THAN = "spell.greater.than"
+PRIMITIVE_LESS_THAN_OR_EQUAL_TO = "spell.less.than.or.equal.to"
+PRIMITIVE_GREATER_THAN_OR_EQUAL_TO = "spell.greater.than.or.equal.to"
+
 PRIMITIVE_RAISE_EXCEPTION = "spell.raise.exception"
 
 PRIMITIVE_ASSERT = "spell.assert"

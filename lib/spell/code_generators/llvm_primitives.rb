@@ -11,6 +11,7 @@ class LLVMPrimitivesBuilder
       build_equality_primitives(builder)
       build_assertion_primitives(builder)
       build_conversion_primitives(builder)
+      build_comparison_primitives(builder)
     end
 
     def build_main(builder)
@@ -83,7 +84,7 @@ class LLVMPrimitivesBuilder
       end
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
         f.entry {
-          f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :int, :other)
+          f.condition(f.both_ints(f.arg(0), f.arg(1)), :int, :other)
         }
         f.block(:int) {
           result = f.icmp(:eq, f.as_int(f.arg(0)), f.as_int(f.arg(1)))
@@ -202,7 +203,7 @@ class LLVMPrimitivesBuilder
     def build_numeric_primitive(builder, name, int_operator, float_operator)
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, name do |f|
         f.entry {
-          f.condition(f.icmp(:eq, f.and(f.and(f.as_int(f.arg(0)), f.as_int(f.arg(1))), int(1)), int(1)), :addint, :other)
+          f.condition(f.both_ints(f.arg(0), f.arg(1)), :addint, :other)
         }
         f.block(:addint) {
           f.returns(f.box_int(f.send(int_operator, f.unbox_int(f.arg(0)), f.unbox_int(f.arg(1)))))
@@ -255,6 +256,67 @@ class LLVMPrimitivesBuilder
                 { :on => f.get_bookmark(:p2a), :return_from => :p2int },
                 { :on => f.get_bookmark(:p2b), :return_from => :p2float }
           f.returns(f.primitive_new_float(f.send(float_operator, f.get_bookmark(:p1), p2)))
+        }
+      end
+    end
+    
+    def build_comparison_primitives(builder)
+      build_comparison_primitive(builder, PRIMITIVE_LESS_THAN, :ult, :ult)
+      build_comparison_primitive(builder, PRIMITIVE_LESS_THAN_OR_EQUAL_TO, :ule, :ule)
+      build_comparison_primitive(builder, PRIMITIVE_GREATER_THAN, :ugt, :ugt)
+      build_comparison_primitive(builder, PRIMITIVE_GREATER_THAN_OR_EQUAL_TO, :uge, :uge)
+    end
+    
+    def build_comparison_primitive(builder, name, int_operator, float_operator)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, name do |f|
+        f.entry {
+          f.condition(f.both_ints(f.arg(0), f.arg(1)), :compareint, :dofirst)
+        }
+        f.block(:compareint) {
+          f.returns(f.box_int(f.zext(f.icmp(int_operator, f.unbox_int(f.arg(0)), f.unbox_int(f.arg(1))), type_by_name(:int))))
+        }
+        f.block(:dofirst) {
+          f.condition(f.is_int(f.arg(0)), :p1int, :p1possiblefloat)
+        }
+        f.block(:p1int) {
+          f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float)))
+          f.branch(:dosecond)
+        }
+        f.block(:p1possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:float)), :p1float, :exception)
+        }
+        f.block(:p1float) {
+          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
+          f.branch(:dosecond)
+        }
+        f.block(:dosecond) {
+          p1 = f.phi :float,
+                 { :on => f.get_bookmark(:p1a), :return_from => :p1int },
+                 { :on => f.get_bookmark(:p1b), :return_from => :p1float }
+          f.set_bookmark(:p1, p1)
+          f.condition(f.is_int(f.arg(1)), :p2int, :p2possiblefloat)
+        }
+        f.block(:p2int) {
+          f.set_bookmark(:p2a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
+          f.branch(:addfloat)
+        }
+        f.block(:p2possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:float)), :p2float, :exception)
+        }
+        f.block(:p2float) {
+          f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
+          f.branch(:addfloat)
+        }
+        f.block(:addfloat) {
+          p2 = f.phi :float,
+                { :on => f.get_bookmark(:p2a), :return_from => :p2int },
+                { :on => f.get_bookmark(:p2b), :return_from => :p2float }
+          f.returns(f.box_int(f.zext(f.fcmp(float_operator, f.get_bookmark(:p1), p2), type_by_name(:int))))
+        }
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Invalid comparison"))
+          f.unreachable
         }
       end
     end

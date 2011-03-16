@@ -79,6 +79,10 @@ class FunctionBuilderWrapper
     ptr2int(gep(pointer_type(type).null_pointer, int(0), int(2, :size => 32), length), :int32)
   end
   
+  def both_ints(value1, value2)
+    icmp(:eq, self.and(self.and(as_int(value1), as_int(value2)), int(1)), int(1))
+  end
+  
   def primitive_new_float(value)
     call(PRIMITIVE_NEW_FLOAT, value)
   end
