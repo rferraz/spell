@@ -105,6 +105,8 @@ class LLVMTestCase < Test::Unit::TestCase
         value[:box][:float][:value]
       when STRING_FLAG
         value[:box][:string][:value].to_s
+      when ARRAY_FLAG
+        raise "Cannot access array"
       else
         raise "Unknown type"
       end

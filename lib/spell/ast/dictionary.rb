@@ -1,6 +1,6 @@
 module Ast
 
-  class Dictionary
+  class DictionaryLiteral
 
     attr_reader :items
 

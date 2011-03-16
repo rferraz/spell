@@ -1,7 +1,7 @@
 module DictionaryLiteral
 
   def build
-    Ast::Dictionary.new(dictionary_items)
+    Ast::DictionaryLiteral.new(dictionary_items)
   end
 
   private

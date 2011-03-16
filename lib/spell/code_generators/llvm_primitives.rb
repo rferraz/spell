@@ -12,6 +12,7 @@ class LLVMPrimitivesBuilder
       build_assertion_primitives(builder)
       build_conversion_primitives(builder)
       build_comparison_primitives(builder)
+      build_array_primitives(builder)
     end
 
     def build_main(builder)
@@ -74,6 +75,12 @@ class LLVMPrimitivesBuilder
         f.call("memcpy", f.variable_box_pointer(pointer), f.arg(0), f.arg(1))
         f.store(f.flag_for(:string), f.flag_pointer(pointer))
         f.store(f.sub(f.arg(1), int(1)), f.variable_length_pointer(pointer, SPELL_STRING))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+      builder.function [:int], SPELL_VALUE, PRIMITIVE_NEW_ARRAY do |f|
+        pointer = f.variable_malloc(SPELL_ARRAY, f.arg(0))
+        f.store(f.flag_for(:array), f.flag_pointer(pointer))
+        f.store(f.arg(0), f.variable_length_pointer(pointer, SPELL_ARRAY))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
@@ -359,6 +366,35 @@ class LLVMPrimitivesBuilder
         }
       end
     end   
+    
+    def build_array_primitives(builder)
+      builder.function [SPELL_VALUE, :int], SPELL_VALUE, PRIMITIVE_ARRAY_ACCESS do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :notanarray, :firstcheck)
+        }
+        f.block(:firstcheck) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:array)), :secondcheck, :notanarray)
+        }
+        f.block(:secondcheck) {
+          f.condition(f.icmp(:uge, f.arg(1), int(0)), :thirdcheck, :exception)
+        }
+        f.block(:thirdcheck) {
+          length = f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))
+          f.condition(f.icmp(:ult, f.arg(1), length), :inbounds, :exception)
+        }
+        f.block(:inbounds) {
+          f.returns(f.load(f.gep(f.unbox_variable(f.arg(0), SPELL_ARRAY), f.arg(1))))
+        }
+        f.block(:notanarray) {
+          f.primitive_raise(f.allocate_string("Not an array"))
+          f.unreachable
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Array access out of bounds"))
+          f.unreachable
+        }
+      end
+    end
     
   end
   

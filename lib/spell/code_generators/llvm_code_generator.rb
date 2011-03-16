@@ -164,13 +164,25 @@ class LLVMCodeGenerator
         builder.allocate_string(value[1, value.size - 2])
       end
     else
-      value = builder.get_bookmark("value" + load.index.to_s)
-      if value
-        value
-      else
-        builder.arg(load.index)
-      end
+      builder.get_bookmark("value" + load.index.to_s) || builder.arg(load.index)
     end
+  end
+  
+  def build_array_literal(array)
+    pointer = builder.primitive_new_array(int(array.items.size))
+    array_pointer = builder.unbox_variable(pointer, SPELL_ARRAY)
+    array.items.each_with_index do |item, index|
+      builder.store(builder.cast(build_any(item), SPELL_VALUE), builder.gep(array_pointer, int(index)))
+    end
+    pointer
+  end
+  
+  def build_array_item(array_item)
+    build_any(array_item.expression)
+  end
+  
+  def build_array_access(array_access)
+    builder.primitive_array_access(builder.cast(build_any(array_access.target), SPELL_VALUE), builder.unbox_int(build_any(array_access.index)))
   end
   
   def build_store(store)

@@ -129,8 +129,8 @@ class Analyzer
     null_case_condition
   end
 
-  def analyze_dictionary(dictionary)
-    Ast::Dictionary.new(analyze_list(dictionary.items))
+  def analyze_dictionary_literal(dictionary)
+    Ast::DictionaryLiteral.new(analyze_list(dictionary.items))
   end
 
   def analyze_dictionary_item(dictionary_item)
@@ -141,8 +141,8 @@ class Analyzer
     Ast::DictionaryAccess.new(analyze_any(dictionary_access.target), dictionary_access.accessor)
   end
 
-  def analyze_array(array)
-    Ast::Array.new(analyze_list(array.items))
+  def analyze_array_literal(array)
+    Ast::ArrayLiteral.new(analyze_list(array.items))
   end
 
   def analyze_array_item(array_item)

@@ -1,6 +1,6 @@
 module Ast
 
-  class Array
+  class ArrayLiteral
 
     attr_reader :items
 

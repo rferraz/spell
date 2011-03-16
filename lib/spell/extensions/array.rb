@@ -1,7 +1,7 @@
 module ArrayLiteral
 
   def build
-    Ast::Array.new(array_items)
+    Ast::ArrayLiteral.new(array_items)
   end
 
   private

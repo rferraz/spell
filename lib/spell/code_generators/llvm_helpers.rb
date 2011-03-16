@@ -8,6 +8,8 @@ class FunctionBuilderWrapper
       int(EXCEPTION_FLAG)
     when :string
       int(STRING_FLAG)
+    when :array
+      int(ARRAY_FLAG)
     end
   end
 
@@ -95,12 +97,20 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_NEW_EXCEPTION, string_pointer)
   end
   
+  def primitive_new_array(size)
+    call(PRIMITIVE_NEW_ARRAY, size)
+  end
+  
   def primitive_raise(string_pointer)
     call(PRIMITIVE_RAISE_EXCEPTION, primitive_new_exception(string_pointer))
   end
   
   def primitive_concat(string1, string2)
     call(PRIMITIVE_CONCAT, string1, string2)
+  end
+  
+  def primitive_array_access(pointer, index)
+    call(PRIMITIVE_ARRAY_ACCESS, pointer, index)
   end
   
   def allocate_float(value)
