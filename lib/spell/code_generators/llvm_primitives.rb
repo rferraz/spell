@@ -98,6 +98,9 @@ class LLVMPrimitivesBuilder
           f.returns(f.box_int(f.zext(result, type_by_name(:int))))
         }
         f.block(:other) {
+          f.condition(f.is_int(f.arg(0)), :exception, :checktype)
+        }
+        f.block(:checktype) {
           f.switch f.type_of(f.arg(0)), :exception,
             { :on => f.flag_for(:float), :go_to => :float },
             { :on => f.flag_for(:string), :go_to => :string }
