@@ -197,7 +197,7 @@ class LLVMPrimitivesBuilder
     end
     
     def build_string_primitives(builder)
-      builder.function [SPELL_VALUE], :int, PRIMITIVE_IS_STRING do |f|
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_IS_STRING do |f|
         f.entry {
           f.condition(f.is_int(f.arg(0)), :exception, :verify)
         }
