@@ -89,65 +89,92 @@ class LLVMPrimitivesBuilder
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NOT do |f|
         f.returns(f.box_int(f.sub(int(1), f.unbox_int(f.arg(0)))))
       end
-      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_COMPARE_NUMERIC do |f|
         f.entry {
-          f.condition(f.both_ints(f.arg(0), f.arg(1)), :int, :other)
+          f.condition(f.both_ints(f.arg(0), f.arg(1)), :onlyint, :mixed)
         }
-        f.block(:int) {
+        f.block(:onlyint) {
           result = f.icmp(:eq, f.as_int(f.arg(0)), f.as_int(f.arg(1)))
           f.returns(f.box_int(f.zext(result, type_by_name(:int))))
         }
-        f.block(:other) {
-          f.condition(f.is_int(f.arg(0)), :exception, :checktype)
+        f.block(:mixed) {
+          f.branch(:dofirst)
         }
-        f.block(:checktype) {
-          f.switch f.type_of(f.arg(0)), :exception,
-            { :on => f.flag_for(:float), :go_to => :float },
-            { :on => f.flag_for(:string), :go_to => :string }
-        }
-        f.block(:float) {
-          f.condition(f.is_int(f.arg(1)), :p1int, :p1float)
+        f.block(:dofirst) {
+          f.condition(f.is_int(f.arg(0)), :p1int, :p1float)
         }
         f.block(:p1int) {
-          f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
-          f.branch(:floatcompare)
+          f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float)))
+          f.branch(:dosecond)
         }
         f.block(:p1float) {
-          f.set_bookmark(:p1b, f.unbox(f.arg(1), SPELL_FLOAT))
-          f.branch(:floatcompare)
+          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
+          f.branch(:dosecond)
         }
-        f.block(:floatcompare) {
+        f.block(:dosecond) {
           p1 = f.phi :float,
                  { :on => f.get_bookmark(:p1a), :return_from => :p1int },
                  { :on => f.get_bookmark(:p1b), :return_from => :p1float }
-          result = f.fcmp(:ueq, f.unbox(f.arg(0), SPELL_FLOAT), p1)
+          f.set_bookmark(:p1, p1)
+          f.condition(f.is_int(f.arg(1)), :p2int, :p2float)
+        }
+        f.block(:p2int) {
+          f.set_bookmark(:p2a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
+          f.branch(:result)
+        }
+        f.block(:p2float) {
+          f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
+          f.branch(:result)
+        }
+        f.block(:result) {
+          p2 = f.phi :float,
+                { :on => f.get_bookmark(:p2a), :return_from => :p2int },
+                { :on => f.get_bookmark(:p2b), :return_from => :p2float }
+          result = f.fcmp(:ueq, f.get_bookmark(:p1), p2)
           f.returns(f.box_int(f.zext(result, type_by_name(:int))))
         }
-        f.block(:string) {
-          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :exception)
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_COMPARE_STRING do |f|
+        f.block(:entry) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:string)), :bothstrings, :unequal)
         }
         f.block(:bothstrings) {
           length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING))
           length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_STRING))
-          f.condition(f.icmp(:eq, length1, length2), :memcmp, :unequalstrings)
+          f.condition(f.icmp(:eq, length1, length2), :memcmp, :unequal)
         }
         f.block(:memcmp) {
           memcmp = f.call(:memcmp, f.unbox_variable(f.arg(0), SPELL_STRING),
                                    f.unbox_variable(f.arg(1), SPELL_STRING),
                                    f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)))
-          f.condition(f.icmp(:eq, memcmp, int(0)), :equalstrings, :unequalstrings)
+          f.condition(f.icmp(:eq, memcmp, int(0)), :equal, :unequal)
         }
-        f.block(:equalstrings) {
+        f.block(:equal) {
           f.returns(f.box_int(int(1)))
         }
-        f.block(:unequalstrings) {
+        f.block(:unequal) {
           f.returns(f.box_int(int(0)))
         }        
-        f.block(:exception) {
-          # FIX: display operands
-          f.primitive_raise(f.allocate_string("Invalid comparison"))
-          f.unreachable
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_EQUALS do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :numeric, :checktype)
         }
+        f.block(:checktype) {
+          f.switch f.type_of(f.arg(0)), :other,
+            { :on => f.flag_for(:float), :go_to => :numeric },
+            { :on => f.flag_for(:string), :go_to => :string }
+        }
+        f.block(:numeric) {
+          f.returns(f.primitive_compare_numeric(f.arg(0), f.arg(1)))
+        }
+        f.block(:string) {
+          f.returns(f.primitive_compare_string(f.arg(0), f.arg(1)))
+        }
+        f.block(:other) {
+          result = f.icmp(:eq, f.arg(0), f.arg(1))
+          f.returns(f.box_int(f.zext(result, type_by_name(:int))))
+        }        
       end
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NOT_EQUALS do |f|
         f.returns(f.box_int(f.sub(int(1), f.unbox_int(f.call(PRIMITIVE_EQUALS, f.arg(0), f.arg(1))))))
@@ -197,7 +224,7 @@ class LLVMPrimitivesBuilder
         }
         f.block(:exception) {
           # FIX: display operands
-          f.primitive_raise(f.allocate_string("Can't compare string to non-string"))
+          f.primitive_raise(f.allocate_string("Can't concat string to non-string"))
           f.unreachable
         }
       end
@@ -236,11 +263,14 @@ class LLVMPrimitivesBuilder
           }
         end
         f.block(:dofirst) {
-          f.condition(f.is_int(f.arg(0)), :p1int, :p1float)
+          f.condition(f.is_int(f.arg(0)), :p1int, :p1possiblefloat)
         }
         f.block(:p1int) {
           f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float)))
           f.branch(:dosecond)
+        }
+        f.block(:p1possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:float)), :p1float, :exception)
         }
         f.block(:p1float) {
           f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
@@ -251,21 +281,29 @@ class LLVMPrimitivesBuilder
                  { :on => f.get_bookmark(:p1a), :return_from => :p1int },
                  { :on => f.get_bookmark(:p1b), :return_from => :p1float }
           f.set_bookmark(:p1, p1)
-          f.condition(f.is_int(f.arg(1)), :p2int, :p2float)
+          f.condition(f.is_int(f.arg(1)), :p2int, :p2possiblefloat)
         }
         f.block(:p2int) {
           f.set_bookmark(:p2a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
-          f.branch(:addfloat)
+          f.branch(:result)
+        }
+        f.block(:p2possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:float)), :p2float, :exception)
         }
         f.block(:p2float) {
           f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
-          f.branch(:addfloat)
+          f.branch(:result)
         }
-        f.block(:addfloat) {
+        f.block(:result) {
           p2 = f.phi :float,
                 { :on => f.get_bookmark(:p2a), :return_from => :p2int },
                 { :on => f.get_bookmark(:p2b), :return_from => :p2float }
           f.returns(f.primitive_new_float(f.send(float_operator, f.get_bookmark(:p1), p2)))
+        }
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Invalid numeric operation"))
+          f.unreachable
         }
       end
     end
@@ -308,16 +346,16 @@ class LLVMPrimitivesBuilder
         }
         f.block(:p2int) {
           f.set_bookmark(:p2a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
-          f.branch(:addfloat)
+          f.branch(:result)
         }
         f.block(:p2possiblefloat) {
           f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:float)), :p2float, :exception)
         }
         f.block(:p2float) {
           f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
-          f.branch(:addfloat)
+          f.branch(:result)
         }
-        f.block(:addfloat) {
+        f.block(:result) {
           p2 = f.phi :float,
                 { :on => f.get_bookmark(:p2a), :return_from => :p2int },
                 { :on => f.get_bookmark(:p2b), :return_from => :p2float }

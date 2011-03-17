@@ -1,0 +1,19 @@
+# Result: integer, true
+
+main () = 
+  do
+		assert (1 == 1.0) "1 == 1.0"
+		assert (1 != 2.0) "1 != 2.0"
+		assert (1.0 == 1) "1.0 == 1"
+		assert (1.0 != 2) "1.0 != 2"
+		assert ("a" == "a") "\"a\" == \"a\""
+		assert ("a" != "b") "\"a\" != \"b\""
+		assert (1 != []) "1 != []"
+		assert (1.0 != []) "1.0 != []"
+		assert ([] != 1) "[] != 1"
+		assert ([] != 1.0) "[] != 1.0"
+		assert ([] != "a") "[] != \"a\""
+		assert ("a" != []) "\"a\" != []"
+		assert (same#array == same#array) "same#array == same#array"
+  with 
+    same#array <- []

@@ -26,6 +26,9 @@ PRIMITIVE_IS_STRING = "spell.is.string"
 PRIMITIVE_EQUALS = "spell.equals"
 PRIMITIVE_NOT_EQUALS = "spell.not.equals"
 
+PRIMITIVE_COMPARE_NUMERIC = "spell.compare.numeric"
+PRIMITIVE_COMPARE_STRING = "spell.compare.string"
+
 PRIMITIVE_PLUS = "spell.plus"
 PRIMITIVE_MINUS = "spell.minus"
 PRIMITIVE_TIMES = "spell.times"

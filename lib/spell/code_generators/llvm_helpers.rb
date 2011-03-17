@@ -113,6 +113,14 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_ARRAY_ACCESS, pointer, index)
   end
   
+  def primitive_compare_string(value1, value2)
+    call(PRIMITIVE_COMPARE_STRING, value1, value2)
+  end
+
+  def primitive_compare_numeric(value1, value2)
+    call(PRIMITIVE_COMPARE_NUMERIC, value1, value2)
+  end
+  
   def allocate_float(value)
     primitive_new_float(float(value))
   end

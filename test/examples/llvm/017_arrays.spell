@@ -1,4 +1,4 @@
-# Result: integer, 1
+# Result: integer, true
 
 import "assertions"
 
