@@ -10,6 +10,8 @@ class FunctionBuilderWrapper
       int(STRING_FLAG)
     when :array
       int(ARRAY_FLAG)
+    when :dictionary
+      int(DICTIONARY_FLAG)
     end
   end
 
@@ -100,6 +102,10 @@ class FunctionBuilderWrapper
   def primitive_new_array(size)
     call(PRIMITIVE_NEW_ARRAY, size)
   end
+
+  def primitive_new_dictionary(size)
+    call(PRIMITIVE_NEW_DICTIONARY, size)
+  end
   
   def primitive_raise(string_pointer)
     call(PRIMITIVE_RAISE_EXCEPTION, primitive_new_exception(string_pointer))
@@ -112,6 +118,10 @@ class FunctionBuilderWrapper
   def primitive_array_access(pointer, index)
     call(PRIMITIVE_ARRAY_ACCESS, pointer, index)
   end
+
+  def primitive_dictionary_access(pointer, key_pointer)
+    call(PRIMITIVE_DICTIONARY_ACCESS, pointer, key_pointer)
+  end
   
   def primitive_compare_string(value1, value2)
     call(PRIMITIVE_COMPARE_STRING, value1, value2)
@@ -119,6 +129,10 @@ class FunctionBuilderWrapper
 
   def primitive_compare_numeric(value1, value2)
     call(PRIMITIVE_COMPARE_NUMERIC, value1, value2)
+  end
+  
+  def primitive_hash(value)
+    call(PRIMITIVE_HASH, value)
   end
   
   def allocate_float(value)

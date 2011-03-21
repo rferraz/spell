@@ -13,6 +13,7 @@ class LLVMPrimitivesBuilder
       build_conversion_primitives(builder)
       build_comparison_primitives(builder)
       build_array_primitives(builder)
+      build_dictionary_primitives(builder)
     end
 
     def build_main(builder)
@@ -81,6 +82,12 @@ class LLVMPrimitivesBuilder
         pointer = f.variable_malloc(SPELL_ARRAY, f.arg(0))
         f.store(f.flag_for(:array), f.flag_pointer(pointer))
         f.store(f.arg(0), f.variable_length_pointer(pointer, SPELL_ARRAY))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+      builder.function [:int], SPELL_VALUE, PRIMITIVE_NEW_DICTIONARY do |f|
+        pointer = f.variable_malloc(SPELL_DICTIONARY, f.arg(0))
+        f.store(f.flag_for(:dictionary), f.flag_pointer(pointer))
+        f.store(f.arg(0), f.variable_length_pointer(pointer, SPELL_DICTIONARY))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
@@ -225,6 +232,38 @@ class LLVMPrimitivesBuilder
         f.block(:exception) {
           # FIX: display operands
           f.primitive_raise(f.allocate_string("Can't concat string to non-string"))
+          f.unreachable
+        }
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_HASH do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :initial, :exception)
+        }
+        f.block(:initial) {
+          length = f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)))
+          f.condition(f.icmp(:eq, length, int(0)), :result, :loop)
+        }
+        f.block(:loop) {
+          var = f.partial_phi :int, { :on => int(0), :return_from => :initial }
+          key = f.partial_phi :int32, { :on => int(0, :size => 32), :return_from => :initial }
+          address = f.unbox_variable(f.arg(0), SPELL_STRING)
+          value = f.load(f.gep(address, var))
+          next_var = f.set_bookmark(:var, f.add(var, int(1)))
+          next_key = f.set_bookmark(:key, f.add(f.zext(value, type_by_name(:int32)), f.mul(key, int(65599, :size => 32))))
+          f.add_incoming var, { :on => next_var, :return_from => :loop }
+          f.add_incoming key, { :on => next_key, :return_from => :loop }
+          f.condition(f.icmp(:eq, next_var, f.get_bookmark(:length)), :result, :loop)
+        }
+        f.block(:result) {
+          key = f.phi :int32, 
+                            { :on => f.get_bookmark(:key), :return_from => :loop },
+                            { :on => int(0, :size => 32), :return_from => :initial }
+          hash = f.add(key, f.lshr(key, int(5, :size => 32)))
+          f.returns(f.box_int(f.zext(hash, type_by_name(:int))))
+        }
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Not a string"))
           f.unreachable
         }
       end
@@ -436,7 +475,62 @@ class LLVMPrimitivesBuilder
         }
       end
     end
-    
+
+    def build_dictionary_primitives(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_DICTIONARY_ACCESS do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :notadictionary, :firstcheck)
+        }
+        f.block(:firstcheck) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:dictionary)), :initial, :notadictionary)
+        }
+        f.block(:initial) {
+          f.set_bookmark(:hash, f.unbox_int(f.primitive_hash(f.arg(1))))
+          f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_DICTIONARY)))
+          f.branch(:index)
+        }
+        f.block(:index) {
+           index = f.partial_phi :int
+           f.set_bookmark(:index, index)
+           f.branch(:loop)
+        }
+        f.block(:compare) {
+          item_pointer = f.gep(f.unbox_variable(f.arg(0), SPELL_DICTIONARY), f.get_bookmark(:index))
+          item = f.load(f.gep(item_pointer, int(0), int(0, :size => 32)))
+          f.condition(f.icmp(:eq, f.get_bookmark(:hash), f.unbox_int(item)), :found, :next)
+        }
+        f.block(:next) {
+          f.set_bookmark(:next, f.add(f.get_bookmark(:index), int(1)))
+          f.branch(:index)
+        }
+        f.block(:loop) {
+          f.add_incoming f.get_bookmark(:index), { :on => int(0), :return_from => :initial }
+          f.add_incoming f.get_bookmark(:index), { :on => f.get_bookmark(:next), :return_from => :next }
+          f.condition(f.icmp(:ult, f.get_bookmark(:index), f.get_bookmark(:length)), :compare, :found)
+        }
+        f.block(:found) {
+          result = f.phi :int, 
+                    { :on => f.get_bookmark(:index), :return_from => :compare },
+                    { :on => int(-1), :return_from => :loop }
+          f.set_bookmark(:result, result)
+          f.condition(f.icmp(:eq, int(-1), result), :exception, :result)
+        }
+        f.block(:result) {
+          item_pointer = f.gep(f.unbox_variable(f.arg(0), SPELL_DICTIONARY), f.get_bookmark(:result))
+          item = f.load(f.gep(item_pointer, int(0), int(1, :size => 32)))
+          f.returns(item)
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Key not in dictionary"))
+          f.unreachable          
+        }
+        f.block(:notadictionary) {
+          f.primitive_raise(f.allocate_string("Not a dictionary"))
+          f.unreachable
+        }
+      end
+    end
+        
   end
   
 end

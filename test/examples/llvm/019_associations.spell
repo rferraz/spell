@@ -1,0 +1,10 @@
+# Result: integer, true
+
+import "assertions"
+
+main () =
+  do
+    assert#equal 9 ((first.one + first.two) * second.nested.nested.root)
+  with
+    first <- { one: 1; two: 2 }
+    second <- { nested: { nested: { basic: 0; skip: 1; over: 2; root: 3 } } }

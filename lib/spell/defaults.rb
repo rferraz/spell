@@ -13,11 +13,13 @@ EXCEPTION_FLAG = 2
 FLOAT_FLAG = 3
 STRING_FLAG = 4
 ARRAY_FLAG = 5
+DICTIONARY_FLAG = 6
 
 PRIMITIVE_NEW_EXCEPTION = "spell.new.exception"
 PRIMITIVE_NEW_FLOAT = "spell.new.float"
 PRIMITIVE_NEW_STRING = "spell.new.string"
 PRIMITIVE_NEW_ARRAY = "spell.new.array"
+PRIMITIVE_NEW_DICTIONARY = "spell.new.dictionary"
 
 PRIMITIVE_CONCAT = "spell.concat"
 
@@ -51,6 +53,9 @@ PRIMITIVE_TO_STRING = "spell.to.string"
 PRIMITIVE_NOT = "spell.not"
 
 PRIMITIVE_ARRAY_ACCESS = "spell.array.access"
+PRIMITIVE_DICTIONARY_ACCESS = "spell.dictionary.access"
+
+PRIMITIVE_HASH = "spell.hash"
 
 MALLOC_TYPE = :int8
 
@@ -60,5 +65,6 @@ SPELL_STRING = struct_type(:int, :int, array_type(:int8, 0))
 SPELL_EXCEPTION = struct_type(:int, pointer_type(SPELL_STRING))
 SPELL_FLOAT = struct_type(:int, :float)
 SPELL_ARRAY = struct_type(:int, :int, array_type(SPELL_VALUE, 0))
+SPELL_DICTIONARY = struct_type(:int, :int, array_type(struct_type(SPELL_VALUE, SPELL_VALUE), 0))
 
 MEMORY_ROOT = "__root__"

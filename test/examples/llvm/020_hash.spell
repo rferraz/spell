@@ -1,0 +1,9 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+	do
+		assert#equal 0 (hash "")
+		assert#equal 833038373 (hash "abc")
+		assert#equal 850077725 (hash "cba")

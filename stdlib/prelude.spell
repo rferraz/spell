@@ -10,6 +10,8 @@ to#string (value) = <primitive: spell.to.string>
 
 is#string (value) = <primitive: spell.is.string>
 
+hash (string) = <primitive: spell.hash>
+
 inspect (value) = 
 	? is#string value -> "\"" + value + "\""
 	?								_ -> to#string value

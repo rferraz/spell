@@ -172,17 +172,28 @@ class LLVMCodeGenerator
     pointer = builder.primitive_new_array(int(array.items.size))
     array_pointer = builder.unbox_variable(pointer, SPELL_ARRAY)
     array.items.each_with_index do |item, index|
-      builder.store(builder.cast(build_any(item), SPELL_VALUE), builder.gep(array_pointer, int(index)))
+      builder.store(builder.cast(build_any(item.expression), SPELL_VALUE), builder.gep(array_pointer, int(index)))
     end
     pointer
   end
   
-  def build_array_item(array_item)
-    build_any(array_item.expression)
-  end
-  
   def build_array_access(array_access)
     builder.primitive_array_access(builder.cast(build_any(array_access.target), SPELL_VALUE), builder.unbox_int(build_any(array_access.index)))
+  end
+  
+  def build_dictionary_literal(dictionary)
+    pointer = builder.primitive_new_dictionary(int(dictionary.items.size))
+    dictionary_pointer = builder.unbox_variable(pointer, SPELL_DICTIONARY)
+    dictionary.items.each_with_index do |item, index|
+      item_pointer = builder.gep(dictionary_pointer, int(index))
+      builder.store(builder.primitive_hash(builder.allocate_string(item.name)), builder.gep(item_pointer, int(0), int(0, :size => 32)))
+      builder.store(builder.cast(build_any(item.expression), SPELL_VALUE), builder.gep(item_pointer, int(0), int(1, :size => 32)))
+    end
+    pointer
+  end
+  
+  def build_dictionary_access(dictionary_access)
+    builder.primitive_dictionary_access(builder.cast(build_any(dictionary_access.target), SPELL_VALUE), builder.allocate_string(dictionary_access.accessor))
   end
   
   def build_store(store)
