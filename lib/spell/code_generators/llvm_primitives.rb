@@ -374,7 +374,7 @@ class LLVMPrimitivesBuilder
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_INT_TO_STRING do |f|
         pointer = f.malloc_on_size(int(16, :size => 32))
         f.call("memset", pointer, int(0), int(16))
-        size = f.call("sprintf", pointer, f.string_constant("%d"), f.unbox_int(f.arg(0)))
+        size = f.call("sprintf", pointer, f.string_constant("%ld"), f.unbox_int(f.arg(0)))
         f.returns(f.cast(f.primitive_new_string(pointer, f.add(f.zext(size, type_by_name(:int)), int(1))), SPELL_VALUE))
       end
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_FLOAT_TO_STRING do |f|
