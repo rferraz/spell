@@ -3,7 +3,8 @@ class LLVMPrimitivesBuilder
   class << self
     
     def build(builder)
-      builder_exception_primitives(builder)
+      build_stack_primitives(builder)
+      build_exception_primitives(builder)
       build_memory_primitives(builder)
       build_allocation_primitives(builder)
       build_string_primitives(builder)
@@ -14,6 +15,7 @@ class LLVMPrimitivesBuilder
       build_comparison_primitives(builder)
       build_array_primitives(builder)
       build_dictionary_primitives(builder)
+      build_closure_primitives(builder)
     end
 
     def build_main(builder)
@@ -34,7 +36,16 @@ class LLVMPrimitivesBuilder
     
     protected
     
-    def builder_exception_primitives(builder)
+    def build_stack_primitives(builder)
+      builder.global :stack, pointer_type(SPELL_STACK) do
+        pointer_type(SPELL_STACK).null_pointer
+      end
+      builder.function [pointer_type(SPELL_STACK)], pointer_type(SPELL_STACK), PRIMITIVE_STACK_PARENT do |f|
+        f.returns(f.load(f.gep(f.arg(0), int(0), int(0, :size => 32))))
+      end
+    end
+    
+    def build_exception_primitives(builder)
       builder.external :setjmp, [pointer_type(:int8)], :int32
       builder.external :longjmp, [pointer_type(:int8), :int32], :void
       builder.global :jmpenv, [:int8] * 256 do
@@ -88,6 +99,14 @@ class LLVMPrimitivesBuilder
         pointer = f.variable_malloc(SPELL_DICTIONARY, f.arg(0))
         f.store(f.flag_for(:dictionary), f.flag_pointer(pointer))
         f.store(f.arg(0), f.variable_length_pointer(pointer, SPELL_DICTIONARY))
+        f.returns(f.cast(pointer, SPELL_VALUE))
+      end
+      builder.function [:int, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_CONTEXT do |f|
+        pointer = f.malloc(SPELL_CONTEXT)
+        f.store(f.flag_for(:context), f.flag_pointer(pointer))
+        f.store(f.load(f.get_global(:stack)), f.box_pointer(pointer))
+        f.store(f.arg(1), f.nth_box_pointer(pointer, 2))
+        f.store(f.arg(0), f.nth_box_pointer(pointer, 3))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
@@ -441,7 +460,7 @@ class LLVMPrimitivesBuilder
           f.returns(f.arg(0))
         }
         f.block(:exception) {
-          f.primitive_raise(f.allocate_string("Unknown type"))
+          f.primitive_raise(f.primitive_concat(f.allocate_string("Unknown type: "), f.primitive_to_string(f.box_int(f.type_of(f.arg(0))))))
           f.unreachable
         }
       end
@@ -530,7 +549,43 @@ class LLVMPrimitivesBuilder
         }
       end
     end
-        
+    
+    def build_closure_primitives(builder)
+      (0..PRIMITIVE_SPELL_APPLY_MAX_DIRECT_PARAMETERS).each do |index|
+        builder.function [SPELL_VALUE] + [SPELL_VALUE] * index, SPELL_VALUE, PRIMITIVE_SPELL_APPLY_ROOT + index.to_s  do |f|
+          f.entry {
+            f.condition(f.is_int(f.arg(0)), :notablock, :firstcheck)
+          }
+          f.block(:firstcheck) {
+            f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:context)), :secondcheck, :notablock)
+          }
+          f.block(:secondcheck) {
+            f.condition(f.icmp(:eq, f.unbox_nth(f.arg(0), SPELL_CONTEXT, 3), int(index)), :invoke, :blockmismatch)
+          }
+          f.block(:invoke) {
+            function = f.cast(f.unbox_nth(f.arg(0), SPELL_CONTEXT, 2), pointer_type(function_type([SPELL_VALUE] * index, SPELL_VALUE)))
+            arguments = (0...index).collect { |i| f.arg(i + 1) }
+            arguments << f.arg(0)
+            f.returns(f.call(function, *arguments))
+          }
+          f.block(:blockmismatch) {
+            p1 = f.allocate_string("Apply called with ")
+            p2 = f.primitive_to_string(f.box_int(int(index)))
+            p3 = f.allocate_string(" arguments; passed block needs ")
+            p4 = f.primitive_to_string(f.box_int(f.unbox_nth(f.arg(0), SPELL_CONTEXT, 3)))
+            p5 = f.allocate_string(" arguments")
+            error = f.primitive_concat(f.primitive_concat(f.primitive_concat(f.primitive_concat(p1, p2), p3), p4), p5)
+            f.primitive_raise(error)
+            f.unreachable
+          }
+          f.block(:notablock) {
+            f.primitive_raise(f.allocate_string("Not a block"))
+            f.unreachable
+          }
+        end
+      end
+    end
+    
   end
   
 end

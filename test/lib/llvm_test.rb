@@ -89,7 +89,7 @@ class LLVMTestCase < Test::Unit::TestCase
     when "exception"
       result
     else
-      raise "Unknown type"
+      raise "Unknown type in the result assertion"
     end
   end
 
@@ -106,9 +106,13 @@ class LLVMTestCase < Test::Unit::TestCase
       when STRING_FLAG
         value[:box][:string][:value].to_s
       when ARRAY_FLAG
-        raise "Cannot access array"
+        raise "Cannot inspect array in the formatted result"
+      when DICTIONARY_FLAG
+        raise "Cannot inspect dictionary in the formatted result"
+      when CONTEXT_FLAG
+        raise "Cannot inspect context in the formatted result"
       else
-        raise "Unknown type"
+        raise "Unknown type in the formatted result"
       end
     end
   end

@@ -13,7 +13,7 @@ class LLVMCodeGenerator
     ">=" => PRIMITIVE_GREATER_THAN_OR_EQUAL_TO    
   }
   
-  PRIMITIVES = PRIMITIVES_MAPPINGS.keys
+  PRIMITIVES = PRIMITIVES_MAPPINGS.keys + ["apply"]
   
   def initialize(primitive_builder_class)
     @primitive_builder_class = primitive_builder_class
@@ -104,6 +104,7 @@ class LLVMCodeGenerator
       builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
         enter_builder(f)
         begin
+          builder.explicit_stack(method.arguments_size, method.bindings_size)
           if method.body.first.is_a?(Ast::Case)
             build_list(method.body)
           else
@@ -117,8 +118,26 @@ class LLVMCodeGenerator
   end
   
   def build_invoke(invoke)
-    message = is_primitive?(invoke.message) ? defined_primitives[invoke.message] : invoke.message
+    message = if invoke.message == "apply"
+                "spell.apply." + (invoke.parameters.size - 1).to_s
+              else
+                is_primitive?(invoke.message) ? defined_primitives[invoke.message] : invoke.message
+              end
     builder.call(message, *build_list(invoke.parameters))
+  end
+  
+  def build_closure(closure)
+    name = random_closure_name
+    module_builder.function [SPELL_VALUE] * (closure.arguments_size + 1), SPELL_VALUE, name do |f|
+      enter_builder(f)
+      begin
+        builder.explicit_stack(closure.arguments_size, 0)
+        builder.returns(build_list(closure.body).last)
+      ensure
+        leave_builder
+      end
+    end
+    new_context(closure, module_builder.get_function(name))
   end
   
   def build_case(case_statement)
@@ -197,7 +216,17 @@ class LLVMCodeGenerator
   end
   
   def build_store(store)
-    builder.set_bookmark("value" + store.index.to_s, build_any(store.body))
+    value = build_any(store.body)
+    builder.set_bookmark("value" + store.index.to_s, value)
+    builder.store(value, builder.stack_at(store.index))
+  end
+  
+  def build_up(up)
+    context_stack = builder.unbox(builder.arg(:last), SPELL_CONTEXT)
+    (1...up.distance).each do
+      context_stack = builder.primitive_stack_parent(context_stack)
+    end
+    builder.load(builder.context_stack_at(context_stack, up.index))
   end
   
   def build_internal_primitives
@@ -206,6 +235,10 @@ class LLVMCodeGenerator
    
   def mask_int(value)
     (value << 1) | INT_FLAG
+  end
+  
+  def new_context(closure, function)
+    builder.allocate_context(closure.arguments_size, function)
   end
   
 end

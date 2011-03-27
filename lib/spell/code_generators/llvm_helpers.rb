@@ -12,6 +12,8 @@ class FunctionBuilderWrapper
       int(ARRAY_FLAG)
     when :dictionary
       int(DICTIONARY_FLAG)
+    when :context
+      int(CONTEXT_FLAG)
     end
   end
 
@@ -26,6 +28,10 @@ class FunctionBuilderWrapper
   def box_pointer(value)
     gep(value, int(0), int(1, :size => 32))
   end
+  
+  def nth_box_pointer(value, index)
+    gep(value, int(0), int(index, :size => 32))
+  end
 
   def variable_box_pointer(value)
     gep(value, int(0), int(2, :size => 32), int(0))
@@ -37,6 +43,10 @@ class FunctionBuilderWrapper
 
   def unbox(pointer, type)
     load(box_pointer(cast(pointer, pointer_type(type))))
+  end
+
+  def unbox_nth(pointer, type, index)
+    load(nth_box_pointer(cast(pointer, pointer_type(type)), index))
   end
 
   def unbox_variable(pointer, type)
@@ -86,6 +96,10 @@ class FunctionBuilderWrapper
   def both_ints(value1, value2)
     icmp(:eq, self.and(self.and(as_int(value1), as_int(value2)), int(1)), int(1))
   end
+
+  def any_ints(value1, value2)
+    icmp(:eq, self.and(self.or(as_int(value1), as_int(value2)), int(1)), int(1))
+  end
   
   def primitive_new_float(value)
     call(PRIMITIVE_NEW_FLOAT, value)
@@ -107,12 +121,20 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_NEW_DICTIONARY, size)
   end
   
+  def primitive_new_context(arguments_size, function_pointer)
+    call(PRIMITIVE_NEW_CONTEXT, arguments_size, function_pointer)
+  end
+  
   def primitive_raise(string_pointer)
     call(PRIMITIVE_RAISE_EXCEPTION, primitive_new_exception(string_pointer))
   end
   
   def primitive_concat(string1, string2)
     call(PRIMITIVE_CONCAT, string1, string2)
+  end
+  
+  def primitive_to_string(value)
+    call(PRIMITIVE_TO_STRING, value)
   end
   
   def primitive_array_access(pointer, index)
@@ -135,12 +157,20 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_HASH, value)
   end
   
+  def primitive_stack_parent(value)
+    call(PRIMITIVE_STACK_PARENT, value)
+  end
+  
   def allocate_float(value)
     primitive_new_float(float(value))
   end
   
   def allocate_string(value)
     primitive_new_string(string_constant(value), int(value.size + 1))
+  end
+  
+  def allocate_context(arguments_size, function)
+    primitive_new_context(int(arguments_size), cast(function, SPELL_VALUE))
   end
   
   def string_constant(value)
@@ -150,11 +180,21 @@ class FunctionBuilderWrapper
     gep(string, int(0), int(0))
   end
   
-  private
-  
-  def random_const_name
-    base = rand.to_s
-    "const_" + base[2, base.length - 2]
+  def explicit_stack(arguments_size, bindings_size)
+    stack = set_bookmark(:stack, variable_malloc(SPELL_STACK, int(arguments_size + bindings_size)))
+    store(builder.load(get_global(:stack)), gep(stack, int(0), int(0, :size => 32)))
+    store(stack, get_global(:stack))
+    arguments_size.times do |index|
+      store(arg(index), stack_at(index))
+    end
   end
   
+  def stack_at(index)
+    gep(variable_box_pointer(get_bookmark(:stack)), int(index))
+  end
+  
+  def context_stack_at(stack, index)
+    gep(variable_box_pointer(stack), int(index))
+  end
+    
 end

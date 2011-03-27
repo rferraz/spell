@@ -1,0 +1,14 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+  do
+		assert#equal 5 (apply (up#one 2) 3)
+		assert#equal 6 (apply (up#two 2) 3)
+	with
+		up#one (value) = { argument | argument + value }
+		up#two (value) = { argument | apply { | value + argument + binding } }
+		  with
+		    binding <- 1
+		

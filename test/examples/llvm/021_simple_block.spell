@@ -1,0 +1,15 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+  do
+		assert#equal  1 (apply { | 1 })
+		assert#equal  2 (apply { a | a } 2)
+		assert#equal  3 (apply { a b | a + b } 1 2)
+		assert#equal  6 (apply { a b c | a + b + c } 1 2 3)
+		assert#equal 10 (apply { a b c d | a + b + c + d } 1 2 3 4)
+		assert#equal 15 (apply { a b c d e | a + b + c + d + e } 1 2 3 4 5)
+		assert#equal 21 (apply { a b c d e f | a + b + c + d + e + f} 1 2 3 4 5 6)
+		assert#equal 28 (apply { a b c d e f g | a + b + c + d + e + f + g } 1 2 3 4 5 6 7)
+		assert#equal 36 (apply { a b c d e f g h | a + b + c + d + e + f + g + h } 1 2 3 4 5 6 7 8)
