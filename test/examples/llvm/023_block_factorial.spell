@@ -1,0 +1,13 @@
+# Result: integer, 1
+
+import "assertions"
+
+main () = 
+  do
+    assert#equal 3628800 (apply factorial 10)
+  with
+    factorial <- { value | 
+      ? value == 1 -> 1
+      ?          _ -> value * (apply factorial (value - 1))
+    }
+

@@ -82,6 +82,26 @@ class LLVMCodeGenerator
     @method
   end
   
+  def closures
+    @closures ||= []
+  end
+  
+  def enter_closure(closure)
+    closures << closure
+  end
+
+  def leave_closure
+    closures.pop
+  end
+  
+  def current_closure
+    closures.last
+  end
+  
+  def in_closure?
+    !closures.empty?
+  end
+  
   def build_any(ast)
     send("build_#{ast.class.name.demodulize.underscore}", ast)
   end
@@ -130,10 +150,16 @@ class LLVMCodeGenerator
     name = random_closure_name
     module_builder.function [SPELL_VALUE] * (closure.arguments_size + 1), SPELL_VALUE, name do |f|
       enter_builder(f)
+      enter_closure(closure)
       begin
         builder.explicit_stack(closure.arguments_size, 0)
-        builder.returns(build_list(closure.body).last)
+        if closure.body.first.is_a?(Ast::Case)
+          build_list(closure.body)
+        else
+          builder.returns(build_list(closure.body).last)
+        end
       ensure
+        leave_closure
         leave_builder
       end
     end
@@ -172,7 +198,7 @@ class LLVMCodeGenerator
   
   def build_load(load)
     if load.type == :const
-      value = current_method.literal_frame[load.index]
+      value = in_closure? ? current_closure.literal_frame[load.index] : current_method.literal_frame[load.index]
       case value
       when ::Fixnum
         builder.int2ptr(int(mask_int(value)), SPELL_VALUE)
