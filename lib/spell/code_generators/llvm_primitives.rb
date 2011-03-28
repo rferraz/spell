@@ -232,9 +232,23 @@ class LLVMPrimitivesBuilder
           f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(0))), int(1)), :array, :exception)
         }
         f.block(:array) {
-          f.returns(f.call(PRIMITIVE_ARRAY_ACCESS, f.arg(0), int(0)))
+          f.condition(f.icmp(:eq, f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY)), int(0)), :emptyarray, :arrayhead)
+        }
+        f.block(:emptyarray) {
+          f.primitive_raise(f.allocate_string("Head can't be called for an empty array"))
+          f.unreachable
         }
         f.block(:string) {
+          f.condition(f.icmp(:eq, f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)), int(0)), :emptystring, :stringhead)
+        }
+        f.block(:emptystring) {
+          f.primitive_raise(f.allocate_string("Head can't be called for an empty string"))
+          f.unreachable
+        }
+        f.block(:arrayhead) {
+          f.returns(f.call(PRIMITIVE_ARRAY_ACCESS, f.arg(0), int(0)))
+        }
+        f.block(:stringhead) {
           f.returns(f.primitive_new_string(f.unbox_variable(f.arg(0), SPELL_STRING), int(2)))
         }
         f.block(:exception) {
