@@ -57,6 +57,7 @@ PRIMITIVE_NOT = "spell.not"
 
 PRIMITIVE_ARRAY_ACCESS = "spell.array.access"
 PRIMITIVE_ARRAY_CONCAT = "spell.array.concat"
+PRIMITIVE_ARRAY_CONS = "spell.array.cons"
 
 PRIMITIVE_DICTIONARY_ACCESS = "spell.dictionary.access"
 

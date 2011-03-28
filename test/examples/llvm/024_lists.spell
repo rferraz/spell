@@ -44,6 +44,14 @@ test#concat () =
 	assert#equal 1 (head [] ++ [1, 2])
 	assert#equal 2 (head (tail [1] ++ [2]))
 	
+test#cons () = 
+  do
+	assert#equal 1 (length 1 : [])
+	assert#equal 2 (length 1 : [2])
+	assert#equal 3 (length 1 : [2, 3])
+	assert#equal 1 (head 1 : [])
+	assert#equal 2 (head (tail 1 : [2]))
+	
 main () = 
   do
     test#length
@@ -51,3 +59,4 @@ main () =
 	test#head
 	test#tail
 	test#concat
+	test#cons

@@ -632,6 +632,27 @@ class LLVMPrimitivesBuilder
           f.unreachable
         }
       end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ARRAY_CONS do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(1))), int(1)), :cons, :exception)
+        }
+        f.block(:cons) {
+          length = f.load(f.variable_length_pointer(f.arg(1), SPELL_ARRAY))
+          new_length = f.add(length, int(1))
+          array = f.primitive_new_array(new_length)
+          array_pointer = f.cast(f.unbox_variable(array, SPELL_ARRAY), SPELL_VALUE)
+          original_pointer = f.cast(f.unbox_variable(f.arg(1), SPELL_ARRAY), SPELL_VALUE)
+          offset = f.size_of_values(int(1))
+          size = f.size_of_values(length)
+          f.store(f.arg(0), f.gep(array_pointer, int(0)))
+          f.call("memcpy", f.gep(array_pointer, offset), original_pointer, size)
+          f.returns(array)
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Cons's second operand must be an array"))
+          f.unreachable
+        }
+      end
     end
 
     def build_dictionary_primitives(builder)

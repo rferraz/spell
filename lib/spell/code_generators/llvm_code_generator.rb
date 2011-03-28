@@ -12,7 +12,7 @@ class LLVMCodeGenerator
     "<=" => PRIMITIVE_LESS_THAN_OR_EQUAL_TO,
     ">=" => PRIMITIVE_GREATER_THAN_OR_EQUAL_TO,
     "++" => PRIMITIVE_ARRAY_CONCAT,
-    ":" => PRIMITIVE_ARRAY_CONCAT, # Implementation detail
+    ":" => PRIMITIVE_ARRAY_CONS,
     PRIMITIVE_LENGTH => PRIMITIVE_LENGTH
   }
   
