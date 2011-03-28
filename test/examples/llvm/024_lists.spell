@@ -1,0 +1,40 @@
+# Result: integer, true
+
+import "assertions"
+
+test#length () = 
+  do
+    assert#equal 0 (length "")
+    assert#equal 1 (length "a")
+    assert#equal 2 (length "ab")
+    assert#equal 3 (length "abc")
+	assert#equal 0 (length [])
+	assert#equal 1 (length [1])
+	assert#equal 2 (length [1, 2])
+	assert#equal 3 (length [1, 2, 3])
+
+test#empty () = 
+  do
+	assert (empty []) "[] is empty"
+	assert (not (empty [1])) "[1] is not empty"	
+	assert (empty "") "\"\" is empty"
+	assert (not (empty "a")) "\"a\" is not empty"
+
+test#head () =
+  do
+	assert#equal 1 (head [1])
+	assert#equal 2 (head [2, 1])
+	assert#equal "1" (head "1")
+	assert#equal "2" (head "21")
+	
+test#tail () =
+  do
+	assert#equal "2" (head (tail "12"))
+	assert#equal "2" (head (tail ["1", "2"]))
+	
+main () = 
+  do
+    test#length
+	test#empty
+	test#head
+	test#tail

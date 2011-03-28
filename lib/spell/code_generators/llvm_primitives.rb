@@ -16,6 +16,7 @@ class LLVMPrimitivesBuilder
       build_array_primitives(builder)
       build_dictionary_primitives(builder)
       build_closure_primitives(builder)
+      build_variable_primitives(builder)
     end
 
     def build_main(builder)
@@ -219,6 +220,93 @@ class LLVMPrimitivesBuilder
           f.primitive_raise(f.arg(1))
           f.unreachable
         }
+      end
+    end
+    
+    def build_variable_primitives(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_HEAD do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)
+        }
+        f.block(:maybearray) {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(0))), int(1)), :array, :exception)
+        }
+        f.block(:array) {
+          f.returns(f.call(PRIMITIVE_ARRAY_ACCESS, f.arg(0), int(0)))
+        }
+        f.block(:string) {
+          f.returns(f.primitive_new_string(f.unbox_variable(f.arg(0), SPELL_STRING), int(2)))
+        }
+        f.block(:exception) {
+          # FIX: display operand
+          f.primitive_raise(f.allocate_string("Invalid argument"))
+          f.unreachable
+        }
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TAIL do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)
+        }
+        f.block(:maybearray) {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(0))), int(1)), :array, :exception)
+        }
+        f.block(:array) {
+          f.condition(f.icmp(:eq, f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY)), int(0)), :emptyarray, :arraytail)
+        }
+        f.block(:emptyarray) {
+          f.primitive_raise(f.allocate_string("Tail can't be called for an empty array"))
+          f.unreachable
+        }
+        f.block(:string) {
+          f.condition(f.icmp(:eq, f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)), int(0)), :emptystring, :stringtail)
+        }
+        f.block(:emptystring) {
+          f.primitive_raise(f.allocate_string("Tail can't be called for an empty string"))
+          f.unreachable
+        }
+        f.block(:arraytail) {
+          length = f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))
+          new_length = f.sub(length, int(1))
+          array = f.primitive_new_array(new_length)
+          array_pointer = f.cast(f.unbox_variable(array, SPELL_ARRAY), SPELL_VALUE)
+          original_pointer = f.cast(f.gep(f.unbox_variable(f.arg(0), SPELL_ARRAY), int(1)), SPELL_VALUE)
+          size = f.ptr2int(f.gep(pointer_type(pointer_type(SPELL_VALUE)).null_pointer, new_length), :int32)
+          f.call("memcpy", array_pointer, original_pointer, size)
+          f.returns(array)
+        }
+        f.block(:stringtail) {
+          length = f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING))
+          new_length = f.sub(length, int(1))
+          string_pointer = f.malloc_on_size(new_length)
+          f.call("memcpy", string_pointer, f.gep(f.unbox_variable(f.arg(0), SPELL_STRING), int(1)), new_length)
+          f.returns(f.primitive_new_string(string_pointer, length))
+        }
+        f.block(:exception) {
+          # FIX: display operand
+          f.primitive_raise(f.allocate_string("Invalid argument"))
+          f.unreachable
+        }
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_LENGTH do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :exception, :verify)
+        }
+        f.block(:verify) {
+          f.switch f.type_of(f.arg(0)), :exception,
+            { :on => f.flag_for(:array), :go_to => :array },
+            { :on => f.flag_for(:string), :go_to => :string }
+        }
+        f.block(:string) {
+          f.returns(f.box_int(f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING))))
+        }
+        f.block(:array) {
+          f.returns(f.box_int(f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))))
+        }
+        f.block(:exception) {
+          # FIX: display operand
+          f.primitive_raise(f.allocate_string("Invalid argument"))
+          f.unreachable
+        }        
       end
     end
     
@@ -467,6 +555,17 @@ class LLVMPrimitivesBuilder
     end   
     
     def build_array_primitives(builder)
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_IS_ARRAY do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :exception, :verify)
+        }
+        f.block(:verify) {
+          f.returns(f.box_int(f.zext(f.icmp(:eq, f.flag_for(:array), f.type_of(f.arg(0))), type_by_name(:int))))
+        }
+        f.block(:exception) {
+          f.returns(f.box_int(int(0)))
+        }
+      end
       builder.function [SPELL_VALUE, :int], SPELL_VALUE, PRIMITIVE_ARRAY_ACCESS do |f|
         f.entry {
           f.condition(f.is_int(f.arg(0)), :notanarray, :firstcheck)
@@ -492,6 +591,37 @@ class LLVMPrimitivesBuilder
           f.primitive_raise(f.allocate_string("Array access out of bounds"))
           f.unreachable
         }
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ARRAY_CONCAT do |f|
+        f.returns(SPELL_VALUE.null_pointer)
+        # f.entry {
+        #   f.condition(f.is_int(f.arg(0)), :exception, :firstcheck)
+        # }
+        # f.block(:firstcheck) {
+        #   f.condition(f.is_int(f.arg(1)), :exception, :secondcheck)
+        # }
+        # f.block(:secondcheck) {
+        #   f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:array)), :thirdcheck, :exception)
+        # }
+        # f.block(:thirdcheck) {
+        #   f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:array)), :concat, :exception)
+        # }
+        # f.block(:concat) {
+        #   length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))
+        #   length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_ARRAY))
+        #   new_length = f.add(f.add(length1, length2), int(1))
+        #   array = f.primitive_new_array(new_length)
+        #   array_pointer = f.variable_box_pointer(array)
+        #   f.call("memset", array_pointer, int(0), new_length)
+        #   f.call("memcpy", array_pointer, f.unbox_variable(f.arg(0), SPELL_ARRAY), length1)
+        #   f.call("memcpy", f.gep(array_pointer, length1), f.unbox_variable(f.arg(1), SPELL_ARRAY), length2)
+        #   f.returns(f.cast(array, SPELL_VALUE))
+        # }
+        # f.block(:exception) {
+        #   # FIX: display operands
+        #   f.primitive_raise(f.allocate_string("Can't concat unless both operands are arrays"))
+        #   f.unreachable
+        # }
       end
     end
 

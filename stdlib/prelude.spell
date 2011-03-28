@@ -12,6 +12,14 @@ is#string (value) = <primitive: spell.is.string>
 
 hash (string) = <primitive: spell.hash>
 
+length (value) = <primitive: spell.length>
+
+empty (value) = (length value) == 0
+
+head (value) = <primitive: spell.head>
+
+tail (value) = <primitive: spell.tail>
+
 inspect (value) = 
 	? is#string value -> "\"" + value + "\""
 	?								_ -> to#string value

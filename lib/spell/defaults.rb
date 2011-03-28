@@ -26,6 +26,7 @@ PRIMITIVE_NEW_CONTEXT = "spell.new.context"
 PRIMITIVE_CONCAT = "spell.concat"
 
 PRIMITIVE_IS_STRING = "spell.is.string"
+PRIMITIVE_IS_ARRAY = "spell.is.array"
 
 PRIMITIVE_EQUALS = "spell.equals"
 PRIMITIVE_NOT_EQUALS = "spell.not.equals"
@@ -55,7 +56,13 @@ PRIMITIVE_TO_STRING = "spell.to.string"
 PRIMITIVE_NOT = "spell.not"
 
 PRIMITIVE_ARRAY_ACCESS = "spell.array.access"
+PRIMITIVE_ARRAY_CONCAT = "spell.array.concat"
+
 PRIMITIVE_DICTIONARY_ACCESS = "spell.dictionary.access"
+
+PRIMITIVE_LENGTH = "spell.length"
+PRIMITIVE_HEAD = "spell.head"
+PRIMITIVE_TAIL = "spell.tail"
 
 PRIMITIVE_SPELL_APPLY_ROOT = "spell.apply."
 PRIMITIVE_SPELL_APPLY_MAX_DIRECT_PARAMETERS = 8
