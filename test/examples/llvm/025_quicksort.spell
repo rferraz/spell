@@ -1,0 +1,24 @@
+# Result: integer, true
+
+import "assertions"
+
+filter (predicate list) = 
+  ? empty list                  -> list
+  ? apply predicate (head list) -> (head list) : filter predicate (tail list)
+  ?                           _ -> filter predicate (tail list)
+
+quicksort (array) =
+  ? length array <= 1 -> array
+  ?                       _ -> quicksort' array
+  with
+    quicksort' (array) = (quicksort smaller) ++ [pivot] ++ (quicksort bigger)
+      with
+        pivot <- array[(length array) / 2]
+        smaller <- filter { element | element < pivot } array
+        bigger <- filter { element | element > pivot } array
+
+main () = 
+  do
+    assert#equal 6 sorted[0] + sorted[4]
+  with
+    sorted <- quicksort [4, 5, 1, 2, 3]
