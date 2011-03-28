@@ -32,9 +32,22 @@ test#tail () =
 	assert#equal "2" (head (tail "12"))
 	assert#equal "2" (head (tail ["1", "2"]))
 	
+test#concat () = 
+  do
+	assert#equal 0 (length [] ++ [])
+	assert#equal 1 (length [1] ++ [])
+	assert#equal 1 (length [] ++ [1])
+	assert#equal 2 (length [1] ++ [1])
+	assert#equal 4 (length [1] ++ [2, 3, 4])
+	assert#equal 4 (length [1, 2, 3] ++ [4])
+	assert#equal 1 (head [1] ++ [2])
+	assert#equal 1 (head [] ++ [1, 2])
+	assert#equal 2 (head (tail [1] ++ [2]))
+	
 main () = 
   do
     test#length
 	test#empty
 	test#head
 	test#tail
+	test#concat

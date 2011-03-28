@@ -284,7 +284,7 @@ class LLVMPrimitivesBuilder
           array = f.primitive_new_array(new_length)
           array_pointer = f.cast(f.unbox_variable(array, SPELL_ARRAY), SPELL_VALUE)
           original_pointer = f.cast(f.gep(f.unbox_variable(f.arg(0), SPELL_ARRAY), int(1)), SPELL_VALUE)
-          size = f.ptr2int(f.gep(pointer_type(pointer_type(SPELL_VALUE)).null_pointer, new_length), :int32)
+          size = f.size_of_values(new_length)
           f.call("memcpy", array_pointer, original_pointer, size)
           f.returns(array)
         }
@@ -607,35 +607,30 @@ class LLVMPrimitivesBuilder
         }
       end
       builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ARRAY_CONCAT do |f|
-        f.returns(SPELL_VALUE.null_pointer)
-        # f.entry {
-        #   f.condition(f.is_int(f.arg(0)), :exception, :firstcheck)
-        # }
-        # f.block(:firstcheck) {
-        #   f.condition(f.is_int(f.arg(1)), :exception, :secondcheck)
-        # }
-        # f.block(:secondcheck) {
-        #   f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:array)), :thirdcheck, :exception)
-        # }
-        # f.block(:thirdcheck) {
-        #   f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:array)), :concat, :exception)
-        # }
-        # f.block(:concat) {
-        #   length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))
-        #   length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_ARRAY))
-        #   new_length = f.add(f.add(length1, length2), int(1))
-        #   array = f.primitive_new_array(new_length)
-        #   array_pointer = f.variable_box_pointer(array)
-        #   f.call("memset", array_pointer, int(0), new_length)
-        #   f.call("memcpy", array_pointer, f.unbox_variable(f.arg(0), SPELL_ARRAY), length1)
-        #   f.call("memcpy", f.gep(array_pointer, length1), f.unbox_variable(f.arg(1), SPELL_ARRAY), length2)
-        #   f.returns(f.cast(array, SPELL_VALUE))
-        # }
-        # f.block(:exception) {
-        #   # FIX: display operands
-        #   f.primitive_raise(f.allocate_string("Can't concat unless both operands are arrays"))
-        #   f.unreachable
-        # }
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(0))), int(1)), :secondparam, :exception)
+        }
+        f.block(:secondparam) {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(1))), int(1)), :botharrays, :exception)          
+        }
+        f.block(:botharrays) {
+          length1 = f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY))
+          length2 = f.load(f.variable_length_pointer(f.arg(1), SPELL_ARRAY))
+          new_length = f.add(length1, length2)
+          array = f.primitive_new_array(new_length)
+          array_pointer = f.cast(f.unbox_variable(array, SPELL_ARRAY), SPELL_VALUE)
+          original_pointer1 = f.cast(f.unbox_variable(f.arg(0), SPELL_ARRAY), SPELL_VALUE)
+          original_pointer2 = f.cast(f.unbox_variable(f.arg(1), SPELL_ARRAY), SPELL_VALUE)
+          size1 = f.size_of_values(length1)
+          size2 = f.size_of_values(length2)
+          f.call("memcpy", array_pointer, original_pointer1, size1)
+          f.call("memcpy", f.gep(array_pointer, size1), original_pointer2, size2)
+          f.returns(array)
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Concat operands must be arrays"))
+          f.unreachable
+        }
       end
     end
 
