@@ -9,7 +9,7 @@ filter (predicate list) =
 
 quicksort (array) =
   ? length array <= 1 -> array
-  ?                       _ -> quicksort' array
+  ?                 _ -> quicksort' array
   with
     quicksort' (array) = (quicksort smaller) ++ [pivot] ++ (quicksort bigger)
       with

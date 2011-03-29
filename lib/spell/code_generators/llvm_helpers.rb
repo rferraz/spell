@@ -185,12 +185,17 @@ class FunctionBuilderWrapper
   end
   
   def explicit_stack(arguments_size, bindings_size)
+    old_stack = set_bookmark(:old_stack, builder.load(get_global(:stack)))
     stack = set_bookmark(:stack, variable_malloc(SPELL_STACK, int(arguments_size + bindings_size)))
-    store(builder.load(get_global(:stack)), gep(stack, int(0), int(0, :size => 32)))
+    store(old_stack, gep(stack, int(0), int(0, :size => 32)))
     store(stack, get_global(:stack))
     arguments_size.times do |index|
       store(arg(index), stack_at(index))
     end
+  end
+  
+  def unwind_stack
+    store(get_bookmark(:old_stack), get_global(:stack))
   end
   
   def stack_at(index)

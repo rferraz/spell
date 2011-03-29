@@ -140,7 +140,9 @@ class LLVMCodeGenerator
           if method.body.first.is_a?(Ast::Case)
             build_list(method.body)
           else
-            f.returns(build_list(method.body).last)
+            return_value = build_list(method.body).last
+            f.unwind_stack
+            f.returns(return_value)
           end
         ensure
           leave_builder
@@ -168,7 +170,9 @@ class LLVMCodeGenerator
         if closure.body.first.is_a?(Ast::Case)
           build_list(closure.body)
         else
-          builder.returns(build_list(closure.body).last)
+          return_value = build_list(closure.body).last
+          f.unwind_stack
+          builder.returns(return_value)
         end
       ensure
         leave_closure
@@ -203,7 +207,9 @@ class LLVMCodeGenerator
         end
       end
       builder.block("result" + index.to_s) do
-        builder.returns(build_any(item.result))
+        return_value = build_any(item.result)
+        builder.unwind_stack
+        builder.returns(return_value)
       end
     end
   end
