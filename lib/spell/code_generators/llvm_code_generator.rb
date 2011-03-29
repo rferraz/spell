@@ -105,6 +105,10 @@ class LLVMCodeGenerator
     !closures.empty?
   end
   
+  def preemptively_define(method)
+    module_builder.function([SPELL_VALUE] * method.arguments_size, SPELL_VALUE, method_name(method))
+  end
+  
   def build_any(ast)
     send("build_#{ast.class.name.demodulize.underscore}", ast)
   end
@@ -114,24 +118,29 @@ class LLVMCodeGenerator
   end
   
   def build_program(program)
+    program.statements.each do |statement|
+      if statement.is_a?(Ast::Method) && !statement.body.first.is_a?(Ast::Primitive)
+        preemptively_define(statement)
+      end
+    end
     build_list(program.statements)
     LLVMPrimitivesBuilder.build_main(builder)
   end
   
   def build_method(method)
-    name = method.name == ORIGINAL_MAIN_METHOD_NAME ? MAIN_METHOD_NAME : method.name
+    name = method_name(method)
     enter_method(method)
     if method.body.first.is_a?(Ast::Primitive)
       define_primitive(method.name, method.body.first.name)
     else
-      builder.function [SPELL_VALUE] * method.arguments_size, SPELL_VALUE, name do |f|
+      builder.with(name) do |f|
         enter_builder(f)
         begin
-          builder.explicit_stack(method.arguments_size, method.bindings_size)
+          f.explicit_stack(method.arguments_size, method.bindings_size)
           if method.body.first.is_a?(Ast::Case)
             build_list(method.body)
           else
-            builder.returns(build_list(method.body).last)
+            f.returns(build_list(method.body).last)
           end
         ensure
           leave_builder
@@ -268,6 +277,10 @@ class LLVMCodeGenerator
   
   def new_context(closure, function)
     builder.allocate_context(closure.arguments_size, function)
+  end
+  
+  def method_name(method)
+    method.name == ORIGINAL_MAIN_METHOD_NAME ? MAIN_METHOD_NAME : method.name
   end
   
 end
