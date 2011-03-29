@@ -125,8 +125,8 @@ class FunctionBuilderWrapper
     call(PRIMITIVE_NEW_DICTIONARY, size)
   end
   
-  def primitive_new_context(arguments_size, function_pointer)
-    call(PRIMITIVE_NEW_CONTEXT, arguments_size, function_pointer)
+  def primitive_new_context(arguments_size, function_pointer, parent_context)
+    call(PRIMITIVE_NEW_CONTEXT, arguments_size, function_pointer, parent_context)
   end
   
   def primitive_raise(string_pointer)
@@ -164,6 +164,10 @@ class FunctionBuilderWrapper
   def primitive_stack_parent(value)
     call(PRIMITIVE_STACK_PARENT, value)
   end
+
+  def primitive_context_parent(value)
+    call(PRIMITIVE_CONTEXT_PARENT, value)
+  end
   
   def allocate_float(value)
     primitive_new_float(float(value))
@@ -173,8 +177,10 @@ class FunctionBuilderWrapper
     primitive_new_string(string_constant(value), int(value.size + 1))
   end
   
-  def allocate_context(arguments_size, function)
-    primitive_new_context(int(arguments_size), cast(function, SPELL_VALUE))
+  def allocate_context(arguments_size, function, in_closure)
+    primitive_new_context(int(arguments_size), 
+                          cast(function, SPELL_VALUE), 
+                          in_closure ? arg(:last) : SPELL_VALUE.null_pointer)
   end
   
   def string_constant(value)

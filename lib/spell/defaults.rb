@@ -69,6 +69,7 @@ PRIMITIVE_SPELL_APPLY_ROOT = "spell.apply."
 PRIMITIVE_SPELL_APPLY_MAX_DIRECT_PARAMETERS = 8
 
 PRIMITIVE_STACK_PARENT = "spell.stack.parent"
+PRIMITIVE_CONTEXT_PARENT = "spell.context.parent"
 
 PRIMITIVE_HASH = "spell.hash"
 
@@ -83,7 +84,7 @@ SPELL_EXCEPTION = struct_type(:int, pointer_type(SPELL_STRING))
 SPELL_FLOAT = struct_type(:int, :float)
 SPELL_ARRAY = struct_type(:int, :int, array_type(SPELL_VALUE, 0))
 SPELL_DICTIONARY = struct_type(:int, :int, array_type(struct_type(SPELL_VALUE, SPELL_VALUE), 0))
-SPELL_CONTEXT = struct_type(:int, pointer_type(SPELL_STACK), SPELL_VALUE, :int)
+SPELL_CONTEXT = recursive_type { |me| struct_type(:int, pointer_type(SPELL_STACK), SPELL_VALUE, :int, pointer_type(me)) }
 
 MEMORY_ROOT = "__root__"
 

@@ -3,7 +3,9 @@ class LLVMPrimitivesBuilder
   class << self
     
     def build(builder)
+      build_general_primitives(builder)
       build_stack_primitives(builder)
+      build_context_primitives(builder)
       build_exception_primitives(builder)
       build_memory_primitives(builder)
       build_allocation_primitives(builder)
@@ -36,6 +38,16 @@ class LLVMPrimitivesBuilder
     end
     
     protected
+    
+    def build_general_primitives(builder)
+      builder.external :printf, [pointer_type(:int8)], :int32, :varargs => true
+    end
+    
+    def build_context_primitives(builder)
+      builder.function [pointer_type(SPELL_CONTEXT)], pointer_type(SPELL_CONTEXT), PRIMITIVE_CONTEXT_PARENT do |f|
+        f.returns(f.load(f.gep(f.arg(0), int(0), int(4, :size => 32))))
+      end
+    end
     
     def build_stack_primitives(builder)
       builder.global :stack, pointer_type(SPELL_STACK) do
@@ -102,12 +114,13 @@ class LLVMPrimitivesBuilder
         f.store(f.arg(0), f.variable_length_pointer(pointer, SPELL_DICTIONARY))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
-      builder.function [:int, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_CONTEXT do |f|
+      builder.function [:int, SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_NEW_CONTEXT do |f|
         pointer = f.malloc(SPELL_CONTEXT)
         f.store(f.flag_for(:context), f.flag_pointer(pointer))
         f.store(f.load(f.get_global(:stack)), f.box_pointer(pointer))
         f.store(f.arg(1), f.nth_box_pointer(pointer, 2))
         f.store(f.arg(0), f.nth_box_pointer(pointer, 3))
+        f.store(f.cast(f.arg(2), pointer_type(SPELL_CONTEXT)), f.nth_box_pointer(pointer, 4))
         f.returns(f.cast(pointer, SPELL_VALUE))
       end
     end    
@@ -461,8 +474,12 @@ class LLVMPrimitivesBuilder
           f.returns(f.primitive_new_float(f.send(float_operator, f.get_bookmark(:p1), p2)))
         }
         f.block(:exception) {
-          # FIX: display operands
-          f.primitive_raise(f.allocate_string("Invalid numeric operation"))
+          p1 = f.allocate_string("Invalid numeric operation (#{name}); args: ")
+          p2 = f.primitive_to_string(f.arg(0))
+          p3 = f.allocate_string(", ")
+          p4 = f.primitive_to_string(f.arg(1))
+          error = f.primitive_concat(f.primitive_concat(f.primitive_concat(p1, p2), p3), p4)
+          f.primitive_raise(error)
           f.unreachable
         }
       end
@@ -562,8 +579,7 @@ class LLVMPrimitivesBuilder
           f.returns(f.arg(0))
         }
         f.block(:exception) {
-          f.primitive_raise(f.primitive_concat(f.allocate_string("Unknown type: "), f.primitive_to_string(f.box_int(f.type_of(f.arg(0))))))
-          f.unreachable
+          f.returns(f.primitive_concat(f.allocate_string("<Unknown type>: "), f.primitive_to_string(f.box_int(f.type_of(f.arg(0))))))
         }
       end
     end   

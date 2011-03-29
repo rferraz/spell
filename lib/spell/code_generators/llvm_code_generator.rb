@@ -266,10 +266,11 @@ class LLVMCodeGenerator
   end
   
   def build_up(up)
-    context_stack = builder.unbox(builder.arg(:last), SPELL_CONTEXT)
+    context = builder.cast(builder.arg(:last), pointer_type(SPELL_CONTEXT))
     (1...up.distance).each do
-      context_stack = builder.primitive_stack_parent(context_stack)
+      context = builder.primitive_context_parent(context)
     end
+    context_stack = builder.unbox(context, SPELL_CONTEXT)
     builder.load(builder.context_stack_at(context_stack, up.index))
   end
   
@@ -282,7 +283,7 @@ class LLVMCodeGenerator
   end
   
   def new_context(closure, function)
-    builder.allocate_context(closure.arguments_size, function)
+    builder.allocate_context(closure.arguments_size, function, in_closure?)
   end
   
   def method_name(method)
