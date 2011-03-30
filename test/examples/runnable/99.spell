@@ -12,6 +12,6 @@ verse (number) =
     this#bottle <- (to#string (bottles number))
     next#bottle <- (to#string (bottles (number - 1)))
 
-main () = map { number | show (verse number) } (range 1 99)
+main () = map { number | show (verse number) } (range 99 1)
 
 

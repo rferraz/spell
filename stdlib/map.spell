@@ -1,6 +1,10 @@
 range (first last) =
-  ? first <= last -> first : (range (first + 1) last)
-  ?             _ -> []
+  ? first <= last -> range' first last
+  ?             _ -> reverse (range' last first)
+  with
+    range' (first last) =
+      ? first <= last -> first : (range' (first + 1) last)
+      ?             _ -> []
 
 map (predicate list) = 
   ? empty list -> list

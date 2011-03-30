@@ -35,11 +35,12 @@ def create_interpreter(code, debug, stdlib_path)
   primitives = {
       "show" => lambda { |value| print value ; value },
       "range" => lambda { |bottom, top| bottom <= top ? (bottom..top).to_a : (top..bottom).to_a.reverse },
-      "string" => lambda { |value| value.to_s },
+      "to#string" => lambda { |value| value.to_s },
       "empty" => lambda { |list| list.empty? },
       "head" => lambda { |list| list.first },
       "tail" => lambda { |list| first, *rest = list ; rest },
       ":" => lambda { |element, list| list.unshift(element) ; list },
+      "reverse" => lambda { |list| list.reverse },
       "math#sqrt" => Math.method(:sqrt),
       "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" },
       "assert" => lambda { |v, m| v || raise(m) }
