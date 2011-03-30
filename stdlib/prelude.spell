@@ -20,6 +20,8 @@ head (value) = <primitive: spell.head>
 
 tail (value) = <primitive: spell.tail>
 
+reverse (value) = <primitive: spell.reverse>
+
 show (value) = <primitive: spell.show>
 
 inspect (value) = 

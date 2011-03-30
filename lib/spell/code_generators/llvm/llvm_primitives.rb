@@ -259,6 +259,92 @@ class LLVMPrimitivesBuilder
     end
     
     def build_variable_primitives(builder)
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_REVERSE + ".string" do |f|
+        f.entry {
+          length = f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_STRING)))
+          fixed_length = f.set_bookmark(:fixed_length, f.sub(length, int(1)))
+          new_length = f.add(length, int(1))
+          string_pointer = f.unbox_variable(f.arg(0), SPELL_STRING)
+          f.set_bookmark(:copy, f.primitive_new_string(string_pointer, new_length))
+          f.set_bookmark(:copy_pointer, f.unbox_variable(f.get_bookmark(:copy), SPELL_STRING))
+          f.condition(f.icmp(:sgt, length, int(1)), :setup, :done)
+        }
+        f.block(:setup) {
+          f.set_bookmark(:reference_length, f.sub(f.get_bookmark(:length), int(2)))
+          f.branch(:loop)
+        }
+        f.block(:loop) {
+          from_index = f.partial_phi :int, { :on => int(0), :return_from => :setup }
+          from_pointer = f.gep(f.get_bookmark(:copy_pointer), from_index)
+          to_index = f.sub(f.get_bookmark(:fixed_length), from_index)
+          to_pointer = f.gep(f.get_bookmark(:copy_pointer), to_index)
+          from = f.load(from_pointer)
+          to = f.load(to_pointer)
+          f.store(from, to_pointer)
+          f.store(to, from_pointer)
+          up_index = f.add(from_index, int(1))
+          down_index = f.sdiv(f.sub(f.get_bookmark(:reference_length), from_index), int(2))
+          f.add_incoming from_index, { :on => up_index, :return_from => :loop }
+          f.condition(f.icmp(:sgt, down_index, up_index), :loop, :done)                                    
+        }
+        f.block(:done) {
+          f.returns(f.get_bookmark(:copy))
+        }
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_REVERSE + ".array" do |f|
+        f.entry {
+          length = f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY)))
+          fixed_length = f.set_bookmark(:fixed_length, f.sub(length, int(1)))
+          array = f.primitive_new_array(length)
+          array_pointer = f.cast(f.unbox_variable(array, SPELL_ARRAY), SPELL_VALUE)
+          original_pointer = f.cast(f.unbox_variable(f.arg(0), SPELL_ARRAY), SPELL_VALUE)
+          size = f.size_of_values(length)
+          f.call("memcpy", array_pointer, original_pointer, size)
+          f.set_bookmark(:copy, array)
+          f.set_bookmark(:copy_pointer, f.unbox_variable(f.get_bookmark(:copy), SPELL_ARRAY))
+          f.condition(f.icmp(:sgt, length, int(1)), :setup, :done)
+        }
+        f.block(:setup) {
+          f.set_bookmark(:reference_length, f.sub(f.get_bookmark(:length), int(2)))
+          f.branch(:loop)
+        }
+        f.block(:loop) {
+          from_index = f.partial_phi :int, { :on => int(0), :return_from => :setup }
+          from_pointer = f.gep(f.get_bookmark(:copy_pointer), from_index)
+          to_index = f.sub(f.get_bookmark(:fixed_length), from_index)
+          to_pointer = f.gep(f.get_bookmark(:copy_pointer), to_index)
+          from = f.load(from_pointer)
+          to = f.load(to_pointer)
+          f.store(from, to_pointer)
+          f.store(to, from_pointer)
+          up_index = f.add(from_index, int(1))
+          down_index = f.sdiv(f.sub(f.get_bookmark(:reference_length), from_index), int(2))
+          f.add_incoming from_index, { :on => up_index, :return_from => :loop }
+          f.condition(f.icmp(:sgt, down_index, up_index), :loop, :done)                                    
+        }
+        f.block(:done) {
+          f.returns(f.get_bookmark(:copy))
+        }      
+      end
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_REVERSE do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)
+        }        
+        f.block(:maybearray) {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_ARRAY, f.arg(0))), int(1)), :array, :exception)
+        }
+        f.block(:string) {
+          f.returns(f.call(PRIMITIVE_REVERSE + ".string", f.arg(0)))
+        }
+        f.block(:array) {
+          f.returns(f.call(PRIMITIVE_REVERSE + ".array", f.arg(0)))
+        }
+        f.block(:exception) {
+          # FIX: display operand
+          f.primitive_raise(f.allocate_string("Invalid argument"))
+          f.unreachable
+        }
+      end
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_HEAD do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)

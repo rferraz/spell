@@ -67,6 +67,7 @@ PRIMITIVE_DICTIONARY_ACCESS = "spell.dictionary.access"
 PRIMITIVE_LENGTH = "spell.length"
 PRIMITIVE_HEAD = "spell.head"
 PRIMITIVE_TAIL = "spell.tail"
+PRIMITIVE_REVERSE = "spell.reverse"
 
 PRIMITIVE_SPELL_APPLY_ROOT = "spell.apply."
 PRIMITIVE_SPELL_APPLY_MAX_DIRECT_PARAMETERS = 8
