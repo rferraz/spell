@@ -14,6 +14,9 @@ require 'optparse'
     opts.on("-d", "--dump", "Dump bytecode") do |d|
       $options[:dump] = d
     end
+    opts.on("-j", "--jit", "Use LLVM") do |j|
+      $options[:jit] = j
+    end    
     opts.on_tail("-h", "--help", "Show this message") do
       puts opts
       exit
@@ -22,27 +25,32 @@ require 'optparse'
 
 require "spell"
 
-def primitives
-  {
-    "show" => lambda { |value| print value ; value },
-    "range" => lambda { |bottom, top| bottom <= top ? (bottom..top).to_a : (top..bottom).to_a.reverse },
-    "string" => lambda { |value| value.to_s },
-    "null" => lambda { |list| list.empty? },
-    "head" => lambda { |list| list.first },
-    "tail" => lambda { |list| first, *rest = list ; rest },
-    ":" => lambda { |element, list| list.unshift(element) ; list },
-    "math#sqrt" => Math.method(:sqrt),
-    "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" },
-    "assert" => lambda { |v, m| v || raise(m) }
-  }
+def run
+  options = [ARGF.read, $options[:debug], Dir[File.join(File.dirname(__FILE__), "..", "stdlib")]]
+  engine = $options[:jit] ? create_compiler(*options) : create_interpreter(*options)
+  engine.send($options[:dump] ? :dump : :run)
 end
 
-def run
-  interpreter = Interpreter.new(ARGF.read,
-                                $options[:debug],
-                                Dir[File.join(File.dirname(__FILE__), "..", "stdlib")])
+def create_interpreter(code, debug, stdlib_path)
+  primitives = {
+      "show" => lambda { |value| print value ; value },
+      "range" => lambda { |bottom, top| bottom <= top ? (bottom..top).to_a : (top..bottom).to_a.reverse },
+      "string" => lambda { |value| value.to_s },
+      "null" => lambda { |list| list.empty? },
+      "head" => lambda { |list| list.first },
+      "tail" => lambda { |list| first, *rest = list ; rest },
+      ":" => lambda { |element, list| list.unshift(element) ; list },
+      "math#sqrt" => Math.method(:sqrt),
+      "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" },
+      "assert" => lambda { |v, m| v || raise(m) }
+  }
+  interpreter = Interpreter.new(code, debug, stdlib_path)
   interpreter.attach_primitives(primitives)
-  interpreter.send($options[:dump] ? :dump : :run)
+  interpreter
+end
+
+def create_compiler(code, debug, stdlib_path)
+  Compiler.new(code, debug, stdlib_path)
 end
 
 if $0 == __FILE__

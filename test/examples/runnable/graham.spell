@@ -1,3 +1,5 @@
+import "math"
+
 cross#product (rp pa pb) = ((pa.x - rp.x) * (pb.y - rp.y)) - ((pb.x - rp.x) * (pa.y - rp.y))
 
 distance#from (pa pb) = math#sqrt (((pa.x - pb.x) ** 2) + ((pa.y - pb.y) ** 2))
@@ -7,7 +9,7 @@ compare#cross#product (rp pa pb) =
   ?             _ -> angle
   with
     angle <- compare (cross#product rp pa pb) 0
-    distance <- compare (distance#from pa) (distance#from pb)
+    distance <- compare (distance#from rp pa) (distance#from rp pb)
 
 direction#from#to (pa pb pc) =
   ? cp > 0 -> "right"

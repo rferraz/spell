@@ -13,7 +13,7 @@ compare#cross#product (rp pa pb) =
   ?             _ -> angle
   with
     angle <- compare (cross#product rp pa pb) 0
-    distance <- compare (distance#from pa) (distance#from pb)
+    distance <- compare (distance#from rp pa) (distance#from rp pb)
 
 direction#from#to (pa pb pc) =
   ? cp > 0 -> "right"

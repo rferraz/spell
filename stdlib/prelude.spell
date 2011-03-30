@@ -20,6 +20,8 @@ head (value) = <primitive: spell.head>
 
 tail (value) = <primitive: spell.tail>
 
+show (value) = <primitive: spell.show>
+
 inspect (value) = 
 	? is#string value -> "\"" + value + "\""
 	?								_ -> to#string value

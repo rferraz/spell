@@ -76,6 +76,8 @@ PRIMITIVE_CONTEXT_PARENT = "spell.context.parent"
 
 PRIMITIVE_HASH = "spell.hash"
 
+PRIMITIVE_SHOW = "spell.show"
+
 MALLOC_TYPE = :int8
 
 SPELL_VALUE = pointer_type(MALLOC_TYPE)

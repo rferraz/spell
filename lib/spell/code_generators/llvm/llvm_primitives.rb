@@ -11,6 +11,7 @@ class LLVMPrimitivesBuilder
       build_allocation_primitives(builder)
       build_string_primitives(builder)
       build_conversion_primitives(builder)
+      build_io_primitives(builder)
       build_numeric_primitives(builder)
       build_equality_primitives(builder)
       build_assertion_primitives(builder)
@@ -405,6 +406,13 @@ class LLVMPrimitivesBuilder
       end
     end
     
+    def build_io_primitives(builder)
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_SHOW do |f|
+        f.call("printf", f.string_constant("%s"), f.unbox_variable(f.primitive_to_string(f.arg(0)), SPELL_STRING))
+        f.returns(f.arg(0))
+      end
+    end
+    
     def build_numeric_primitives(builder)
       build_numeric_primitive(builder, PRIMITIVE_PLUS, :add, :fadd)
       build_numeric_primitive(builder, PRIMITIVE_MINUS, :sub, :fsub)
@@ -734,7 +742,7 @@ class LLVMPrimitivesBuilder
           original_pointer = f.cast(f.unbox_variable(f.arg(1), SPELL_ARRAY), SPELL_VALUE)
           offset = f.size_of_values(int(1))
           size = f.size_of_values(length)
-          f.store(f.arg(0), f.gep(array_pointer, int(0)))
+          f.store(f.arg(0), f.unbox_variable(array, SPELL_ARRAY))
           f.call("memcpy", f.gep(array_pointer, offset), original_pointer, size)
           f.returns(array)
         }
@@ -813,7 +821,7 @@ class LLVMPrimitivesBuilder
             f.condition(f.icmp(:eq, f.unbox_nth(f.arg(0), SPELL_CONTEXT, 3), int(index)), :invoke, :blockmismatch)
           }
           f.block(:invoke) {
-            function = f.cast(f.unbox_nth(f.arg(0), SPELL_CONTEXT, 2), pointer_type(function_type([SPELL_VALUE] * index, SPELL_VALUE)))
+            function = f.cast(f.unbox_nth(f.arg(0), SPELL_CONTEXT, 2), pointer_type(function_type([SPELL_VALUE] * (index + 1), SPELL_VALUE)))
             arguments = (0...index).collect { |i| f.arg(i + 1) }
             arguments << f.arg(0)
             f.returns(f.call(function, *arguments))

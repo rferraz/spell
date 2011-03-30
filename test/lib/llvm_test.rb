@@ -2,10 +2,6 @@ require File.join(File.dirname(__FILE__), "..", "test_helper")
 
 class LLVMTestCase < Test::Unit::TestCase
 
-  def setup
-    LLVM.init_x86
-  end
-  
   SCRIPTS_PATH = File.join(File.dirname(__FILE__), "..", "examples", "llvm", "*.spell")
   STDLIB_PATH = File.join(File.dirname(__FILE__), "..", "..", "stdlib")
   
@@ -28,17 +24,9 @@ class LLVMTestCase < Test::Unit::TestCase
 
   end
   
-  def execute(code, debug)
-    builder = PassManager.
-      chain(Prelude).
-      chain(Parser, [STDLIB_PATH]).
-      chain(Analyzer, LLVMCodeGenerator::PRIMITIVES).
-      chain(LLVMCodeGenerator, PrimitiveBuilder).
-      run(code)
-    builder.instance_variable_get(:@module).dump if debug
-    result = LLVM::ExecutionEngine.
-      create_jit_compiler(builder.verified_module).
-      run_function(builder.default_function)
+  def execute(code, dump)
+    compiler = Compiler.new(code, false, STDLIB_PATH)
+    result = dump ? compiler.dump : compiler.run
     result.to_ptr.read_pointer
   end
 
@@ -117,12 +105,5 @@ class LLVMTestCase < Test::Unit::TestCase
     end
   end
   
-  class PrimitiveBuilder
-    
-    def self.build(builder)
-    end
-    
-  end
-
 end
 

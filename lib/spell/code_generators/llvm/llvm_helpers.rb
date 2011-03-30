@@ -94,7 +94,7 @@ class FunctionBuilderWrapper
   end
   
   def size_of_values(length)
-    ptr2int(gep(pointer_type(pointer_type(SPELL_VALUE)).null_pointer, length), :int32)
+    ptr2int(gep(pointer_type(pointer_type(SPELL_VALUE)).null_pointer, length), :int)
   end
   
   def both_ints(value1, value2)
