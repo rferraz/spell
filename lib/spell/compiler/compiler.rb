@@ -25,7 +25,7 @@ class Compiler
       chain(Prelude).
       chain(Parser, @root_paths).
       chain(Analyzer, LLVMCodeGenerator::PRIMITIVES).
-      chain(LLVMCodeGenerator).
+      chain(LLVMCodeGenerator, @debug).
       chain(LLVMRunner, dump)
   end
   

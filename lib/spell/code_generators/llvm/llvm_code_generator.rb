@@ -19,8 +19,9 @@ class LLVMCodeGenerator
   
   PRIMITIVES = PRIMITIVES_MAPPINGS.keys + ["apply"]
   
-  def initialize(primitive_builder_class = nil)
+  def initialize(test_main = false, primitive_builder_class = nil)
     @primitive_builder_class = primitive_builder_class
+    @test_main = test_main
     @defined_primitives = {}
   end
   
@@ -125,7 +126,11 @@ class LLVMCodeGenerator
       end
     end
     build_list(program.statements)
-    LLVMPrimitivesBuilder.build_main(builder)
+    if @test_main
+      LLVMPrimitivesBuilder.build_test_main(builder)
+    else
+      LLVMPrimitivesBuilder.build_main(builder)
+    end
   end
   
   def build_method(method)

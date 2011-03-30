@@ -36,7 +36,7 @@ def create_interpreter(code, debug, stdlib_path)
       "show" => lambda { |value| print value ; value },
       "range" => lambda { |bottom, top| bottom <= top ? (bottom..top).to_a : (top..bottom).to_a.reverse },
       "string" => lambda { |value| value.to_s },
-      "null" => lambda { |list| list.empty? },
+      "empty" => lambda { |list| list.empty? },
       "head" => lambda { |list| list.first },
       "tail" => lambda { |list| first, *rest = list ; rest },
       ":" => lambda { |element, list| list.unshift(element) ; list },

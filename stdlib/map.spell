@@ -1,3 +1,8 @@
+range (first last) =
+  ? first <= last -> first : (range (first + 1) last)
+  ?             _ -> []
+
 map (predicate list) = 
-  ? null list -> list
+  ? empty list -> list
   ?         _ -> (apply predicate (head list)) : (map predicate (tail list))
+

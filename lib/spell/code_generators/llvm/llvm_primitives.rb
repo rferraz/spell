@@ -22,7 +22,7 @@ class LLVMPrimitivesBuilder
       build_variable_primitives(builder)
     end
 
-    def build_main(builder)
+    def build_test_main(builder)
       builder.function [], pointer_type(MALLOC_TYPE), ORIGINAL_MAIN_METHOD_NAME do |f|
         f.entry {
           setjmp = f.call(:setjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)))
@@ -33,7 +33,26 @@ class LLVMPrimitivesBuilder
           f.returns(f.call(MAIN_METHOD_NAME))
         }
         f.block(:exception) {
-          f.returns(f.cast(builder.get_global(:exception), pointer_type(:int8)))
+          f.returns(f.cast(builder.get_global(:exception), SPELL_VALUE))
+        }
+      end
+    end
+    
+    def build_main(builder)
+      builder.function [], :int, ORIGINAL_MAIN_METHOD_NAME do |f|
+        f.entry {
+          setjmp = f.call(:setjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)))
+          f.set_bookmark(:setjmp, setjmp)
+          f.condition(f.icmp(:eq, int(0, :size => 32), setjmp), :normal, :exception)
+        }
+        f.block(:normal) {
+          f.call(MAIN_METHOD_NAME)
+          f.returns(int(0))
+        }
+        f.block(:exception) {
+          error = f.unbox_variable(f.unbox(builder.get_global(:exception), SPELL_EXCEPTION), SPELL_STRING)
+          f.call("printf", f.string_constant("%d"), error)
+          f.returns(int(1))
         }
       end
     end
@@ -240,7 +259,7 @@ class LLVMPrimitivesBuilder
     end
     
     def build_variable_primitives(builder)
-      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_HEAD do |f|
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_HEAD do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)
         }
@@ -273,7 +292,7 @@ class LLVMPrimitivesBuilder
           f.unreachable
         }
       end
-      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TAIL do |f|
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TAIL do |f|
         f.entry {
           f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :maybearray)
         }
