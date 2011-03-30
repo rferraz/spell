@@ -13,6 +13,7 @@ class LLVMCodeGenerator
     ">=" => PRIMITIVE_GREATER_THAN_OR_EQUAL_TO,
     "++" => PRIMITIVE_ARRAY_CONCAT,
     ":" => PRIMITIVE_ARRAY_CONS,
+    "**" => PRIMITIVE_POWER,
     PRIMITIVE_LENGTH => PRIMITIVE_LENGTH
   }
   
@@ -137,13 +138,7 @@ class LLVMCodeGenerator
         enter_builder(f)
         begin
           f.explicit_stack(method.arguments_size, method.bindings_size)
-          if method.body.first.is_a?(Ast::Case)
-            build_list(method.body)
-          else
-            return_value = build_list(method.body).last
-            f.unwind_stack
-            f.returns(return_value)
-          end
+          build_body(method.body)
         ensure
           leave_builder
         end
@@ -167,13 +162,7 @@ class LLVMCodeGenerator
       enter_closure(closure)
       begin
         builder.explicit_stack(closure.arguments_size, 0)
-        if closure.body.first.is_a?(Ast::Case)
-          build_list(closure.body)
-        else
-          return_value = build_list(closure.body).last
-          f.unwind_stack
-          builder.returns(return_value)
-        end
+        build_body(closure.body)
       ensure
         leave_closure
         leave_builder
@@ -183,7 +172,7 @@ class LLVMCodeGenerator
   end
   
   def build_case(case_statement)
-    builder.block(:entry) do
+    builder.block("case") do
       builder.branch("test0")
     end
     case_statement.items.each_with_index do |item, index|
@@ -272,6 +261,21 @@ class LLVMCodeGenerator
     end
     context_stack = builder.unbox(context, SPELL_CONTEXT)
     builder.load(builder.context_stack_at(context_stack, up.index))
+  end
+  
+  def build_body(body)
+    if body.last.is_a?(Ast::Case)
+      case_statement = body.pop
+      builder.block(:entry) do
+        build_list(body)
+        builder.branch("case")
+      end
+      build_any(case_statement)
+    else
+      return_value = build_list(body).last
+      builder.unwind_stack
+      builder.returns(return_value)
+    end
   end
   
   def build_internal_primitives

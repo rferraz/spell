@@ -41,6 +41,8 @@ class LLVMPrimitivesBuilder
     
     def build_general_primitives(builder)
       builder.external :printf, [pointer_type(:int8)], :int32, :varargs => true
+      builder.external "llvm.sqrt.f32", [:float], :float
+      builder.external "llvm.pow.f32", [:float, :float], :float
     end
     
     def build_context_primitives(builder)
@@ -408,6 +410,78 @@ class LLVMPrimitivesBuilder
       build_numeric_primitive(builder, PRIMITIVE_MINUS, :sub, :fsub)
       build_numeric_primitive(builder, PRIMITIVE_TIMES, :mul, :fmul)
       build_numeric_primitive(builder, PRIMITIVE_DIVIDE, :udiv, :fdiv)
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_SQRT do |f|
+        f.entry {
+          f.condition(f.is_int(f.arg(0)), :int, :other)
+        }        
+        f.block(:int) {
+          f.returns(f.primitive_new_float(f.call("llvm.sqrt.f32", f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float)))))
+        }
+        f.block(:other) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:float)), :float, :exception)
+        }
+        f.block(:float) {
+          f.returns(f.primitive_new_float(f.call("llvm.sqrt.f32", f.unbox(f.arg(0), SPELL_FLOAT))))
+        }
+        f.block(:exception) {
+          f.primitive_raise(f.allocate_string("Square root requires a numeric operand"))
+          f.unreachable
+        }        
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_POWER do |f|
+        f.entry {
+          f.condition(f.both_ints(f.arg(0), f.arg(1)), :bothints, :dofirst)
+        }
+        f.block(:bothints) {
+          p1 = f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float))
+          p2 = f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float))
+          rr = f.call("llvm.pow.f32", p1, p2)
+          f.returns(f.box_int(f.fp2ui(rr, type_by_name(:int))))
+        }
+        f.block(:dofirst) {
+          f.condition(f.is_int(f.arg(0)), :p1int, :p1possiblefloat)
+        }
+        f.block(:p1int) {
+          f.set_bookmark(:p1a, f.ui2fp(f.unbox_int(f.arg(0)), type_by_name(:float)))
+          f.branch(:dosecond)
+        }
+        f.block(:p1possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(0)), f.flag_for(:float)), :p1float, :exception)
+        }
+        f.block(:p1float) {
+          f.set_bookmark(:p1b, f.unbox(f.arg(0), SPELL_FLOAT))
+          f.branch(:dosecond)
+        }
+        f.block(:dosecond) {
+          p1 = f.phi :float,
+                 { :on => f.get_bookmark(:p1a), :return_from => :p1int },
+                 { :on => f.get_bookmark(:p1b), :return_from => :p1float }
+          f.set_bookmark(:p1, p1)
+          f.condition(f.is_int(f.arg(1)), :p2int, :p2possiblefloat)
+        }
+        f.block(:p2int) {
+          f.set_bookmark(:p2a, f.ui2fp(f.unbox_int(f.arg(1)), type_by_name(:float)))
+          f.branch(:result)
+        }
+        f.block(:p2possiblefloat) {
+          f.condition(f.icmp(:eq, f.type_of(f.arg(1)), f.flag_for(:float)), :p2float, :exception)
+        }
+        f.block(:p2float) {
+          f.set_bookmark(:p2b, f.unbox(f.arg(1), SPELL_FLOAT))
+          f.branch(:result)
+        }
+        f.block(:result) {
+          p2 = f.phi :float,
+                { :on => f.get_bookmark(:p2a), :return_from => :p2int },
+                { :on => f.get_bookmark(:p2b), :return_from => :p2float }
+          f.returns(f.primitive_new_float(f.call("llvm.pow.f32", f.get_bookmark(:p1), p2)))
+        }
+        f.block(:exception) {
+          # FIX: display operands
+          f.primitive_raise(f.allocate_string("Power requires numeric operands"))
+          f.unreachable
+        }
+      end      
     end
     
     def build_numeric_primitive(builder, name, int_operator, float_operator)

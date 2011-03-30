@@ -23,3 +23,8 @@ tail (value) = <primitive: spell.tail>
 inspect (value) = 
 	? is#string value -> "\"" + value + "\""
 	?								_ -> to#string value
+	
+compare (a b) = 
+	? a > b -> "gt"
+	? a < b -> "lt"
+	?     _ -> "eq"
