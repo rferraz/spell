@@ -157,6 +157,12 @@ class LLVMCodeGenerator
               else
                 is_primitive?(invoke.message) ? defined_primitives[invoke.message] : invoke.message
               end
+    expected_arguments_size = module_builder.get_function(message).params.size
+    actual_arguments_size = invoke.parameters.size
+    if expected_arguments_size != actual_arguments_size
+      message = "Method #{invoke.message} expected #{expected_arguments_size} arguments but was called with #{actual_arguments_size}"
+      raise SpellArgumentMistatch.new(message)
+    end
     builder.call(message, *build_list(invoke.parameters))
   end
   
