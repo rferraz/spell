@@ -4,8 +4,6 @@ import "assertions"
 
 main () = 
   do
-    assert#equal "11" (int#to#string 11)
 		assert#equal "12" (to#string 12)
-		assert#equal "10.5" (float#to#string 10.5)
 		assert#equal "11.5" (to#string 11.5)
 		assert#equal "430463985701" (to#string 430463985701)

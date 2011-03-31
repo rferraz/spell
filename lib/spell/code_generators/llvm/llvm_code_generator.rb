@@ -110,7 +110,7 @@ class LLVMCodeGenerator
   end
   
   def preemptively_define(method)
-    module_builder.function([SPELL_VALUE] * method.arguments_size, SPELL_VALUE, method_name(method))
+    module_builder.function([SPELL_VALUE] * method.arguments_size, SPELL_VALUE, method_name(method)) { }
   end
   
   def build_any(ast)

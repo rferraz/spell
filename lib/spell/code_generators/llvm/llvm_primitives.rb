@@ -9,6 +9,7 @@ class LLVMPrimitivesBuilder
       build_exception_primitives(builder)
       build_memory_primitives(builder)
       build_allocation_primitives(builder)
+      build_array_primitives(builder)
       build_string_primitives(builder)
       build_conversion_primitives(builder)
       build_io_primitives(builder)
@@ -16,7 +17,6 @@ class LLVMPrimitivesBuilder
       build_equality_primitives(builder)
       build_assertion_primitives(builder)
       build_comparison_primitives(builder)
-      build_array_primitives(builder)
       build_dictionary_primitives(builder)
       build_closure_primitives(builder)
       build_variable_primitives(builder)
@@ -748,6 +748,53 @@ class LLVMPrimitivesBuilder
         size = f.call("sprintf", pointer, f.string_constant("%g"), f.fp_ext(f.unbox(f.arg(0), SPELL_FLOAT), type_by_name(:double)))
         f.returns(f.cast(f.primitive_new_string(pointer, f.add(f.zext(size, type_by_name(:int)), int(1))), SPELL_VALUE))
       end
+      
+      # Forward declarations
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TO_STRING
+      builder.function [SPELL_VALUE], SPELL_VALUE, "inspect"
+      
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ARRAY_TO_STRING do |f|
+        f.entry {
+          length = f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY)))
+           f.switch length, :setup,
+             { :on => int(0), :go_to => :empty },
+             { :on => int(1), :go_to => :one }
+        }
+        f.block(:empty) {
+          f.returns(f.allocate_string("[]"))
+        }
+        f.block(:one) {
+          p1 = f.allocate_string("[")
+          p2 = f.primitive_to_string(f.primitive_array_access(f.arg(0), int(0)))
+          p3 = f.allocate_string("]")
+          f.returns(f.primitive_concat(f.primitive_concat(p1, p2), p3))
+        }
+        f.block(:setup) {
+          f.set_bookmark(:reference_length, f.sub(f.get_bookmark(:length), int(1)))
+          f.set_bookmark(:initial_result, f.allocate_string(""))
+          f.branch(:loop)
+        }
+        f.block(:loop) {
+          index = f.partial_phi :int, { :on => int(0), :return_from => :setup }
+          result = f.partial_phi SPELL_VALUE, { :on => f.get_bookmark(:initial_result), :return_from => :setup }
+          f.set_bookmark(:index, index)
+          f.set_bookmark(:result, result)
+          next_index = f.add(index, int(1))
+          next_result = f.primitive_concat(f.primitive_concat(f.get_bookmark(:result), 
+                                                              f.call("inspect", f.primitive_array_access(f.arg(0), index))),
+                                           f.allocate_string(", "))
+          f.add_incoming index, { :on => next_index, :return_from => :loop }         
+          f.add_incoming result, { :on => next_result, :return_from => :loop }
+          f.condition(f.icmp(:eq, next_index, f.get_bookmark(:length)), :done, :loop)
+        }
+        f.block(:done) {
+          p1 = f.allocate_string("[")
+          p2 = f.primitive_concat(f.get_bookmark(:result), 
+                                  f.call("inspect", f.primitive_array_access(f.arg(0), f.get_bookmark(:index))))
+          p3 = f.allocate_string("]")
+          f.returns(f.primitive_concat(f.primitive_concat(p1, p2), p3))
+        }
+      end
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TO_STRING do |f|
         f.entry {
           f.condition(f.is_int(f.arg(0)), :int, :other)
@@ -758,7 +805,8 @@ class LLVMPrimitivesBuilder
         f.block(:other) {
           f.switch f.type_of(f.arg(0)), :exception,
             { :on => f.flag_for(:float), :go_to => :float },
-            { :on => f.flag_for(:string), :go_to => :string }
+            { :on => f.flag_for(:string), :go_to => :string },
+            { :on => f.flag_for(:array), :go_to => :array }            
         }
         f.block(:float) {
           f.returns(f.call(PRIMITIVE_FLOAT_TO_STRING, f.arg(0)))
@@ -766,6 +814,9 @@ class LLVMPrimitivesBuilder
         f.block(:string) {
           f.returns(f.arg(0))
         }
+        f.block(:array) {
+          f.returns(f.call(PRIMITIVE_ARRAY_TO_STRING, f.arg(0)))
+        }        
         f.block(:exception) {
           f.returns(f.primitive_concat(f.allocate_string("<Unknown type>: "), f.primitive_to_string(f.box_int(f.type_of(f.arg(0))))))
         }
