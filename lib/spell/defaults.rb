@@ -69,6 +69,9 @@ PRIMITIVE_HEAD = "spell.head"
 PRIMITIVE_TAIL = "spell.tail"
 PRIMITIVE_REVERSE = "spell.reverse"
 
+PRIMITIVE_AND = "spell.and"
+PRIMITIVE_OR = "spell.or"
+
 PRIMITIVE_SPELL_APPLY_ROOT = "spell.apply."
 PRIMITIVE_SPELL_APPLY_MAX_DIRECT_PARAMETERS = 8
 

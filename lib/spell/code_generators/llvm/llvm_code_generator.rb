@@ -11,6 +11,8 @@ class LLVMCodeGenerator
     ">" => PRIMITIVE_GREATER_THAN,
     "<=" => PRIMITIVE_LESS_THAN_OR_EQUAL_TO,
     ">=" => PRIMITIVE_GREATER_THAN_OR_EQUAL_TO,
+    "&&" => PRIMITIVE_AND,
+    "||" => PRIMITIVE_OR,    
     "++" => PRIMITIVE_ARRAY_CONCAT,
     ":" => PRIMITIVE_ARRAY_CONS,
     "**" => PRIMITIVE_POWER,

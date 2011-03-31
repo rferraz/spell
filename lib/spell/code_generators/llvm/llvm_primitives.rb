@@ -20,6 +20,7 @@ class LLVMPrimitivesBuilder
       build_dictionary_primitives(builder)
       build_closure_primitives(builder)
       build_variable_primitives(builder)
+      build_boolean_primitive(builder)
     end
 
     def build_test_main(builder)
@@ -946,6 +947,19 @@ class LLVMPrimitivesBuilder
             f.unreachable
           }
         end
+      end
+    end
+    
+    def build_boolean_primitive(builder)
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_AND do |f|
+        p1 = f.trunc(f.unbox_int(f.arg(0)), type_by_name(:int1))
+        p2 = f.trunc(f.unbox_int(f.arg(1)), type_by_name(:int1))        
+        f.returns(f.box_int(f.zext(f.and(p1, p2), type_by_name(:int))))
+      end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_OR do |f|
+        p1 = f.trunc(f.unbox_int(f.arg(0)), type_by_name(:int1))
+        p2 = f.trunc(f.unbox_int(f.arg(1)), type_by_name(:int1))        
+        f.returns(f.box_int(f.zext(f.or(p1, p2), type_by_name(:int))))
       end
     end
     

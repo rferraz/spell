@@ -97,6 +97,7 @@ grammar Spell
 
   rule value
     "(" spaces? expression spaces? ")" <ParenthesizedExpression> / 
+    ("true" / "false") <BooleanLiteral> /
     call / 
     literal
   end

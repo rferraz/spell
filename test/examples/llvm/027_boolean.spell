@@ -1,0 +1,14 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+  do
+    assert (true && true) "true && true"
+    assert (not (true && false)) "not true && false"
+    assert (not (false && true)) "not false && true"
+    assert (not (false && false)) "not false && false"
+    assert (true || true) "true || true"
+    assert (true || false) "true || false"
+    assert (false || true) "false || true"
+    assert (not (false && false)) "not false || false"    
