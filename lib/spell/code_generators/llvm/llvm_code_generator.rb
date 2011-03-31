@@ -253,6 +253,7 @@ class LLVMCodeGenerator
       item_pointer = builder.gep(dictionary_pointer, int(index))
       builder.store(builder.primitive_hash(builder.allocate_string(item.name)), builder.gep(item_pointer, int(0), int(0, :size => 32)))
       builder.store(builder.cast(build_any(item.expression), SPELL_VALUE), builder.gep(item_pointer, int(0), int(1, :size => 32)))
+      builder.store(builder.allocate_string(item.name), builder.gep(item_pointer, int(0), int(2, :size => 32)))
     end
     pointer
   end
