@@ -54,6 +54,7 @@ PRIMITIVE_ASSERT = "spell.assert"
 PRIMITIVE_INT_TO_STRING = "spell.int.to.string"
 PRIMITIVE_FLOAT_TO_STRING = "spell.float.to.string"
 PRIMITIVE_ARRAY_TO_STRING = "spell.array.to.string"
+PRIMITIVE_DICTIONARY_TO_STRING = "spell.dictionary.to.string"
 
 PRIMITIVE_TO_STRING = "spell.to.string"
 PRIMITIVE_INSPECT = "spell.inspect"
