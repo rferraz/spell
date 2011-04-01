@@ -140,6 +140,10 @@ class FunctionBuilderWrapper
   def primitive_to_string(value)
     call(PRIMITIVE_TO_STRING, value)
   end
+
+  def primitive_inspect(value)
+    call(PRIMITIVE_INSPECT, value)
+  end
   
   def primitive_array_access(pointer, index)
     call(PRIMITIVE_ARRAY_ACCESS, pointer, index)

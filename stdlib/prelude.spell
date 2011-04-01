@@ -2,9 +2,11 @@ not (value) = <primitive: spell.not>
 
 assert (condition value) = <primitive: spell.assert>
 
+is#string (value) = <primitive: spell.is.string>
+
 to#string (value) = <primitive: spell.to.string>
 
-is#string (value) = <primitive: spell.is.string>
+inspect (value) = <primitive: spell.inspect>
 
 hash (string) = <primitive: spell.hash>
 
@@ -20,10 +22,6 @@ reverse (value) = <primitive: spell.reverse>
 
 show (value) = <primitive: spell.show>
 
-inspect (value) = 
-	? is#string value -> "\"" + value + "\""
-	?								_ -> to#string value
-	
 compare (a b) = 
 	? a > b -> "gt"
 	? a < b -> "lt"

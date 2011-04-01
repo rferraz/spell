@@ -56,6 +56,7 @@ PRIMITIVE_FLOAT_TO_STRING = "spell.float.to.string"
 PRIMITIVE_ARRAY_TO_STRING = "spell.array.to.string"
 
 PRIMITIVE_TO_STRING = "spell.to.string"
+PRIMITIVE_INSPECT = "spell.inspect"
 
 PRIMITIVE_NOT = "spell.not"
 

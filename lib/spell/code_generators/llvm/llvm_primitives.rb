@@ -735,6 +735,9 @@ class LLVMPrimitivesBuilder
     end
     
     def build_conversion_primitives(builder)
+      # Forward declaration
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TO_STRING
+      
       builder.external "sprintf", [SPELL_VALUE, SPELL_VALUE], :int32, :varargs => true
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_INT_TO_STRING do |f|
         pointer = f.malloc_on_size(int(16, :size => 32))
@@ -748,11 +751,17 @@ class LLVMPrimitivesBuilder
         size = f.call("sprintf", pointer, f.string_constant("%g"), f.fp_ext(f.unbox(f.arg(0), SPELL_FLOAT), type_by_name(:double)))
         f.returns(f.cast(f.primitive_new_string(pointer, f.add(f.zext(size, type_by_name(:int)), int(1))), SPELL_VALUE))
       end
-      
-      # Forward declarations
-      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_TO_STRING
-      builder.function [SPELL_VALUE], SPELL_VALUE, "inspect"
-      
+      builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_INSPECT do |f|
+        f.entry {
+          f.condition(f.icmp(:eq, f.unbox_int(f.call(PRIMITIVE_IS_STRING, f.arg(0))), int(1)), :string, :other)
+        }
+        f.block(:string) {
+          f.returns(f.primitive_concat(f.primitive_concat(f.allocate_string("\""), f.arg(0)), f.allocate_string("\"")))
+        }
+        f.block(:other) {
+          f.returns(f.primitive_to_string(f.arg(0)))
+        }
+      end      
       builder.function [SPELL_VALUE], SPELL_VALUE, PRIMITIVE_ARRAY_TO_STRING do |f|
         f.entry {
           length = f.set_bookmark(:length, f.load(f.variable_length_pointer(f.arg(0), SPELL_ARRAY)))
@@ -781,7 +790,7 @@ class LLVMPrimitivesBuilder
           f.set_bookmark(:result, result)
           next_index = f.add(index, int(1))
           next_result = f.primitive_concat(f.primitive_concat(f.get_bookmark(:result), 
-                                                              f.call("inspect", f.primitive_array_access(f.arg(0), index))),
+                                                              f.primitive_inspect(f.primitive_array_access(f.arg(0), index))),
                                            f.allocate_string(", "))
           f.add_incoming index, { :on => next_index, :return_from => :loop }         
           f.add_incoming result, { :on => next_result, :return_from => :loop }
@@ -790,7 +799,7 @@ class LLVMPrimitivesBuilder
         f.block(:done) {
           p1 = f.allocate_string("[")
           p2 = f.primitive_concat(f.get_bookmark(:result), 
-                                  f.call("inspect", f.primitive_array_access(f.arg(0), f.get_bookmark(:index))))
+                                  f.primitive_inspect(f.primitive_array_access(f.arg(0), f.get_bookmark(:index))))
           p3 = f.allocate_string("]")
           f.returns(f.primitive_concat(f.primitive_concat(p1, p2), p3))
         }
