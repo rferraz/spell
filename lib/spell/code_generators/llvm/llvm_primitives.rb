@@ -1027,6 +1027,9 @@ class LLVMPrimitivesBuilder
           f.unreachable
         }
       end
+      builder.function [SPELL_VALUE, SPELL_VALUE], SPELL_VALUE, PRIMITIVE_DICTIONARY_KEY do |f|
+        f.returns(f.primitive_dictionary_access(f.arg(1), f.arg(0)))
+      end
     end
     
     def build_closure_primitives(builder)

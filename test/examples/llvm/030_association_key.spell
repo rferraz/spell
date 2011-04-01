@@ -1,0 +1,9 @@
+# Result: integer, true
+
+import "assertions"
+
+main () = 
+  do
+		assert#equal 1 (key "a" { a: 1 })
+		assert#equal 1.1 (key "b" { a: 1; b: 1.1 })
+		assert#equal "a" (key "c" { a: 1; c: "a"; b: 1.1 })

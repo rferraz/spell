@@ -66,6 +66,7 @@ PRIMITIVE_ARRAY_CONCAT = "spell.array.concat"
 PRIMITIVE_ARRAY_CONS = "spell.array.cons"
 
 PRIMITIVE_DICTIONARY_ACCESS = "spell.dictionary.access"
+PRIMITIVE_DICTIONARY_KEY = "spell.dictionary.key"
 
 PRIMITIVE_LENGTH = "spell.length"
 PRIMITIVE_HEAD = "spell.head"
