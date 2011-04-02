@@ -71,9 +71,13 @@ require "spell/analyzer/scope"
 require "spell/analyzer/symbol_table"
 
 require "spell/code_generators/bytecode/bytecode_generator"
-require "spell/code_generators/llvm/llvm_helpers"
-require "spell/code_generators/llvm/llvm_primitives"
 require "spell/code_generators/llvm/llvm_code_generator"
+
+require "spell/llvm_support/llvm_config"
+require "spell/llvm_support/llvm_helpers"
+require "spell/llvm_support/llvm_primitives"
+require "spell/llvm_support/llvm_runner"
+require "spell/llvm_support/llvm_compiler"
 
 require "spell/interpreter/interpreter"
 require "spell/interpreter/vm"
@@ -81,6 +85,5 @@ require "spell/interpreter/frame"
 require "spell/interpreter/closure_context"
 
 require "spell/compiler/compiler"
-require "spell/compiler/runner"
 
 require "spell/prelude"

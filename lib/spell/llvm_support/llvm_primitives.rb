@@ -26,7 +26,9 @@ class LLVMPrimitivesBuilder
     def build_test_main(builder)
       builder.function [], pointer_type(MALLOC_TYPE), ORIGINAL_MAIN_METHOD_NAME do |f|
         f.entry {
-          setjmp = f.call(:setjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)))
+          f.spell_init
+          f.store(f.call("malloc", int(256, :size => 32)), builder.get_global(:jmpenv))
+          setjmp = f.call(:setjmp, f.load(builder.get_global(:jmpenv)))
           f.set_bookmark(:setjmp, setjmp)
           f.condition(f.icmp(:eq, int(0, :size => 32), setjmp), :normal, :exception)
         }
@@ -34,7 +36,7 @@ class LLVMPrimitivesBuilder
           f.returns(f.call(MAIN_METHOD_NAME))
         }
         f.block(:exception) {
-          f.returns(f.cast(builder.get_global(:exception), SPELL_VALUE))
+          f.returns(f.cast(f.load(builder.get_global(:exception)), SPELL_VALUE))
         }
       end
     end
@@ -42,7 +44,9 @@ class LLVMPrimitivesBuilder
     def build_main(builder)
       builder.function [], :int, ORIGINAL_MAIN_METHOD_NAME do |f|
         f.entry {
-          setjmp = f.call(:setjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)))
+          f.spell_init
+          f.store(f.call("malloc", int(256, :size => 32)), builder.get_global(:jmpenv))
+          setjmp = f.call(:setjmp, f.load(builder.get_global(:jmpenv)))
           f.set_bookmark(:setjmp, setjmp)
           f.condition(f.icmp(:eq, int(0, :size => 32), setjmp), :normal, :exception)
         }
@@ -51,7 +55,7 @@ class LLVMPrimitivesBuilder
           f.returns(int(0))
         }
         f.block(:exception) {
-          error = f.unbox_variable(f.unbox(builder.get_global(:exception), SPELL_EXCEPTION), SPELL_STRING)
+          error = f.unbox_variable(f.unbox(f.load(builder.get_global(:exception)), SPELL_EXCEPTION), SPELL_STRING)
           f.call("printf", f.string_constant("%d"), error)
           f.returns(int(1))
         }
@@ -84,15 +88,15 @@ class LLVMPrimitivesBuilder
     def build_exception_primitives(builder)
       builder.external :setjmp, [pointer_type(:int8)], :int32
       builder.external :longjmp, [pointer_type(:int8), :int32], :void
-      builder.global :jmpenv, [:int8] * 256 do
-        LLVM::ConstantArray.const(LLVM::Int, 256) { |i| LLVM::Int(0) }
+      builder.global :jmpenv, SPELL_VALUE do
+        SPELL_VALUE.null_pointer
       end
-      builder.global :exception, SPELL_EXCEPTION do
-        builder.constant("")
+      builder.global :exception, pointer_type(SPELL_EXCEPTION) do
+        pointer_type(SPELL_EXCEPTION).null_pointer
       end
       builder.function [SPELL_VALUE], :void, PRIMITIVE_RAISE_EXCEPTION do |f|
-        f.store(f.load(f.cast(f.arg(0), pointer_type(SPELL_EXCEPTION))), builder.get_global(:exception))
-        f.call(:longjmp, f.gep(builder.get_global(:jmpenv), int(0), int(0)), int(1, :size => 32))
+        f.store(f.cast(f.arg(0), pointer_type(SPELL_EXCEPTION)), builder.get_global(:exception))
+        f.call(:longjmp, f.load(builder.get_global(:jmpenv)), int(1, :size => 32))
         f.unreachable
       end
     end
@@ -102,7 +106,8 @@ class LLVMPrimitivesBuilder
       builder.external "memcpy", [pointer_type(:int8), pointer_type(:int8), :int], pointer_type(:int8)
       builder.external "memset", [pointer_type(:int8), :int, :int], pointer_type(:int8)
       builder.external "malloc", [:int32], SPELL_VALUE
-      builder.external "free", [SPELL_VALUE], :void
+      builder.external "spell_gc_init", [], :void
+      builder.external "spell_gc_malloc", [:int], SPELL_VALUE
     end
     
     def build_allocation_primitives(builder)

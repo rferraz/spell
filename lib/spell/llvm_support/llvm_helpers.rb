@@ -74,23 +74,23 @@ class FunctionBuilderWrapper
   end
   
   def malloc(type)
-    cast(call("malloc", size_of(type)), pointer_type(type))
+    cast(call(malloc_function, size_of(type)), pointer_type(type))
   end
   
   def variable_malloc(type, length)
-    cast(call("malloc", variable_size_of(type, length)), pointer_type(type))
+    cast(call(malloc_function, variable_size_of(type, length)), pointer_type(type))
   end
 
   def malloc_on_size(size)
-    call("malloc", trunc(size, type_by_name(:int32)))
+    call(malloc_function, trunc(size, type_by_name(malloc_size)))
   end
   
   def size_of(type)
-    ptr2int(gep(pointer_type(type).null_pointer, int(1)), :int32)
+    ptr2int(gep(pointer_type(type).null_pointer, int(1)), malloc_size)
   end
   
   def variable_size_of(type, length)
-    ptr2int(gep(pointer_type(type).null_pointer, int(0), int(2, :size => 32), length), :int32)
+    ptr2int(gep(pointer_type(type).null_pointer, int(0), int(2, :size => 32), length), malloc_size)
   end
   
   def size_of_values(length)
@@ -214,6 +214,22 @@ class FunctionBuilderWrapper
   
   def context_stack_at(stack, index)
     gep(variable_box_pointer(stack), int(index))
+  end
+  
+  def spell_init
+    if LLVMConfig.use_gc
+      call("spell_gc_init")
+    end
+  end
+  
+  protected
+  
+  def malloc_function
+    LLVMConfig.use_gc ? "spell_gc_malloc" : "malloc"
+  end
+  
+  def malloc_size
+    LLVMConfig.use_gc ? :int : :int32
   end
     
 end

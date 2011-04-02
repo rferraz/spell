@@ -25,7 +25,7 @@ class LLVMTestCase < Test::Unit::TestCase
   end
   
   def execute(code, dump)
-    compiler = Compiler.new(code, true, STDLIB_PATH)
+    compiler = Compiler.new(code, true, nil, STDLIB_PATH)
     result = dump ? compiler.dump : compiler.run
     result.to_ptr.read_pointer
   end
