@@ -6,6 +6,11 @@ range (first last) =
       ? first <= last -> first : (range' (first + 1) last)
       ?             _ -> []
 
+filter (predicate list) = 
+  ? empty list                  -> list
+  ? apply predicate (head list) -> (head list) : filter predicate (tail list)
+  ?                           _ -> filter predicate (tail list)
+
 map (predicate list) = 
   ? empty list -> list
   ?         _ -> (apply predicate (head list)) : (map predicate (tail list))
