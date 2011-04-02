@@ -101,7 +101,7 @@ The _test_ directory contains a relatively sized test suite for the language, in
 ## TO DO
 
 * Fix the syntax
-* Improve LLVM generation
+* Improve LLVM generation (most methods are pretty inneficient)
 * Create a standard library
   
 [1]: https://github.com/rferraz/ruby-llvm
