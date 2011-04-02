@@ -26,7 +26,7 @@ The example bellow demonstrates most of the features in the language:
 
     main () = 
       do
-        show sorted
+        show (inspect sorted) + "\n"
       with
         sorted <- quicksort [4, 5, 1, 2, 3]
 
@@ -57,7 +57,17 @@ Usage is pretty simple:
         -m, --mode [MODE]                Execution mode (interpret, jit, compile)
         -o, --output FILENAME            If compiling, the name of the generated executable file
         -h, --help                       Show this message
+        
+To run the example above, supposing it's on the current directory in a file named `quicksort.spell`, one would use:
+
+    ~$ ruby ./bin/spell --mode compile quicksort.spell -o quicksort
+
+There's nothing different used to run the compiled program:
+
+    ~$ ./quicksort
+    [1, 2, 3, 4, 5]
     
+    ~$
     
 There are three modes for running code:
 
