@@ -7,7 +7,7 @@ require 'optparse'
   $options = {}
   
   OptionParser.new do |opts|
-    opts.banner = "Usage: spell.rb [options] FILENAME"
+    opts.banner = "Usage: spell [options] FILENAME"
     opts.on("-D", "--debug", "Print debug information when running") do |v|
       $options[:debug] = true
     end
