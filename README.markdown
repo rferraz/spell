@@ -100,6 +100,7 @@ The _test_ directory contains a relatively sized test suite for the language, in
 
 ## TO DO
 
+* Clean code (lots of LLVM stuff that should be properly separated)
 * Fix the syntax
 * Improve LLVM generation (most methods are pretty inneficient)
 * Create a standard library
