@@ -11,7 +11,7 @@ quicksort (array) =
         bigger <- filter { element | element > pivot } array
 
 filter (predicate list) = 
-  ? null list                   -> list
+  ? empty list                  -> list
   ? apply predicate (head list) -> (head list) : filter predicate (tail list)
   ?                           _ -> filter predicate (tail list)
 

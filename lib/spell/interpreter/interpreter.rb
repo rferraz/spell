@@ -5,6 +5,7 @@ class Interpreter
     @code = code
     @root_paths = root_paths
     @primitives = {}
+    initialize_default_primitives
   end
 
   def attach_primitive(name, method)
@@ -32,6 +33,26 @@ class Interpreter
   end
   
   protected
+  
+  def initialize_default_primitives
+    primitives = {
+        "show" => lambda { |value| print value ; value },
+        "range" => lambda { |bottom, top| bottom <= top ? (bottom..top).to_a : (top..bottom).to_a.reverse },
+        "to#string" => lambda { |value| value.to_s },
+        "empty" => lambda { |list| list.empty? },
+        "head" => lambda { |list| list.first },
+        "tail" => lambda { |list| first, *rest = list ; rest },
+        "length" => lambda { |list| list.size },
+        ":" => lambda { |element, list| list.unshift(element) ; list },
+        "++" => lambda { |a, b| a + b },
+        "reverse" => lambda { |list| list.reverse },
+        "math#sqrt" => Math.method(:sqrt),
+        "math#round" => lambda { |v| v.round },
+        "compare" => lambda { |a, b| a < b ? "lt" : a > b ? "gt" : "eq" },
+        "assert" => lambda { |v, m| v || raise(m) }
+    }
+    attach_primitives(primitives)
+  end
   
   def is_dump?
     @code.starts_with?(Dumper::HEADER)
