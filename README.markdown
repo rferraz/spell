@@ -89,7 +89,7 @@ The _test_ directory contains a relatively sized test suite for the language, in
 
 ## The bad
 
-* Strange syntax; for example:
+* Weird syntax; for example:
   * Double line break required between statements
   * Comments fail in most cases
   * Mix of ugly whitespace-significant constructs
@@ -97,6 +97,11 @@ The _test_ directory contains a relatively sized test suite for the language, in
 * Missing standard library
 * No access for external libraries (libc, for example)
 * Half-baked exception support (used internally in a very limited way)
+
+## The ugly
+
+* [Lambda lifting][3] is only partially done for closures
+* Since I'm explicitly managing stack frames for use in closures, no tail recursion is possible right away. Transformation to [Continuation Passing Style][4] or the use of [Spineless Tagless G-Machine][5] (.ps) mechanics would help.
 
 ## TO DO
 
@@ -107,3 +112,6 @@ The _test_ directory contains a relatively sized test suite for the language, in
   
 [1]: https://github.com/rferraz/ruby-llvm
 [2]: http://www.hpl.hp.com/personal/Hans_Boehm/gc/
+[3]: http://en.wikipedia.org/wiki/Lambda_lifting
+[4]: http://en.wikipedia.org/wiki/Continuation-passing_style
+[5]: http://research.microsoft.com/pubs/67083/spineless-tagless-gmachine.ps.gz
