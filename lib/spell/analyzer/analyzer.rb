@@ -1,7 +1,7 @@
 class Analyzer
 
-  def initialize(*primitives)
-    @primitives = *primitives
+  def initialize(primitives = [])
+    @primitives = primitives
   end
   
   def run(ast)
