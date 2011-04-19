@@ -1,6 +1,4 @@
 require "llvm"
-require "llvm/dsl"
-require "llvm/bitcode"
 
 require "treetop"
 

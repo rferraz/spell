@@ -1,7 +1,8 @@
 require "llvm/core"
 require "llvm/execution_engine"
 require "llvm/transforms/scalar"
-require "llvm/dsl/dsl"
+require "llvm/dsl"
+require "llvm/bitcode"
 
 SPELL_EXTENSION = ".spell"
 
