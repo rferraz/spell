@@ -7,7 +7,7 @@ class LLVMCompiler
   def run(module_wrapper)
     gc = File.expand_path(File.join(__FILE__, "..", "..", "..", "..", "runtime", "bdw-gc.c"))
     bc_filename = File.join(Dir.tmpdir, "spell." + rand.to_s + ".bc")
-    module_wrapper.verified_module.write_to(bc_filename)
+    module_wrapper.verified_module.write_bitcode(bc_filename)
     system "llvmc -v -lgc #{gc} #{bc_filename} -o #{@filename}"
   end
   
