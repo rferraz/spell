@@ -1,4 +1,7 @@
 require "llvm"
+require "llvm/dsl"
+require "llvm/bitcode"
+
 require "treetop"
 
 Treetop.load File.join(File.dirname(__FILE__), "spell", "parser", "spell.treetop")
