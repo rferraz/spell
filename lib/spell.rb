@@ -1,4 +1,5 @@
 require "llvm"
+require "llvm-dsl"
 
 require "treetop"
 

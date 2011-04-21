@@ -38,7 +38,8 @@ The example bellow demonstrates most of the features in the language:
   * On Linux, there are usually pre-compiled packages
 * Ruby
 * Treetop
-* Ruby LLVM bindings (currently, [my fork][1] is necessary)
+* Ruby LLVM bindings (currently, [my fork][1] is required)
+* [Ruby LLVM bindings DSL][6]
 * [Boehm-Demers-Weiser][2] GC
   
 ## A few more details
@@ -115,3 +116,4 @@ The _test_ directory contains a relatively sized test suite for the language, in
 [3]: http://en.wikipedia.org/wiki/Lambda_lifting
 [4]: http://en.wikipedia.org/wiki/Continuation-passing_style
 [5]: http://research.microsoft.com/pubs/67083/spineless-tagless-gmachine.ps.gz
+[6]: https://github.com/rferraz/ruby-llvm-dsl
