@@ -78,7 +78,7 @@ Spell will use a small internal VM with limited primitives. Since this was used 
 
 ### JIT
 
-Spell will use LLVM, generate IR for the code and JIT-compile it. Since this is used mostly for testing purposes, the GC will be disabled, which means that all allocated memory will leak--it should matter for small programs, though.
+Spell will use LLVM, generate IR for the code and JIT-compile it. Since this is used mostly for testing purposes, the GC will be disabled, which means that all allocated memory will leak--it should not matter for small programs, though.
 
 ### Compiled
 
